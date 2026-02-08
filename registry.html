@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wedding Registry | Sal & Lauren</title>
+  <link rel="stylesheet" href="Styles.css">
+  <link rel="stylesheet" href="registry.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+  <!-- Navigation -->
+  <nav class="registry-nav">
+    <a href="index.html" class="back-link">← Back to Wedding Site</a>
+    <div class="nav-title">Sal & Lauren</div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="registry-hero">
+    <div class="registry-hero-content">
+      <h1>Our Wedding Registry</h1>
+      <p class="registry-subtitle">Thank you for celebrating with us! Your presence is the greatest gift, but if you'd
+        like to give something, here are some options we'd love.</p>
+    </div>
+  </section>
+
+  <!-- Honeymoon Fund Section -->
+  <section class="honeymoon-section" id="honeymoon">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">🚢 Honeymoon Cruise Fund</h2>
+        <p class="section-description">Help us set sail on the adventure of a lifetime! We're planning a romantic cruise
+          departing from Miami.</p>
+      </div>
+
+      <div class="honeymoon-card">
+        <div class="cruise-details">
+          <div class="cruise-icon" id="mainIcon">🛳️</div>
+          <h3 id="mainTitle">Caribbean Dream Cruise</h3>
+          <p>Departing from Miami, FL</p>
+          <div class="cruise-highlights">
+            <span class="highlight">🌴 Island Hopping</span>
+            <span class="highlight">🍽️ Fine Dining</span>
+            <span class="highlight">🌅 Ocean Sunsets</span>
+            <span class="highlight">💆 Spa Treatments</span>
+          </div>
+        </div>
+
+        <!-- Fund Tracker (Pie Chart) - Shown for General Fund -->
+        <div class="fund-tracker" id="fundTracker">
+          <div class="pie-chart-container">
+            <svg class="pie-chart" viewBox="0 0 200 200">
+              <circle class="pie-background" cx="100" cy="100" r="90"></circle>
+              <circle class="pie-progress" cx="100" cy="100" r="90" id="progressCircle"></circle>
+            </svg>
+            <div class="pie-center">
+              <div class="amount-remaining" id="amountRemaining">$5,000</div>
+              <div class="amount-label">remaining</div>
+            </div>
+          </div>
+
+          <div class="fund-stats">
+            <div class="stat">
+              <span class="stat-value" id="totalRaised">$0</span>
+              <span class="stat-label">Raised</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value" id="goalAmount">$5,000</span>
+              <span class="stat-label">Goal</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value" id="percentComplete">0%</span>
+              <span class="stat-label">Complete</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item Visual (Icon Display) - Shown for Specific Gifts -->
+        <div class="item-visual" id="itemVisual" style="display: none;">
+          <div class="item-icon-large" id="itemVisualIcon">🍷</div>
+          <div class="item-price-tag" id="itemVisualPrice">$150</div>
+          <p class="item-visual-note">Gift specific contribution</p>
+        </div>
+
+        <div class="contribution-section">
+          <h4>Contribute to Our Adventure</h4>
+
+          <!-- Gift Type Selection -->
+          <div class="gift-type-container">
+            <label for="giftTypeSelect" class="gift-label">What is this gift for?</label>
+            <select id="giftTypeSelect" class="gift-select">
+              <option value="Honeymoon Fund" data-icon="🛳️" data-price="">General Honeymoon Fund</option>
+              <option value="Wine Tasting" data-icon="🍷" data-price="150">Wine Tasting</option>
+              <option value="Cooking Class" data-icon="🍳" data-price="200">Cooking Class</option>
+              <option value="Spa Day" data-icon="💆" data-price="300">Spa Day</option>
+              <option value="Broadway Show" data-icon="🎭" data-price="250">Broadway Show</option>
+              <option value="Romantic Dinner" data-icon="🍽️" data-price="150">Romantic Dinner</option>
+            </select>
+          </div>
+
+          <!-- Amount Selection -->
+          <div class="amount-buttons">
+            <button class="amount-btn" data-amount="25">$25</button>
+            <button class="amount-btn" data-amount="50">$50</button>
+            <button class="amount-btn" data-amount="100">$100</button>
+            <button class="amount-btn" data-amount="250">$250</button>
+            <button class="amount-btn custom" data-amount="custom">Custom</button>
+          </div>
+
+          <div class="custom-amount-input" id="customAmountSection" style="display: none;">
+            <input type="number" id="customAmount" placeholder="Enter amount" min="1">
+          </div>
+
+          <!-- Donor Details Form -->
+          <div class="donor-details" id="donorDetails">
+            <input type="text" id="donorName" placeholder="Your Name" required class="donor-input">
+            <input type="email" id="donorEmail" placeholder="Your Email (for receipt)" required class="donor-input">
+            <textarea id="donorMessage" placeholder="Leave a message for the couple..." class="donor-input"
+              rows="3"></textarea>
+          </div>
+
+          <!-- Donate Button -->
+          <button id="donateBtn" class="paypal-button">
+            <img src="https://www.paypalobjects.com/webstatic/mktg/Logo/pp-logo-200px.png" alt="PayPal"
+              class="paypal-logo">
+            <span>Donate & Send Message</span>
+          </button>
+
+          <p class="contribution-note">💝 You'll be redirected to PayPal securely after submitting.</p>
+          <div id="donationMessage" style="display: none; margin-top: 15px; font-weight: 500;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Registry Stores Section -->
+  <section class="stores-section" id="stores">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">🎁 Gift Registries</h2>
+        <p class="section-description">We've registered at these stores for items to help us build our new home
+          together.</p>
+      </div>
+
+      <div class="stores-grid">
+        <!-- Amazon -->
+        <a href="https://www.amazon.com/wedding" target="_blank" class="store-card">
+          <div class="store-logo-container amazon">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon"
+              class="store-logo">
+          </div>
+          <div class="store-info">
+            <h3>Amazon</h3>
+            <p>Browse our Amazon wishlist</p>
+          </div>
+          <span class="store-arrow">→</span>
+        </a>
+
+        <!-- Target -->
+        <a href="https://www.target.com/gift-registry/wedding" target="_blank" class="store-card">
+          <div class="store-logo-container target">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Target_logo.svg" alt="Target"
+              class="store-logo">
+          </div>
+          <div class="store-info">
+            <h3>Target</h3>
+            <p>View our Target registry</p>
+          </div>
+          <span class="store-arrow">→</span>
+        </a>
+
+        <!-- Crate & Barrel -->
+        <a href="https://www.crateandbarrel.com/gift-registry" target="_blank" class="store-card">
+          <div class="store-logo-container crate">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Crate_and_Barrel_logo.svg"
+              alt="Crate & Barrel" class="store-logo">
+          </div>
+          <div class="store-info">
+            <h3>Crate & Barrel</h3>
+            <p>Explore our home essentials</p>
+          </div>
+          <span class="store-arrow">→</span>
+        </a>
+
+        <!-- Bed Bath & Beyond / Overstock -->
+        <a href="https://www.bedbathandbeyond.com/store/registry/wedding" target="_blank" class="store-card">
+          <div class="store-logo-container bbb">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/6/69/Overstock_logo.svg" alt="Overstock"
+              class="store-logo">
+          </div>
+          <div class="store-info">
+            <h3>Overstock</h3>
+            <p>Shop our home registry</p>
+          </div>
+          <span class="store-arrow">→</span>
+        </a>
+
+        <!-- Williams Sonoma -->
+        <a href="https://www.williams-sonoma.com/registry" target="_blank" class="store-card">
+          <div class="store-logo-container williams">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Williams-Sonoma_Logo.svg"
+              alt="Williams Sonoma" class="store-logo">
+          </div>
+          <div class="store-info">
+            <h3>Williams Sonoma</h3>
+            <p>Kitchen & entertaining</p>
+          </div>
+          <span class="store-arrow">→</span>
+        </a>
+
+        <!-- Pottery Barn -->
+        <a href="https://www.potterybarn.com/registry" target="_blank" class="store-card">
+          <div class="store-logo-container pottery">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/8/84/Pottery_Barn_Logo.svg" alt="Pottery Barn"
+              class="store-logo">
+          </div>
+          <div class="store-info">
+            <h3>Pottery Barn</h3>
+            <p>Home furniture & decor</p>
+          </div>
+          <span class="store-arrow">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Experience Gifts Section -->
+  <section class="experiences-section" id="experiences">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">✨ Experience Gifts</h2>
+        <p class="section-description">Gift us an experience to enjoy together! These create lasting memories.</p>
+      </div>
+
+      <div class="experiences-grid">
+        <div class="experience-card">
+          <div class="experience-icon">🍷</div>
+          <h3>Wine Tasting</h3>
+          <p>A romantic winery tour for two</p>
+          <span class="experience-price">$150</span>
+        </div>
+        <div class="experience-card">
+          <div class="experience-icon">🍳</div>
+          <h3>Cooking Class</h3>
+          <p>Learn to cook together</p>
+          <span class="experience-price">$200</span>
+        </div>
+        <div class="experience-card">
+          <div class="experience-icon">💆</div>
+          <h3>Spa Day</h3>
+          <p>Couples massage & relaxation</p>
+          <span class="experience-price">$300</span>
+        </div>
+        <div class="experience-card">
+          <div class="experience-icon">🎭</div>
+          <h3>Broadway Show</h3>
+          <p>Tickets to a show</p>
+          <span class="experience-price">$250</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Thank You Section -->
+  <section class="thankyou-section">
+    <div class="container">
+      <div class="thankyou-content">
+        <div class="hearts">💕</div>
+        <h2>Thank You!</h2>
+        <p>Your love and support mean the world to us. We can't wait to celebrate with you!</p>
+        <p class="signature">With love, Sal & Lauren</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="registry-footer">
+    <div class="container">
+      <p>Sal & Lauren | March 20th, 2027</p>
+      <p>Questions? <a href="mailto:sal.caramucci@gmail.com">sal.caramucci@gmail.com</a></p>
+    </div>
+  </footer>
+
+  <script src="registry.js"></script>
+</body>
+
+</html>
