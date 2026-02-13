@@ -46,6 +46,28 @@
   <!-- Main Content (hidden until password entered) -->
   <div id="mainContent" class="main-content hidden">
 
+    <!-- Sticky Navigation Bar -->
+    <nav class="navbar" id="navbar">
+      <div class="nav-container">
+        <a href="#home" class="nav-logo">S & L</a>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+          <span class="nav-toggle-bar"></span>
+          <span class="nav-toggle-bar"></span>
+          <span class="nav-toggle-bar"></span>
+        </button>
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="#home" class="nav-link active">Home</a></li>
+          <li><a href="#our-story" class="nav-link">Our Story</a></li>
+          <li><a href="#venue" class="nav-link">Venue</a></li>
+          <li><a href="#travel" class="nav-link">Travel</a></li>
+          <li><a href="#faq" class="nav-link">FAQ</a></li>
+          <li><a href="#rsvp" class="nav-link nav-cta">RSVP</a></li>
+          <li><a href="registry.html" class="nav-link">Registry</a></li>
+        </ul>
+      </div>
+    </nav>
+
+
     <!-- Countdown Timer - Top Right -->
     <div id="countdownCorner" class="countdown-corner">
       <div class="countdown-corner-item">
@@ -138,40 +160,91 @@
       </div>
     </section>
 
-    <!-- Photo Gallery Section -->
-    <section class="gallery-section fade-in-scroll" id="gallery">
+    <!-- Our Story Timeline Section -->
+    <section class="timeline-section fade-in-scroll" id="our-story">
       <div class="container">
-        <h2 class="section-title">Our Journey Together</h2>
-        <div class="gallery-grid">
-          <div class="gallery-item" data-caption="1 Year Anniversary">
-            <img src="Pictures/1 Year Aniversery.JPG" alt="1 Year Anniversary" class="gallery-img">
-            <div class="gallery-overlay">
-              <p>1 Year Anniversary</p>
+        <h2 class="section-title">Our Story</h2>
+        <p class="timeline-subtitle">A journey of love, laughter, and adventure</p>
+
+        <div class="timeline">
+          <div class="timeline-item fade-in-scroll">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-image">
+                <img src="Pictures/Lauren and Sal Meeting Mom and Dad.png" alt="Meeting the Parents" loading="lazy">
+              </div>
+              <div class="timeline-text">
+                <span class="timeline-date">The Beginning</span>
+                <h3>Meeting the Parents</h3>
+                <p>The moment our families came together — a sign of beautiful things to come.</p>
+              </div>
             </div>
           </div>
-          <div class="gallery-item" data-caption="Lauren - 1 Year Anniversary">
-            <img src="Pictures/1 Year Aniversery Solo Pic Lauren.JPG" alt="Lauren 1 Year Anniversary"
-              class="gallery-img">
-            <div class="gallery-overlay">
-              <p>Lauren - 1 Year Anniversary</p>
+
+          <div class="timeline-item fade-in-scroll">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-image">
+                <img src="Pictures/1 Year Aniversery.JPG" alt="1 Year Anniversary" loading="lazy">
+              </div>
+              <div class="timeline-text">
+                <span class="timeline-date">1 Year Together</span>
+                <h3>Our First Anniversary</h3>
+                <p>Celebrating 365 days of love, growth, and unforgettable memories together.</p>
+              </div>
             </div>
           </div>
-          <div class="gallery-item" data-caption="Miami Trip">
-            <img src="Pictures/Miami Trip 4 People.png" alt="Miami Trip" class="gallery-img">
-            <div class="gallery-overlay">
-              <p>Miami Trip</p>
+
+          <div class="timeline-item fade-in-scroll">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-image">
+                <img src="Pictures/1 Year Aniversery Solo Pic Lauren.JPG" alt="Lauren" loading="lazy">
+              </div>
+              <div class="timeline-text">
+                <span class="timeline-date">Our Favorite Photo</span>
+                <h3>The One That Melts My Heart</h3>
+                <p>Lauren looking absolutely radiant — proof that some things just get better with time.</p>
+              </div>
             </div>
           </div>
-          <div class="gallery-item" data-caption="New Home - First Week">
-            <img src="Pictures/New Home First Week.JPEG" alt="New Home First Week" class="gallery-img">
-            <div class="gallery-overlay">
-              <p>New Home - First Week</p>
+
+          <div class="timeline-item fade-in-scroll">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-image">
+                <img src="Pictures/Miami Trip 4 People.png" alt="Miami Trip" loading="lazy">
+              </div>
+              <div class="timeline-text">
+                <span class="timeline-date">Adventures Together</span>
+                <h3>Miami Getaway</h3>
+                <p>Sun, fun, and making memories with friends — our love for travel brought us even closer.</p>
+              </div>
             </div>
           </div>
-          <div class="gallery-item" data-caption="Meeting the Parents">
-            <img src="Pictures/Lauren and Sal Meeting Mom and Dad.png" alt="Meeting Mom and Dad" class="gallery-img">
-            <div class="gallery-overlay">
-              <p>Meeting the Parents</p>
+
+          <div class="timeline-item fade-in-scroll">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-image">
+                <img src="Pictures/New Home First Week.JPEG" alt="New Home" loading="lazy">
+              </div>
+              <div class="timeline-text">
+                <span class="timeline-date">Building Our Life</span>
+                <h3>Our First Home</h3>
+                <p>From dating to decorating — the moment we made it official and built our nest together.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-item timeline-final fade-in-scroll">
+            <div class="timeline-dot final-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-text centered">
+                <span class="timeline-date">March 20, 2027</span>
+                <h3>Forever Begins</h3>
+                <p>And so the next chapter begins... at Hyatt Regency Clearwater Beach 💕</p>
+              </div>
             </div>
           </div>
         </div>
@@ -337,206 +410,99 @@
     <!-- FAQ Section -->
     <section class="faq-section fade-in-scroll" id="faq">
       <div class="container">
-        <h2 class="section-title">Frequently Asked Questions</h2>
-        <p class="faq-subtitle">Everything you need to know about our celebration</p>
+        <h2 class="section-title">FAQ</h2>
+        <p class="faq-subtitle">Tap a category to see answers</p>
 
-        <div class="faq-grid">
-          <!-- RSVP & Attendance -->
-          <div class="faq-category">
-            <h3 class="faq-category-title">📋 RSVP & Attendance</h3>
-          </div>
+        <div class="faq-categories">
 
-          <div class="faq-item">
-            <button class="faq-question">
-              <span>When is the RSVP deadline?</span>
-              <span class="faq-toggle">+</span>
+          <!-- Category 1: RSVP & Attendance -->
+          <div class="faq-category-block">
+            <button class="faq-cat-header">
+              <span>📋 RSVP & Attendance</span>
+              <span class="faq-cat-arrow">▸</span>
             </button>
-            <div class="faq-answer">
-              <p><strong>August 1st, 2026</strong></p>
-              <p>Please submit your RSVP by this date. If we don't hear from you by the deadline, we'll assume you're
-                unable to attend and your spot will be released.</p>
-              <p>Need to reach us after the deadline? Contact us directly at <a
-                  href="mailto:sal.caramucci@gmail.com">sal.caramucci@gmail.com</a></p>
+            <div class="faq-cat-body">
+              <div class="faq-item">
+                <button class="faq-question"><span>When is the RSVP deadline?</span><span class="faq-toggle">+</span></button>
+                <div class="faq-answer"><p><strong>August 1st, 2026.</strong> If we don't hear from you by the deadline, we'll assume you're unable to attend. Contact us at <a href="mailto:sal.caramucci@gmail.com">sal.caramucci@gmail.com</a></p></div>
+              </div>
+              <div class="faq-item">
+                <button class="faq-question"><span>Can I bring a plus-one?</span><span class="faq-toggle">+</span></button>
+                <div class="faq-answer"><p><strong>Plus-ones are by special request only</strong> due to venue capacity. Please contact us directly before the RSVP deadline.</p></div>
+              </div>
+              <div class="faq-item">
+                <button class="faq-question"><span>Is this adults-only?</span><span class="faq-toggle">+</span></button>
+                <div class="faq-answer"><p><strong>Yes.</strong> We love your little ones, but this is an adult-only celebration. If you have special circumstances, please reach out.</p></div>
+              </div>
             </div>
           </div>
 
-          <div class="faq-item">
-            <button class="faq-question">
-              <span>Can I bring a date/plus-one?</span>
-              <span class="faq-toggle">+</span>
+          <!-- Category 2: Event Details -->
+          <div class="faq-category-block">
+            <button class="faq-cat-header">
+              <span>🎊 Event Details</span>
+              <span class="faq-cat-arrow">▸</span>
             </button>
-            <div class="faq-answer">
-              <p><strong>Plus-ones are by special request only.</strong></p>
-              <p>Due to venue capacity, we're unfortunately not able to accommodate plus-ones for all guests. If you
-                have a special request, please contact us directly before the RSVP deadline.</p>
+            <div class="faq-cat-body">
+              <div class="faq-item">
+                <button class="faq-question"><span>What's the dress code?</span><span class="faq-toggle">+</span></button>
+                <div class="faq-answer"><p><strong>Cocktail Attire / Semi-Formal.</strong> ⚠️ Please avoid <span class="color-avoid">baby blue</span> and <span class="color-avoid-white">white</span> (bridal party colors).</p></div>
+              </div>
+              <div class="faq-item">
+                <button class="faq-question"><span>Schedule of events?</span><span class="faq-toggle">+</span></button>
+                <div class="faq-answer"><ul><li>🕔 <strong>5:00 PM</strong> — Guest Arrival</li><li>💒 <strong>5:30 PM</strong> — Ceremony</li><li>🥂 <strong>6:00 PM</strong> — Cocktail Hour</li><li>🍽️ <strong>7:00 PM</strong> — Reception & Dinner</li><li>💃 <strong>8:30 PM</strong> — Dancing</li><li>🎆 <strong>11:00 PM</strong> — Send-off</li></ul></div>
+              </div>
+              <div class="faq-item">
+                <button class="faq-question"><span>Indoor or outdoor ceremony?</span><span class="faq-toggle">+</span></button>
+                <div class="faq-answer"><p><strong>Both!</strong> We plan to use the 16th-floor Sky Terrace (360° Gulf views), with indoor backup if needed.</p></div>
+              </div>
             </div>
           </div>
 
-          <div class="faq-item">
-            <button class="faq-question">
-              <span>Is this an adults-only wedding?</span>
-              <span class="faq-toggle">+</span>
+          <!-- Category 3: Food & Logistics -->
+          <div class="faq-category-block">
+            <button class="faq-cat-header">
+              <span>🍽️ Food & Logistics</span>
+              <span class="faq-cat-arrow">▸</span>
             </button>
-            <div class="faq-answer">
-              <p><strong>Yes, this is an adults-only celebration.</strong></p>
-              <p>We love your little ones, but we've decided to make our wedding an adult-only affair so everyone can
-                relax and enjoy the evening.</p>
-              <p>If you have special circumstances, please reach out to us directly.</p>
+            <div class="faq-cat-body">
+              <div class="faq-item">
+                <button class="faq-question"><span>Dietary options available?</span><span class="faq-toggle">+</span></button>
+                <div class="faq-answer"><p><strong>Absolutely!</strong> Vegetarian, vegan, gluten-free and other options. Note any needs in your RSVP.</p></div>
+              </div>
+              <div class="faq-item">
+                <button class="faq-question"><span>Is there parking?</span><span class="faq-toggle">+</span></button>
+                <div class="faq-answer"><p><strong>Yes.</strong> Self-parking and valet available. Hotel guests may have parking included.</p></div>
+              </div>
+              <div class="faq-item">
+                <button class="faq-question"><span>Weather in March?</span><span class="faq-toggle">+</span></button>
+                <div class="faq-answer"><p><strong>Perfect beach weather!</strong> 75-80°F, mostly sunny, low humidity. Pack light layers for evening.</p></div>
+              </div>
+              <div class="faq-item">
+                <button class="faq-question"><span>What if it rains?</span><span class="faq-toggle">+</span></button>
+                <div class="faq-answer"><p><strong>We have a rain plan!</strong> The Aqualea Ballroom is our gorgeous indoor backup. Rain or shine — we celebrate! ☔→🎉</p></div>
+              </div>
             </div>
           </div>
 
-          <!-- Event Details -->
-          <div class="faq-category">
-            <h3 class="faq-category-title">🎊 Event Details</h3>
-          </div>
-
-          <div class="faq-item">
-            <button class="faq-question">
-              <span>What is the dress code?</span>
-              <span class="faq-toggle">+</span>
+          <!-- Category 4: Gifts & Contact -->
+          <div class="faq-category-block">
+            <button class="faq-cat-header">
+              <span>🎁 Gifts & Contact</span>
+              <span class="faq-cat-arrow">▸</span>
             </button>
-            <div class="faq-answer">
-              <p><strong>Cocktail Attire / Semi-Formal</strong></p>
-              <p>Think elegant but comfortable! Ladies: cocktail dresses, dressy separates. Gentlemen: suits, dress
-                shirts, optional ties.</p>
-              <p>⚠️ Please avoid wearing <span class="color-avoid">baby blue</span> and <span
-                  class="color-avoid-white">white</span> to avoid matching the bridal party.</p>
-              <p>Keep in mind the March Florida weather - it's typically warm and beautiful!</p>
+            <div class="faq-cat-body">
+              <div class="faq-item">
+                <button class="faq-question"><span>Gift registry?</span><span class="faq-toggle">+</span></button>
+                <div class="faq-answer"><p><strong>Your presence is the greatest gift!</strong> If you'd like, we welcome contributions to our <a href="registry.html">honeymoon fund</a>.</p></div>
+              </div>
+              <div class="faq-item">
+                <button class="faq-question"><span>How to contact you?</span><span class="faq-toggle">+</span></button>
+                <div class="faq-answer"><p>📧 <a href="mailto:sal.caramucci@gmail.com">sal.caramucci@gmail.com</a> — We respond within 24-48 hours.</p></div>
+              </div>
             </div>
           </div>
 
-          <div class="faq-item">
-            <button class="faq-question">
-              <span>What is the schedule of events?</span>
-              <span class="faq-toggle">+</span>
-            </button>
-            <div class="faq-answer">
-              <p><strong>March 20th, 2027</strong></p>
-              <ul>
-                <li>🕔 <strong>5:00 PM</strong> - Guest Arrival & Seating</li>
-                <li>💒 <strong>5:30 PM</strong> - Ceremony</li>
-                <li>🥂 <strong>6:00 PM</strong> - Cocktail Hour</li>
-                <li>🍽️ <strong>7:00 PM</strong> - Reception & Dinner</li>
-                <li>� <strong>8:30 PM</strong> - Dancing & Celebration</li>
-                <li>� <strong>11:00 PM</strong> - Send-off</li>
-              </ul>
-              <p class="schedule-note">Times are approximate and subject to minor adjustments.</p>
-            </div>
-          </div>
-
-          <div class="faq-item">
-            <button class="faq-question">
-              <span>Will the ceremony be outdoors?</span>
-              <span class="faq-toggle">+</span>
-            </button>
-            <div class="faq-answer">
-              <p><strong>Both indoor and outdoor elements!</strong></p>
-              <p>We're planning to take advantage of the Hyatt's stunning 16th-floor Sky Terrace with 360-degree Gulf
-                views, weather permitting.</p>
-              <p>The Hyatt offers beautiful indoor venues as a backup if needed.</p>
-            </div>
-          </div>
-
-          <!-- Food & Accommodations -->
-          <div class="faq-category">
-            <h3 class="faq-category-title">🍽️ Food & Comfort</h3>
-          </div>
-
-          <div class="faq-item">
-            <button class="faq-question">
-              <span>Are there vegetarian/dietary options?</span>
-              <span class="faq-toggle">+</span>
-            </button>
-            <div class="faq-answer">
-              <p><strong>Absolutely! We'll accommodate all dietary needs.</strong></p>
-              <p>Please note any dietary restrictions, allergies, or food preferences in your RSVP notes. We'll make
-                sure you're well taken care of.</p>
-              <p>Options will include vegetarian, vegan, gluten-free, and other accommodations upon request.</p>
-            </div>
-          </div>
-
-          <div class="faq-item">
-            <button class="faq-question">
-              <span>Is there parking at the venue?</span>
-              <span class="faq-toggle">+</span>
-            </button>
-            <div class="faq-answer">
-              <p><strong>Yes, valet and self-parking are available.</strong></p>
-              <p>The Hyatt Regency offers:</p>
-              <ul>
-                <li>🚗 Self-parking available at the resort</li>
-                <li>🎩 Valet parking for added convenience</li>
-              </ul>
-              <p>If you're staying at the hotel, parking may be included with your room. Check with the front desk for
-                current rates.</p>
-            </div>
-          </div>
-
-          <!-- Weather & Logistics -->
-          <div class="faq-category">
-            <h3 class="faq-category-title">🌴 Weather & Location</h3>
-          </div>
-
-          <div class="faq-item">
-            <button class="faq-question">
-              <span>What's the weather like in March?</span>
-              <span class="faq-toggle">+</span>
-            </button>
-            <div class="faq-answer">
-              <p><strong>Perfect beach weather!</strong></p>
-              <p>March in Clearwater typically sees:</p>
-              <ul>
-                <li>🌡️ Highs around 75-80°F (24-27°C)</li>
-                <li>☀️ Mostly sunny skies</li>
-                <li>💨 Low humidity</li>
-                <li>🌧️ Minimal chance of rain</li>
-              </ul>
-              <p>Pack light layers for the evening and don't forget sunscreen!</p>
-            </div>
-          </div>
-
-          <div class="faq-item">
-            <button class="faq-question">
-              <span>What if there's bad weather?</span>
-              <span class="faq-toggle">+</span>
-            </button>
-            <div class="faq-answer">
-              <p><strong>We have a rain plan!</strong></p>
-              <p>The Hyatt Regency has beautiful indoor venues as a backup. The Aqualea Ballroom features stunning
-                vaulted ceilings and elegant décor.</p>
-              <p>The celebration will go on rain or shine! ☔→🎉</p>
-            </div>
-          </div>
-
-          <!-- Gifts & Contact -->
-          <div class="faq-category">
-            <h3 class="faq-category-title">🎁 Gifts & Contact</h3>
-          </div>
-
-          <div class="faq-item">
-            <button class="faq-question">
-              <span>Do you have a gift registry?</span>
-              <span class="faq-toggle">+</span>
-            </button>
-            <div class="faq-answer">
-              <p><strong>Your presence is the greatest gift!</strong></p>
-              <p>We're so grateful you're traveling to celebrate with us. If you'd like to give a gift, we'd appreciate
-                contributions to our honeymoon fund or home renovation projects.</p>
-              <p>Registry details will be shared closer to the wedding date.</p>
-            </div>
-          </div>
-
-          <div class="faq-item">
-            <button class="faq-question">
-              <span>How do I contact you with questions?</span>
-              <span class="faq-toggle">+</span>
-            </button>
-            <div class="faq-answer">
-              <p><strong>We're here to help!</strong></p>
-              <p>Email us at: <a href="mailto:sal.caramucci@gmail.com">sal.caramucci@gmail.com</a></p>
-              <p>We typically respond within 24-48 hours. For urgent matters, feel free to call or text us directly.</p>
-            </div>
-          </div>
         </div>
       </div>
     </section>

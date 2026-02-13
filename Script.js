@@ -250,25 +250,42 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ========================================
-// FAQ ACCORDION
+// FAQ CATEGORY ACCORDION
 // ========================================
 
-const faqItems = document.querySelectorAll('.faq-item');
+// Category headers toggle
+const faqCatHeaders = document.querySelectorAll('.faq-cat-header');
+faqCatHeaders.forEach(header => {
+  header.addEventListener('click', () => {
+    const block = header.closest('.faq-category-block');
+    // Close other categories
+    document.querySelectorAll('.faq-category-block').forEach(other => {
+      if (other !== block) other.classList.remove('open');
+    });
+    block.classList.toggle('open');
+  });
+});
 
+// Individual FAQ questions within categories
+const faqItems = document.querySelectorAll('.faq-cat-body .faq-item');
 faqItems.forEach(item => {
   const question = item.querySelector('.faq-question');
-
-  question.addEventListener('click', () => {
-    // Close all other items
-    faqItems.forEach(otherItem => {
-      if (otherItem !== item && otherItem.classList.contains('active')) {
-        otherItem.classList.remove('active');
+  if (question) {
+    question.addEventListener('click', () => {
+      const toggle = question.querySelector('.faq-toggle');
+      const isActive = item.classList.contains('active');
+      // Close siblings
+      item.closest('.faq-cat-body').querySelectorAll('.faq-item').forEach(other => {
+        other.classList.remove('active');
+        const otherToggle = other.querySelector('.faq-toggle');
+        if (otherToggle) otherToggle.textContent = '+';
+      });
+      if (!isActive) {
+        item.classList.add('active');
+        if (toggle) toggle.textContent = '−';
       }
     });
-
-    // Toggle current item
-    item.classList.toggle('active');
-  });
+  }
 });
 
 // ========================================
@@ -408,7 +425,12 @@ rsvpForm.addEventListener('submit', async (e) => {
       body: JSON.stringify(formData)
     });
 
-    const result = await response.json();
+    let result = {};
+    try {
+      result = await response.json();
+    } catch (e) {
+      // n8n may return empty response - fall back to status check
+    }
 
     if (result.status === 'success' || response.ok) {
       rsvpForm.reset();
@@ -660,4 +682,61 @@ window.addEventListener('load', () => {
 
   // Initialize any additional animations
   console.log('Wedding website loaded successfully! 🎉');
+});
+
+// ========================================
+// NAVBAR
+// ========================================
+
+const navToggle = document.getElementById('navToggle');
+const navMenu = document.getElementById('navMenu');
+const navbar = document.getElementById('navbar');
+
+// Hamburger menu toggle
+if (navToggle) {
+  navToggle.addEventListener('click', () => {
+    navToggle.classList.toggle('active');
+    navMenu.classList.toggle('open');
+  });
+}
+
+// Close menu when a link is clicked
+navMenu.querySelectorAll('.nav-link').forEach(link => {
+  link.addEventListener('click', () => {
+    navToggle.classList.remove('active');
+    navMenu.classList.remove('open');
+  });
+});
+
+// Scroll spy - highlight active section
+const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+const sections = [];
+navLinks.forEach(link => {
+  const id = link.getAttribute('href').substring(1);
+  const section = document.getElementById(id);
+  if (section) sections.push({ el: section, link: link });
+});
+
+function updateActiveNav() {
+  const scrollPos = window.scrollY + 120;
+  let current = sections[0];
+  sections.forEach(s => {
+    if (s.el.offsetTop <= scrollPos) current = s;
+  });
+  navLinks.forEach(l => l.classList.remove('active'));
+  if (current) current.link.classList.add('active');
+}
+
+window.addEventListener('scroll', updateActiveNav);
+
+// Hide navbar on scroll down, show on scroll up
+let lastScrollY = 0;
+window.addEventListener('scroll', () => {
+  const currentScrollY = window.scrollY;
+  if (currentScrollY > lastScrollY && currentScrollY > 200) {
+    navbar.classList.add('nav-hidden');
+  } else {
+    navbar.classList.remove('nav-hidden');
+  }
+  lastScrollY = currentScrollY;
 });
