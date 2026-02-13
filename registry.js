@@ -8,7 +8,7 @@
 // Replace YOUR_N8N_DOMAIN with your actual n8n instance URL.
 // Example: 'https://your-n8n.app.n8n.cloud/webhook'
 // -------------------------------------------------------
-const API_URL = 'https://YOUR_N8N_DOMAIN/webhook';
+const API_URL = 'https://nevo60.app.n8n.cloud/webhook';
 const YOUR_PAYPAL_ME_LINK = 'https://www.paypal.com/paypalme/YOURUSERNAME'; // Update with real link
 
 // Fund Configuration

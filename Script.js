@@ -9,7 +9,7 @@ const CONFIG = {
   // After importing the RSVP workflow, copy the Production Webhook URL here.
   // Example: 'https://your-n8n.app.n8n.cloud/webhook/submit-rsvp'
   // -------------------------------------------------------
-  BACKEND_URL: 'https://YOUR_N8N_DOMAIN/webhook/submit-rsvp',
+  BACKEND_URL: 'https://nevo60.app.n8n.cloud/webhook/submit-rsvp',
 
   // Site Password
   SITE_PASSWORD: 'LaurenandSal2027Clearwater',
