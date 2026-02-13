@@ -4,16 +4,12 @@
 
 const CONFIG = {
   // -------------------------------------------------------
-  // BACKEND URL:
-  // - For production (Google Apps Script): Deploy your Google Apps Script as a Web App,
-  //   then paste the URL here (e.g., 'https://script.google.com/macros/s/XXXXXXXXX/exec')
-  // - For local development (Python): use 'http://localhost:5000/submit-rsvp'
-  //   and set USE_GOOGLE_APPS_SCRIPT to false below.
+  // BACKEND URL (n8n Webhook):
+  // Replace YOUR_N8N_DOMAIN with your actual n8n instance URL.
+  // After importing the RSVP workflow, copy the Production Webhook URL here.
+  // Example: 'https://your-n8n.app.n8n.cloud/webhook/submit-rsvp'
   // -------------------------------------------------------
-  BACKEND_URL: 'https://script.google.com/macros/s/AKfycbzLBK380p4EBCoKv0bsznJSzshaSIoOH0Yrj-twPOph86d7BmCWJ2EwOuPxZzUP_e9K/exec',
-
-  // Set to true for production (Google Apps Script), false for local dev (backend.py)
-  USE_GOOGLE_APPS_SCRIPT: true,
+  BACKEND_URL: 'https://YOUR_N8N_DOMAIN/webhook/submit-rsvp',
 
   // Site Password
   SITE_PASSWORD: 'LaurenandSal2027Clearwater',
@@ -403,21 +399,18 @@ rsvpForm.addEventListener('submit', async (e) => {
       throw new Error('Please enter a valid phone number.');
     }
 
-    // Send to backend server
-    if (CONFIG.USE_GOOGLE_APPS_SCRIPT) {
-      // Google Apps Script mode: use no-cors + text/plain to avoid CORS preflight.
-      // GAS doesn't handle OPTIONS requests, so we must avoid triggering a preflight.
-      // The response is opaque in no-cors mode, so we assume success if fetch doesn't throw.
-      await fetch(CONFIG.BACKEND_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'text/plain',
-        },
-        body: JSON.stringify(formData)
-      });
+    // Send to n8n webhook backend
+    const response = await fetch(CONFIG.BACKEND_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData)
+    });
 
-      // If we got here without an error, treat as success
+    const result = await response.json();
+
+    if (result.status === 'success' || response.ok) {
       rsvpForm.reset();
       plusOneSection.style.display = 'none';
       specialRequestSection.style.display = 'none';
@@ -430,35 +423,8 @@ rsvpForm.addEventListener('submit', async (e) => {
       formMessage.textContent = '🎉 Thank you! Your RSVP has been received.';
       formMessage.className = 'form-message success';
       formMessage.style.display = 'block';
-
     } else {
-      // Local Python backend mode (backend.py): standard JSON with response parsing
-      const response = await fetch(CONFIG.BACKEND_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      });
-
-      const result = await response.json();
-
-      if (result.status === 'success') {
-        rsvpForm.reset();
-        plusOneSection.style.display = 'none';
-        specialRequestSection.style.display = 'none';
-        showSuccessAnimation();
-
-        if (formData.hasSpecialRequest) {
-          showSpecialRequestNotification();
-        }
-
-        formMessage.textContent = '🎉 Thank you! Your RSVP has been received.';
-        formMessage.className = 'form-message success';
-        formMessage.style.display = 'block';
-      } else {
-        throw new Error(result.message || 'Something went wrong');
-      }
+      throw new Error(result.message || 'Something went wrong');
     }
 
   } catch (error) {

@@ -1,0 +1,706 @@
+/* ========================================
+   REGISTRY PAGE STYLES
+   ======================================== */
+
+/* Navigation */
+.registry-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 40px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.back-link {
+  color: var(--coral);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.back-link:hover {
+  color: var(--ocean-dark);
+}
+
+.nav-title {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  color: var(--ocean-deeper);
+}
+
+/* Hero Section */
+.registry-hero {
+  padding: 150px 20px 80px;
+  background: linear-gradient(135deg, #ff85a8 0%, #ff4d7d 50%, #667eea 100%);
+  text-align: center;
+  color: white;
+}
+
+.registry-hero h1 {
+  font-family: var(--font-serif);
+  font-size: 3.5rem;
+  margin-bottom: 20px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.registry-subtitle {
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin: 0 auto;
+  opacity: 0.95;
+  line-height: 1.8;
+}
+
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Section Headers */
+.section-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.section-title {
+  font-family: var(--font-serif);
+  font-size: 2.5rem;
+  color: var(--ocean-deeper);
+  margin-bottom: 15px;
+}
+
+.section-description {
+  font-size: 1.1rem;
+  color: var(--text-light);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ========================================
+   HONEYMOON FUND SECTION
+   ======================================== */
+
+.honeymoon-section {
+  padding: 80px 20px;
+  background: linear-gradient(135deg, #f8f9ff 0%, #fff5f7 100%);
+}
+
+.honeymoon-card {
+  background: white;
+  border-radius: 30px;
+  padding: 50px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.cruise-details {
+  text-align: center;
+  padding-bottom: 30px;
+  border-bottom: 2px dashed var(--sand);
+  margin-bottom: 40px;
+}
+
+.cruise-icon {
+  font-size: 4rem;
+  margin-bottom: 15px;
+}
+
+.cruise-details h3 {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  color: var(--ocean-deeper);
+  margin-bottom: 10px;
+}
+
+.cruise-details p {
+  color: var(--text-light);
+  font-size: 1.1rem;
+}
+
+.cruise-highlights {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.highlight {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Pie Chart */
+.fund-tracker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 60px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+.pie-chart-container {
+  position: relative;
+  width: 250px;
+  height: 250px;
+}
+
+.pie-chart {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+
+.pie-background {
+  fill: none;
+  stroke: #eee;
+  stroke-width: 20;
+}
+
+.pie-progress {
+  fill: none;
+  stroke: url(#gradient);
+  stroke-width: 20;
+  stroke-linecap: round;
+  stroke-dasharray: 565.48;
+  stroke-dashoffset: 565.48;
+  transition: stroke-dashoffset 1.5s ease-out;
+}
+
+.pie-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.amount-remaining {
+  font-family: var(--font-serif);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--ocean-deeper);
+}
+
+.amount-label {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.fund-stats {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  gap: 15px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  background: transparent;
+  flex: 1;
+}
+
+.stat-value {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--d63865);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-top: 5px;
+}
+
+/* Contribution Section */
+/* Item Visual (Alternative to Pie Chart) */
+.item-visual {
+  height: 200px;
+  /* Match pie chart container height approximately */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 25px;
+  animation: fadeIn 0.4s ease;
+}
+
+.item-icon-large {
+  font-size: 5rem;
+  margin-bottom: 10px;
+  animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.item-price-tag {
+  font-family: var(--font-serif);
+  font-size: 2.5rem;
+  color: var(--d63865);
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.item-visual-note {
+  font-size: 0.9rem;
+  color: #888;
+  font-style: italic;
+}
+
+@keyframes bounceIn {
+  from {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.contribution-section {
+  text-align: center;
+  padding-top: 30px;
+  border-top: 2px dashed var(--sand);
+}
+
+.contribution-section h4 {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  color: var(--ocean-deeper);
+  margin-bottom: 25px;
+}
+
+/* Gift Type Selection */
+.gift-type-container {
+  margin-bottom: 25px;
+  text-align: left;
+}
+
+.gift-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #666;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.gift-select {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 1rem;
+  color: #333;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px top 50%;
+  background-size: 12px auto;
+}
+
+.gift-select:focus {
+  border-color: var(--d63865);
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(214, 56, 101, 0.1);
+}
+
+.amount-buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.amount-btn {
+  padding: 12px 28px;
+  border: 2px solid var(--coral);
+  background: white;
+  color: var(--coral);
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.amount-btn:hover,
+.amount-btn.active {
+  background: linear-gradient(135deg, #ff85a8 0%, #ff4d7d 100%);
+  color: white;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 77, 125, 0.3);
+}
+
+/* Donor Details Form */
+.donor-details {
+  max-width: 400px;
+  margin: 0 auto 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.donor-input {
+  width: 100%;
+  padding: 12px 20px;
+  border: 2px solid var(--sand);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+  outline: none;
+}
+
+.donor-input:focus {
+  border-color: var(--coral);
+}
+
+.donor-input::placeholder {
+  color: #bbb;
+}
+
+textarea.donor-input {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.custom-amount-input {
+  margin-bottom: 20px;
+}
+
+.custom-amount-input input {
+  padding: 15px 25px;
+  border: 2px solid var(--sand);
+  border-radius: 30px;
+  font-size: 1.1rem;
+  text-align: center;
+  width: 200px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.custom-amount-input input:focus {
+  border-color: var(--coral);
+}
+
+.paypal-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 40px;
+  background: #0070BA;
+  color: white;
+  text-decoration: none;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.paypal-button:hover {
+  background: #003087;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 112, 186, 0.3);
+}
+
+.paypal-logo {
+  height: 24px;
+  filter: brightness(0) invert(1);
+}
+
+.contribution-note {
+  color: var(--text-light);
+  font-size: 0.95rem;
+  font-style: italic;
+}
+
+/* ========================================
+   REGISTRY STORES SECTION
+   ======================================== */
+
+.stores-section {
+  padding: 80px 20px;
+  background: white;
+}
+
+.stores-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 25px;
+}
+
+.store-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 25px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.store-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+  border-color: var(--coral);
+}
+
+.store-logo-container {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 15px;
+  padding: 15px;
+  flex-shrink: 0;
+}
+
+.store-logo {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.store-info h3 {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  color: var(--ocean-deeper);
+  margin-bottom: 5px;
+}
+
+.store-info p {
+  color: var(--text-light);
+  font-size: 0.95rem;
+}
+
+.store-arrow {
+  margin-left: auto;
+  font-size: 1.5rem;
+  color: var(--coral);
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.3s ease;
+}
+
+.store-card:hover .store-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ========================================
+   EXPERIENCES SECTION
+   ======================================== */
+
+.experiences-section {
+  padding: 80px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.experiences-section .section-title,
+.experiences-section .section-description {
+  color: white;
+}
+
+.experiences-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+}
+
+.experience-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 35px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.experience-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+.experience-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+.experience-card h3 {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  color: var(--ocean-deeper);
+  margin-bottom: 10px;
+}
+
+.experience-card p {
+  color: var(--text-light);
+  font-size: 0.95rem;
+  margin-bottom: 15px;
+}
+
+.experience-price {
+  display: inline-block;
+  padding: 8px 20px;
+  background: linear-gradient(135deg, #ff85a8 0%, #ff4d7d 100%);
+  color: white;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+/* ========================================
+   THANK YOU SECTION
+   ======================================== */
+
+.thankyou-section {
+  padding: 80px 20px;
+  background: linear-gradient(135deg, #fff5f7 0%, #ffe4e9 100%);
+}
+
+.thankyou-content {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.hearts {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.thankyou-content h2 {
+  font-family: var(--font-serif);
+  font-size: 3rem;
+  color: var(--coral);
+  margin-bottom: 20px;
+}
+
+.thankyou-content p {
+  font-size: 1.2rem;
+  color: var(--text-dark);
+  line-height: 1.8;
+}
+
+.signature {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  color: var(--ocean-dark);
+  margin-top: 20px;
+  font-style: italic;
+}
+
+/* ========================================
+   FOOTER
+   ======================================== */
+
+.registry-footer {
+  padding: 40px 20px;
+  background: var(--ocean-deeper);
+  text-align: center;
+  color: white;
+}
+
+.registry-footer p {
+  margin: 5px 0;
+  opacity: 0.9;
+}
+
+.registry-footer a {
+  color: var(--coral);
+  text-decoration: none;
+}
+
+.registry-footer a:hover {
+  text-decoration: underline;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 768px) {
+  .registry-nav {
+    padding: 15px 20px;
+  }
+
+  .registry-hero h1 {
+    font-size: 2.5rem;
+  }
+
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .honeymoon-card {
+    padding: 30px 20px;
+  }
+
+  .fund-tracker {
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .fund-stats {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .stores-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .amount-remaining {
+    font-size: 2rem;
+  }
+}
+
+/* Gradient definition for pie chart */
+.pie-chart defs {
+  display: block;
+}

@@ -1,3 +1,5 @@
 backend.py
 serve.py
 Google apps script.js
+fund_data.json
+*.xlsx
