@@ -3,3 +3,9 @@ serve.py
 Google apps script.js
 fund_data.json
 *.xlsx
+.env
+google-credentials.json
+requirements.txt
+start-backend.bat
+stop-backend.bat
+__pycache__/

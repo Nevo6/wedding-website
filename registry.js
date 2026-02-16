@@ -4,11 +4,11 @@
 // ========================================
 
 // -------------------------------------------------------
-// n8n Webhook Base URL:
-// Replace YOUR_N8N_DOMAIN with your actual n8n instance URL.
-// Example: 'https://your-n8n.app.n8n.cloud/webhook'
+// Local Python Backend URL:
+// Points to the locally-hosted Flask backend.
+// Change this if running on a different host/port.
 // -------------------------------------------------------
-const API_URL = 'https://nevo60.app.n8n.cloud/webhook';
+const API_URL = 'https://garbage-mechanism-energy-incl.trycloudflare.com';
 const YOUR_PAYPAL_ME_LINK = 'https://www.paypal.com/paypalme/YOURUSERNAME'; // Update with real link
 
 // Fund Configuration

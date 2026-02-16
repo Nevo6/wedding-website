@@ -4,12 +4,11 @@
 
 const CONFIG = {
   // -------------------------------------------------------
-  // BACKEND URL (n8n Webhook):
-  // Replace YOUR_N8N_DOMAIN with your actual n8n instance URL.
-  // After importing the RSVP workflow, copy the Production Webhook URL here.
-  // Example: 'https://your-n8n.app.n8n.cloud/webhook/submit-rsvp'
+  // BACKEND URL (Local Python Server):
+  // Points to the locally-hosted Flask backend.
+  // Change this if running on a different host/port.
   // -------------------------------------------------------
-  BACKEND_URL: 'https://nevo60.app.n8n.cloud/webhook/submit-rsvp',
+  BACKEND_URL: 'https://garbage-mechanism-energy-incl.trycloudflare.com/submit-rsvp',
 
   // Site Password
   SITE_PASSWORD: 'LaurenandSal2027Clearwater',
