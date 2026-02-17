@@ -8,7 +8,7 @@
 // Points to the locally-hosted Flask backend.
 // Change this if running on a different host/port.
 // -------------------------------------------------------
-const API_URL = 'https://garbage-mechanism-energy-incl.trycloudflare.com';
+const API_URL = 'https://accompanying-scenes-grab-static.trycloudflare.com';
 const YOUR_PAYPAL_ME_LINK = 'https://www.paypal.com/paypalme/YOURUSERNAME'; // Update with real link
 
 // Fund Configuration

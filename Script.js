@@ -8,7 +8,7 @@ const CONFIG = {
   // Points to the locally-hosted Flask backend.
   // Change this if running on a different host/port.
   // -------------------------------------------------------
-  BACKEND_URL: 'https://garbage-mechanism-energy-incl.trycloudflare.com/submit-rsvp',
+  BACKEND_URL: 'https://accompanying-scenes-grab-static.trycloudflare.com/submit-rsvp',
 
   // Site Password
   SITE_PASSWORD: 'LaurenandSal2027Clearwater',
