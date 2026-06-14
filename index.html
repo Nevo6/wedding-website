@@ -4,14 +4,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sal & Lauren - March 20th, 2027 | Clearwater Beach Wedding</title>
+  <title>Sal & Lauren - April 24th, 2027 | Clearwater Beach Wedding</title>
   <meta name="description"
-    content="Join Sal Caramucci and Lauren Hayle for their wedding celebration at Hyatt Regency Clearwater Beach Resort and Spa on March 20th, 2027.">
-  <link rel="stylesheet" href="Styles.css">
+    content="Join Sal Caramucci and Lauren Hayle for their wedding celebration at Hyatt Regency Clearwater Beach Resort and Spa on April 24th, 2027.">
+  <link rel="stylesheet" href="/static/Styles.css?v=20260509e">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@300;400;500&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@300;400;500;600&display=swap"
     rel="stylesheet">
 </head>
 
@@ -21,14 +21,18 @@
     <div class="password-modal">
       <div class="password-header">
         <h2>🔐 Welcome</h2>
-        <p>Please enter the password to access our wedding website</p>
+        <p>Please enter the password from your invitation</p>
       </div>
       <form id="passwordForm" class="password-form">
-        <input type="password" id="sitePassword" placeholder="Enter Password" required>
+        <input type="password" id="sitePassword" placeholder="Enter Password" required autocomplete="off">
         <button type="submit" class="password-submit">Enter</button>
         <p id="passwordError" class="password-error" style="display: none;">Incorrect password. Please try again.</p>
       </form>
       <p class="password-hint">Hint: Check your invitation or contact us for the password</p>
+      <div class="privacy-notice" style="margin-top: 15px; background: rgba(255,252,248,0.85); padding: 10px; border-radius: 8px; border-left: 4px solid #c86828;">
+        <p style="margin: 0; color: #7a3010; font-weight: 600;">🔒 Invite-Only Access</p>
+        <p style="margin: 5px 0 0 0; font-size: 0.9em; color: #2e1608;">This website is intended for invited guests only. Please do not share this link or password.</p>
+      </div>
     </div>
   </div>
 
@@ -57,12 +61,14 @@
         </button>
         <ul class="nav-menu" id="navMenu">
           <li><a href="#home" class="nav-link active">Home</a></li>
-          <li><a href="#our-story" class="nav-link">Our Story</a></li>
+          <li><a href="#gallery" class="nav-link">Gallery</a></li>
           <li><a href="#venue" class="nav-link">Venue</a></li>
           <li><a href="#travel" class="nav-link">Travel</a></li>
           <li><a href="#faq" class="nav-link">FAQ</a></li>
           <li><a href="#rsvp" class="nav-link nav-cta">RSVP</a></li>
-          <li><a href="registry.html" class="nav-link">Registry</a></li>
+          <!-- Registry link hidden until REGISTRY_LIVE is True
+          <li><a href="/registry.html" class="nav-link">Registry</a></li>
+          -->
         </ul>
       </div>
     </nav>
@@ -91,29 +97,23 @@
       </div>
     </div>
 
-    <!-- Hero Section with Video Background -->
+    <!-- Hero Section with Engagement Photo Background -->
     <section class="hero" id="home">
-      <!-- Engagement Video Background -->
-      <video class="hero-video" autoplay muted loop playsinline>
-        <source src="Engagement Video.MOV" type="video/quicktime">
-        <source src="Engagement Video.MOV" type="video/mp4">
-      </video>
-
       <!-- Dark Overlay for Text Readability -->
       <div class="hero-overlay"></div>
 
       <!-- Hero Content Card -->
       <div class="hero-card fade-in">
-        <!-- Couple Names with Heart -->
-        <div class="couple-names-card">
-          <h1 class="name">Sal</h1>
+        <!-- Couple Names with Heart (rotates every 5s) -->
+        <div class="couple-names-card" id="coupleNames">
+          <h1 class="name" id="nameLeft">Sal</h1>
           <div class="heart-symbol">
             <svg viewBox="0 0 32 29.6">
               <path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2
               c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z" />
             </svg>
           </div>
-          <h1 class="name">Lauren</h1>
+          <h1 class="name" id="nameRight">Lauren</h1>
         </div>
 
         <!-- Tagline -->
@@ -122,7 +122,7 @@
         <!-- Wedding Details -->
         <div class="wedding-info-card">
           <div class="info-divider"></div>
-          <p class="date-display">March 20th, 2027</p>
+          <p class="date-display">April 24th, 2027</p>
           <p class="venue-name">Hyatt Regency Clearwater Beach Resort & Spa</p>
           <p class="venue-location">Clearwater, Florida</p>
           <div class="info-divider"></div>
@@ -133,8 +133,12 @@
         <!-- CTA Buttons -->
         <div class="hero-buttons">
           <a href="#rsvp" class="cta-button-card">RSVP Now</a>
-          <a href="registry.html" class="cta-button-card registry-btn">🎁 Registry</a>
+          <button type="button" id="addToCalendarBtn" class="cta-button-card calendar-btn">📅 Save the Date</button>
+          <!-- Registry button hidden until REGISTRY_LIVE is True
+          <a href="/registry.html" class="cta-button-card registry-btn">🎁 Registry</a>
+          -->
         </div>
+
       </div>
 
       <!-- Scroll Indicator -->
@@ -144,109 +148,50 @@
       </div>
     </section>
 
-    <!-- Important Notice Section -->
-    <section class="notice-section fade-in-scroll">
-      <div class="container">
-        <div class="notice-box">
-          <div class="notice-icon">⚠️</div>
-          <h2>Important Notice</h2>
-          <p>Please RSVP to confirm your attendance for our special day!</p>
-          <p class="emphasis deadline-warning">🗓️ RSVP Deadline: August 1st, 2026</p>
-          <p class="sub-notice warning-text">If we do not receive your RSVP by August 1st, we will assume you are unable
-            to attend and your invitation will be revoked.</p>
-          <p class="sub-notice contact-note">📧 Need to reach us after the deadline? Please contact the bride and groom
-            directly at <a href="mailto:sal.caramucci@gmail.com">sal.caramucci@gmail.com</a></p>
+    <!-- Calendar Options Modal (positioned outside .hero-card so position:fixed works) -->
+    <div id="calendarModal" class="calendar-modal hidden" role="dialog" aria-modal="true" aria-labelledby="calendarModalTitle">
+      <div class="calendar-modal-content">
+        <button type="button" class="calendar-modal-close" id="calendarModalClose" aria-label="Close">&times;</button>
+        <h3 id="calendarModalTitle">Save the Date</h3>
+        <p class="calendar-modal-sub">Choose your calendar</p>
+        <div class="calendar-options">
+          <a href="#" id="calGoogle" class="calendar-option" target="_blank" rel="noopener">
+            <span class="cal-icon">🅖</span><span>Google Calendar</span>
+          </a>
+          <a href="/wedding.ics" class="calendar-option">
+            <span class="cal-icon">🍎</span><span>Apple Calendar</span>
+          </a>
+          <a href="#" id="calOutlook" class="calendar-option" target="_blank" rel="noopener">
+            <span class="cal-icon">📧</span><span>Outlook</span>
+          </a>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- Our Story Timeline Section -->
-    <section class="timeline-section fade-in-scroll" id="our-story">
+    <!-- Photo Gallery -->
+    <section class="photo-gallery-section fade-in-scroll" id="gallery">
       <div class="container">
-        <h2 class="section-title">Our Story</h2>
-        <p class="timeline-subtitle">A journey of love, laughter, and adventure</p>
+        <h2 class="section-title">Engagement Gallery</h2>
 
-        <div class="timeline">
-          <div class="timeline-item fade-in-scroll">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-image">
-                <img src="Pictures/Lauren and Sal Meeting Mom and Dad.png" alt="Meeting the Parents" loading="lazy">
-              </div>
-              <div class="timeline-text">
-                <span class="timeline-date">The Beginning</span>
-                <h3>Meeting the Parents</h3>
-                <p>The moment our families came together — a sign of beautiful things to come.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="timeline-item fade-in-scroll">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-image">
-                <img src="Pictures/1 Year Aniversery.JPG" alt="1 Year Anniversary" loading="lazy">
-              </div>
-              <div class="timeline-text">
-                <span class="timeline-date">1 Year Together</span>
-                <h3>Our First Anniversary</h3>
-                <p>Celebrating 365 days of love, growth, and unforgettable memories together.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="timeline-item fade-in-scroll">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-image">
-                <img src="Pictures/1 Year Aniversery Solo Pic Lauren.JPG" alt="Lauren" loading="lazy">
-              </div>
-              <div class="timeline-text">
-                <span class="timeline-date">Our Favorite Photo</span>
-                <h3>The One That Melts My Heart</h3>
-                <p>Lauren looking absolutely radiant — proof that some things just get better with time.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="timeline-item fade-in-scroll">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-image">
-                <img src="Pictures/Miami Trip 4 People.png" alt="Miami Trip" loading="lazy">
-              </div>
-              <div class="timeline-text">
-                <span class="timeline-date">Adventures Together</span>
-                <h3>Miami Getaway</h3>
-                <p>Sun, fun, and making memories with friends — our love for travel brought us even closer.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="timeline-item fade-in-scroll">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-image">
-                <img src="Pictures/New Home First Week.JPEG" alt="New Home" loading="lazy">
-              </div>
-              <div class="timeline-text">
-                <span class="timeline-date">Building Our Life</span>
-                <h3>Our First Home</h3>
-                <p>From dating to decorating — the moment we made it official and built our nest together.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="timeline-item timeline-final fade-in-scroll">
-            <div class="timeline-dot final-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-text centered">
-                <span class="timeline-date">March 20, 2027</span>
-                <h3>Forever Begins</h3>
-                <p>And so the next chapter begins... at Hyatt Regency Clearwater Beach 💕</p>
-              </div>
-            </div>
-          </div>
+        <div class="photo-gallery-grid">
+          <figure class="gallery-item" data-caption="Sand Key Beach — Sal & Lauren">
+            <img class="gallery-img" src="/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-9482.jpg" alt="Sal and Lauren — Sand Key Beach" loading="lazy">
+          </figure>
+          <figure class="gallery-item" data-caption="Editorial portrait — Sand Key Beach">
+            <img class="gallery-img" src="/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-9093.jpg" alt="Editorial portrait" loading="lazy">
+          </figure>
+          <figure class="gallery-item" data-caption="Lauren — Sand Key Beach">
+            <img class="gallery-img" src="/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-9111.jpg" alt="Lauren portrait" loading="lazy">
+          </figure>
+          <figure class="gallery-item" data-caption="Sand Key Beach — Clearwater">
+            <img class="gallery-img" src="/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-9308.jpg" alt="Beach scene" loading="lazy">
+          </figure>
+          <figure class="gallery-item" data-caption="Sand Key Beach — golden hour">
+            <img class="gallery-img" src="/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-9394.jpg" alt="Golden hour" loading="lazy">
+          </figure>
+          <figure class="gallery-item" data-caption="She said yes — the ring reveal">
+            <img class="gallery-img" src="/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-9440.jpg" alt="The ring" loading="lazy">
+          </figure>
         </div>
       </div>
     </section>
@@ -260,13 +205,13 @@
         <div class="venue-grid">
           <div class="venue-card">
             <div class="venue-image-wrapper">
-              <img src="Pictures/Hyatt.jpg" alt="Hyatt Regency Clearwater Beach Resort" class="venue-img">
+              <img src="/static/Pictures/Hyatt.jpg" alt="Hyatt Regency Clearwater Beach Resort" class="venue-img" loading="lazy">
             </div>
             <div class="venue-card-content">
               <h3>Hyatt Regency Clearwater Beach</h3>
               <p>Our stunning wedding venue featuring breathtaking Gulf views, elegant ballrooms, and world-class
                 hospitality.</p>
-              <ul class="venue-features">
+              <ul class="venue-features" style="background: linear-gradient(135deg, #fffcf8 0%, #f5e8d0 100%); border: 2px dashed #e8a840; border-radius: 15px; padding: 1rem 1.25rem; list-style: none;">
                 <li>🏖️ Beachfront Location</li>
                 <li>🌅 Stunning Sunset Views</li>
                 <li>🍽️ Award-Winning Dining</li>
@@ -277,15 +222,15 @@
 
           <div class="venue-card">
             <div class="venue-image-wrapper">
-              <img src="Pictures/Clearwater Beach.jpg" alt="Clearwater Beach Aerial View" class="venue-img">
+              <img src="/static/Pictures/Clearwater Beach.jpg" alt="Clearwater Beach Aerial View" class="venue-img" loading="lazy">
             </div>
             <div class="venue-card-content">
               <h3>Clearwater Beach</h3>
               <p>Ranked among America's best beaches, Clearwater offers crystal-clear waters and pristine white sand.
               </p>
-              <ul class="venue-features">
+              <ul class="venue-features" style="background: linear-gradient(135deg, #fffcf8 0%, #f5e8d0 100%); border: 2px dashed #e8a840; border-radius: 15px; padding: 1rem 1.25rem; list-style: none;">
                 <li>🏆 Award-Winning Beach</li>
-                <li>🌴 Perfect Weather in March</li>
+                <li>🌴 Perfect Weather in April</li>
                 <li>🐬 Dolphin Watching</li>
                 <li>🎭 Vibrant Pier 60</li>
               </ul>
@@ -323,81 +268,39 @@
         <h2 class="section-title">Getting There</h2>
         <p class="travel-subtitle">Welcome to the Florida Gulf Coast!</p>
 
-        <!-- Venue Spotlight -->
-        <div class="venue-spotlight">
-          <div class="spotlight-content">
-            <h3 class="spotlight-heading">🏨 The Venue</h3>
-            <p class="spotlight-title">Hyatt Regency Clearwater Beach Resort & Spa</p>
-            <p class="spotlight-text">We are thrilled to welcome you to the Florida Gulf Coast! Our celebration will
-              take place at the Hyatt Regency, a stunning resort situated between the Intracoastal Waterway and the
-              sugar-white sands of Clearwater Beach.</p>
-          </div>
 
-          <div class="spotlight-content">
-            <h3 class="spotlight-heading">🌅 The Setting</h3>
-            <p class="spotlight-text">We fell in love with this location for its breathtaking <strong>16th-floor Sky
-                Terrace</strong>, which offers 360-degree views of the Gulf—perfect for catching one of Clearwater's
-              famous sunsets.</p>
-          </div>
-
-          <div class="spotlight-content">
-            <h3 class="spotlight-heading">✨ The Vibe</h3>
-            <p class="spotlight-text"><strong>Coastal elegance meets modern luxury.</strong> Expect breezy outdoor
-              terraces, vaulted ceilings in the Aqualea Ballroom, and a relaxing resort atmosphere just steps from the
-              ocean.</p>
-          </div>
-
-          <div class="spotlight-content">
-            <h3 class="spotlight-heading">🌴 The Area</h3>
-            <p class="spotlight-text">The resort is located on the vibrant <strong>Beach Walk</strong>, just a short
-              stroll from the famous <strong>Pier 60</strong>. It's the perfect spot to turn our wedding weekend into a
-              mini-vacation!</p>
-          </div>
-        </div>
-
-        <div class="travel-grid">
+        <div class="travel-grid travel-grid-enhanced">
           <!-- Airports -->
           <div class="travel-card">
             <div class="travel-icon">✈️</div>
             <h3>By Air</h3>
             <div class="airport-info">
-              <div class="airport">
-                <h4>Tampa International Airport (TPA)</h4>
-                <p class="distance">~30 minute drive</p>
-                <p>Major hub with most flight connections. Recommended for most guests.</p>
+              <div class="airport" style="background: linear-gradient(135deg, #fffcf8 0%, #f5e8d0 100%); border: 2px dashed #e8a840; border-radius: 15px; padding: 1rem 1.25rem;">
+                <div class="airport-row">
+                  <h4>Tampa International (TPA)</h4>
+                  <span class="airport-pill">~30 min</span>
+                </div>
+                <p>Major hub with the most flight connections. Recommended for most guests.</p>
               </div>
-              <div class="airport">
-                <h4>St. Pete-Clearwater International (PIE)</h4>
-                <p class="distance">~15 minute drive</p>
+              <div class="airport" style="background: linear-gradient(135deg, #fffcf8 0%, #f5e8d0 100%); border: 2px dashed #e8a840; border-radius: 15px; padding: 1rem 1.25rem;">
+                <div class="airport-row">
+                  <h4>St. Pete-Clearwater (PIE)</h4>
+                  <span class="airport-pill">~15 min</span>
+                </div>
                 <p>Smaller airport, closer to venue. Great for budget airlines.</p>
               </div>
             </div>
           </div>
 
-          <!-- Ground Transportation -->
-          <div class="travel-card">
-            <div class="travel-icon">🚗</div>
-            <h3>Ground Transportation</h3>
-            <ul class="transport-list">
-              <li><strong>Uber/Lyft:</strong> Readily available from both airports</li>
-              <li><strong>Rental Cars:</strong> Available at both airports</li>
-              <li><strong>Hotel Shuttle:</strong> Check with Hyatt for shuttle options</li>
-              <li><strong>Taxi:</strong> Available at airport taxi stands</li>
-            </ul>
-          </div>
-
           <!-- Accommodations -->
-          <div class="travel-card full-width">
+          <div class="travel-card">
             <div class="travel-icon">🏨</div>
             <h3>Accommodations</h3>
             <div class="accommodation-info">
               <p class="accommodation-highlight">We recommend staying at the <strong>Hyatt Regency Clearwater Beach
                   Resort and Spa</strong> for the full wedding experience!</p>
               <div class="booking-box">
-                <p>📅 <strong>Wedding Date:</strong> March 20th, 2027</p>
-                <p>🔗 <strong>Book Direct:</strong> <a
-                    href="https://www.hyatt.com/en-US/hotel/florida/hyatt-regency-clearwater-beach-resort-and-spa/pierc"
-                    target="_blank">Hyatt Regency Website</a></p>
+                <p>📅 <strong>Wedding Date:</strong> April 24th, 2027</p>
                 <p class="booking-note">💡 Room block details coming soon! We'll update this section once our group rate
                   is finalized.</p>
               </div>
@@ -423,16 +326,28 @@
             </button>
             <div class="faq-cat-body">
               <div class="faq-item">
-                <button class="faq-question"><span>When is the RSVP deadline?</span><span class="faq-toggle">+</span></button>
-                <div class="faq-answer"><p><strong>August 1st, 2026.</strong> If we don't hear from you by the deadline, we'll assume you're unable to attend. Contact us at <a href="mailto:sal.caramucci@gmail.com">sal.caramucci@gmail.com</a></p></div>
+                <button class="faq-question"><span>When is the RSVP deadline?</span><span
+                    class="faq-toggle">+</span></button>
+                <div class="faq-answer">
+                  <p><strong>August 1st, 2026.</strong> If we don't hear from you by the deadline, we'll assume you're
+                    unable to attend. Contact us at <a href="mailto:sal.caramucci@hotmail.com">sal.caramucci@hotmail.com</a>
+                  </p>
+                </div>
               </div>
               <div class="faq-item">
-                <button class="faq-question"><span>Can I bring a plus-one?</span><span class="faq-toggle">+</span></button>
-                <div class="faq-answer"><p><strong>Plus-ones are by special request only</strong> due to venue capacity. Please contact us directly before the RSVP deadline.</p></div>
+                <button class="faq-question"><span>Can I bring a plus-one?</span><span
+                    class="faq-toggle">+</span></button>
+                <div class="faq-answer">
+                  <p><strong>Plus-ones are by special request only</strong> due to venue capacity. Please contact us
+                    directly before the RSVP deadline.</p>
+                </div>
               </div>
               <div class="faq-item">
                 <button class="faq-question"><span>Is this adults-only?</span><span class="faq-toggle">+</span></button>
-                <div class="faq-answer"><p><strong>Yes.</strong> We love your little ones, but this is an adult-only celebration. If you have special circumstances, please reach out.</p></div>
+                <div class="faq-answer">
+                  <p><strong>Yes.</strong> We love your little ones, but this is an adult-only celebration. If you have
+                    special circumstances, please reach out.</p>
+                </div>
               </div>
             </div>
           </div>
@@ -445,16 +360,21 @@
             </button>
             <div class="faq-cat-body">
               <div class="faq-item">
-                <button class="faq-question"><span>What's the dress code?</span><span class="faq-toggle">+</span></button>
-                <div class="faq-answer"><p><strong>Cocktail Attire / Semi-Formal.</strong> ⚠️ Please avoid <span class="color-avoid">baby blue</span> and <span class="color-avoid-white">white</span> (bridal party colors).</p></div>
+                <button class="faq-question"><span>What's the dress code?</span><span
+                    class="faq-toggle">+</span></button>
+                <div class="faq-answer">
+                  <p><strong>Cocktail Attire / Semi-Formal.</strong> ⚠️ Please avoid <span class="color-avoid">baby
+                      blue</span> and <span class="color-avoid-white">white</span> (bridal party colors).</p>
+                </div>
               </div>
+
               <div class="faq-item">
-                <button class="faq-question"><span>Schedule of events?</span><span class="faq-toggle">+</span></button>
-                <div class="faq-answer"><ul><li>🕔 <strong>5:00 PM</strong> — Guest Arrival</li><li>💒 <strong>5:30 PM</strong> — Ceremony</li><li>🥂 <strong>6:00 PM</strong> — Cocktail Hour</li><li>🍽️ <strong>7:00 PM</strong> — Reception & Dinner</li><li>💃 <strong>8:30 PM</strong> — Dancing</li><li>🎆 <strong>11:00 PM</strong> — Send-off</li></ul></div>
-              </div>
-              <div class="faq-item">
-                <button class="faq-question"><span>Indoor or outdoor ceremony?</span><span class="faq-toggle">+</span></button>
-                <div class="faq-answer"><p><strong>Both!</strong> We plan to use the 16th-floor Sky Terrace (360° Gulf views), with indoor backup if needed.</p></div>
+                <button class="faq-question"><span>Indoor or outdoor ceremony?</span><span
+                    class="faq-toggle">+</span></button>
+                <div class="faq-answer">
+                  <p><strong>Both!</strong> We plan to use the 16th-floor Sky Terrace (360° Gulf views), with indoor
+                    backup if needed.</p>
+                </div>
               </div>
             </div>
           </div>
@@ -466,21 +386,26 @@
               <span class="faq-cat-arrow">▸</span>
             </button>
             <div class="faq-cat-body">
-              <div class="faq-item">
-                <button class="faq-question"><span>Dietary options available?</span><span class="faq-toggle">+</span></button>
-                <div class="faq-answer"><p><strong>Absolutely!</strong> Vegetarian, vegan, gluten-free and other options. Note any needs in your RSVP.</p></div>
-              </div>
+
               <div class="faq-item">
                 <button class="faq-question"><span>Is there parking?</span><span class="faq-toggle">+</span></button>
-                <div class="faq-answer"><p><strong>Yes.</strong> Self-parking and valet available. Hotel guests may have parking included.</p></div>
+                <div class="faq-answer">
+                  <p><strong>Yes.</strong> Event parking is $10 per vehicle. This does not include overnight parking — please check with the hotel for overnight rates if you are staying.</p>
+                </div>
               </div>
               <div class="faq-item">
-                <button class="faq-question"><span>Weather in March?</span><span class="faq-toggle">+</span></button>
-                <div class="faq-answer"><p><strong>Perfect beach weather!</strong> 75-80°F, mostly sunny, low humidity. Pack light layers for evening.</p></div>
+                <button class="faq-question"><span>Weather in April?</span><span class="faq-toggle">+</span></button>
+                <div class="faq-answer">
+                  <p><strong>Perfect beach weather!</strong> 78-82°F, mostly sunny, low humidity. Pack light layers for
+                    evening.</p>
+                </div>
               </div>
               <div class="faq-item">
                 <button class="faq-question"><span>What if it rains?</span><span class="faq-toggle">+</span></button>
-                <div class="faq-answer"><p><strong>We have a rain plan!</strong> The Aqualea Ballroom is our gorgeous indoor backup. Rain or shine — we celebrate! ☔→🎉</p></div>
+                <div class="faq-answer">
+                  <p><strong>We have a rain plan!</strong> The Aqualea Ballroom is our gorgeous indoor backup. Rain or
+                    shine — we celebrate! ☔→🎉</p>
+                </div>
               </div>
             </div>
           </div>
@@ -494,15 +419,38 @@
             <div class="faq-cat-body">
               <div class="faq-item">
                 <button class="faq-question"><span>Gift registry?</span><span class="faq-toggle">+</span></button>
-                <div class="faq-answer"><p><strong>Your presence is the greatest gift!</strong> If you'd like, we welcome contributions to our <a href="registry.html">honeymoon fund</a>.</p></div>
+                <div class="faq-answer">
+                  <p><strong>Your presence is the greatest gift!</strong> If you'd like, we welcome contributions to our
+                    honeymoon fund (registry coming soon!).
+                  </p>
+                </div>
               </div>
               <div class="faq-item">
                 <button class="faq-question"><span>How to contact you?</span><span class="faq-toggle">+</span></button>
-                <div class="faq-answer"><p>📧 <a href="mailto:sal.caramucci@gmail.com">sal.caramucci@gmail.com</a> — We respond within 24-48 hours.</p></div>
+                <div class="faq-answer">
+                  <p>📧 <a href="mailto:sal.caramucci@hotmail.com">sal.caramucci@hotmail.com</a> — We respond within 24-48
+                    hours.</p>
+                </div>
               </div>
             </div>
           </div>
 
+        </div>
+      </div>
+    </section>
+
+    <!-- Important Notice Section -->
+    <section class="notice-section fade-in-scroll">
+      <div class="container">
+        <div class="notice-box">
+          <div class="notice-icon">⚠️</div>
+          <h2>Important Notice</h2>
+          <p>Please RSVP to confirm your attendance for our special day!</p>
+          <p class="emphasis deadline-warning">🗓️ RSVP Deadline: August 1st, 2026</p>
+          <p class="sub-notice warning-text">If we do not receive your RSVP by August 1st, we will assume you are unable
+            to attend and your invitation will be revoked.</p>
+          <p class="sub-notice contact-note">📧 Need to reach us after the deadline? Please contact the bride and groom
+            directly at <a href="mailto:sal.caramucci@hotmail.com">sal.caramucci@hotmail.com</a></p>
         </div>
       </div>
     </section>
@@ -536,43 +484,74 @@
           </div>
 
           <div class="form-group">
-            <label for="guestCount">Number of Guests *</label>
-            <select id="guestCount" name="guestCount" required>
-              <option value="1">1 (Just Me)</option>
-              <option value="2">2 (Plus One)</option>
-            </select>
+            <label for="mailingAddress">Mailing Address *</label>
+            <textarea id="mailingAddress" name="mailingAddress" rows="3" required
+              placeholder="Street address, city, state, ZIP"></textarea>
+            <p class="form-note">For save-the-dates and thank-you cards.</p>
           </div>
 
-          <!-- Plus One Name Field (hidden by default) -->
-          <div class="form-group plus-one-field" id="plusOneSection" style="display: none;">
-            <label for="plusOneName">Plus One's Full Name *</label>
-            <input type="text" id="plusOneName" name="plusOneName" placeholder="Enter your guest's full name">
-            <p class="form-note">Please provide the full name of your guest for our seating chart.</p>
+          <!-- ====== PLUS ONE SECTION (max 1, only when tier allows) ====== -->
+          <div class="form-group plus-one-block" id="plusOneBlock">
+            <div class="special-request-toggle">
+              <label class="toggle-label">
+                <input type="checkbox" id="hasPlusOne" name="hasPlusOne">
+                <span class="toggle-text">I am bringing a plus-one</span>
+              </label>
+              <p class="form-note">A plus-one is one (1) additional adult guest.</p>
+            </div>
+          </div>
+
+          <div class="form-group plus-one-block" id="plusOneDetailsSection" style="display: none; background: #f5e8d0; padding: 15px; border-radius: 8px; border: 1px solid #f0d8a0;">
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label for="plusOneName">Plus-One's Full Name *</label>
+              <input type="text" id="plusOneName" name="plusOneName" placeholder="First and last name">
+            </div>
+            <div class="form-row">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="plusOnePhone">Plus-One's Phone *</label>
+                <input type="tel" id="plusOnePhone" name="plusOnePhone" placeholder="(123) 456-7890">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="plusOneEmail">Plus-One's Email *</label>
+                <input type="email" id="plusOneEmail" name="plusOneEmail" placeholder="guest@example.com">
+              </div>
+            </div>
+          </div>
+
+          <!-- ====== CHILDREN SECTION (multiple allowed, only when tier allows) ====== -->
+          <div class="form-group children-block" id="childrenBlock">
+            <div class="special-request-toggle">
+              <label class="toggle-label">
+                <input type="checkbox" id="hasChildren" name="hasChildren">
+                <span class="toggle-text">I am bringing children</span>
+              </label>
+              <p class="form-note">Only children that Sal or Lauren personally know or have pre-approved may attend.</p>
+            </div>
+          </div>
+
+          <div class="form-group children-block" id="childrenDetailsSection" style="display: none; background: #f5e8d0; padding: 15px; border-radius: 8px; border: 1px solid #f0d8a0;">
+            <p class="form-note" style="margin-top: 0; margin-bottom: 15px;">List each child's name and age category (for catering planning).</p>
+            <div id="childrenListContainer">
+              <!-- Dynamic child rows go here -->
+            </div>
+            <button type="button" id="addChildBtn" style="background: #fffcf8; color: #c86828; border: 1px solid #c86828; padding: 8px 15px; border-radius: 20px; font-weight: 600; cursor: pointer; margin-top: 10px;">+ Add Another Child</button>
+          </div>
+
+          <!-- ====== TIER 4 NOTICE (only-me) ====== -->
+          <div class="form-group only-me-notice" id="onlyMeNotice" style="display: none;">
+            <div style="background: #f5e8d0; padding: 16px 18px; border-radius: 10px; border: 1px solid #f0d8a0;">
+              <p style="margin: 0; color: #7a3010; font-weight: 600;">👤 Only You Will Be Attending</p>
+              <p style="margin: 6px 0 0 0; font-size: 0.9rem; color: #2e1608;">
+                Your invitation is for you alone — additional guests are not part of this RSVP.
+                If you believe this is in error, please contact Sal or Lauren directly.
+              </p>
+            </div>
           </div>
 
           <div class="form-group">
             <label for="additionalNotes">Additional Notes (Optional)</label>
             <textarea id="additionalNotes" name="additionalNotes" rows="3"
-              placeholder="Any dietary restrictions or questions..."></textarea>
-          </div>
-
-          <!-- Special Accommodation Request -->
-          <div class="form-group special-request-group">
-            <div class="special-request-toggle">
-              <label class="toggle-label">
-                <input type="checkbox" id="hasSpecialRequest" name="hasSpecialRequest">
-                <span class="toggle-text">I have a special accommodation request</span>
-              </label>
-              <p class="form-note">Check this if you need special accommodations (mobility, accessibility, etc.)</p>
-            </div>
-          </div>
-
-          <!-- Special Request Details (hidden by default) -->
-          <div class="form-group special-request-details" id="specialRequestSection" style="display: none;">
-            <label for="specialRequestDetails">Special Request Details *</label>
-            <textarea id="specialRequestDetails" name="specialRequestDetails" rows="3"
-              placeholder="Please describe your accommodation needs..."></textarea>
-            <p class="form-note">⚠️ This request will be sent directly to the bride and groom for review.</p>
+              placeholder="A note to the couple or any questions..."></textarea>
           </div>
 
           <button type="submit" class="submit-button">
@@ -590,9 +569,9 @@
       <div class="container">
         <div class="footer-content">
           <p class="footer-names">Sal & Lauren</p>
-          <p class="footer-date">March 20th, 2027</p>
+          <p class="footer-date">April 24th, 2027</p>
           <p class="footer-venue">Hyatt Regency Clearwater Beach Resort and Spa</p>
-          <p class="footer-domain">salandlauren.com</p>
+          <p class="footer-domain">caramucci.com</p>
         </div>
         <div class="footer-nav">
           <a href="#home">Home</a>
@@ -615,7 +594,13 @@
     </div>
   </div>
 
-  <script src="Script.js"></script>
+  <!-- Mobile Sticky RSVP CTA (hidden on desktop, hidden when RSVP form is visible) -->
+  <a href="#rsvp" class="mobile-rsvp-cta" id="mobileRsvpCta" aria-label="Jump to RSVP">
+    <span class="mobile-rsvp-cta-text">RSVP Now</span>
+    <span class="mobile-rsvp-cta-arrow" aria-hidden="true">→</span>
+  </a>
+
+  <script src="/static/Script.js?v=20260509d"></script>
 </body>
 
 </html>

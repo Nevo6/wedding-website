@@ -8,8 +8,14 @@
 // Points to the locally-hosted Flask backend.
 // Change this if running on a different host/port.
 // -------------------------------------------------------
-const API_URL = 'https://accompanying-scenes-grab-static.trycloudflare.com';
+const API_URL = 'https://api.caramucci.com';
 const YOUR_PAYPAL_ME_LINK = 'https://www.paypal.com/paypalme/YOURUSERNAME'; // Update with real link
+
+// Set to true when the registry is ready to be shared with guests.
+const REGISTRY_LIVE = false;
+if (!REGISTRY_LIVE) {
+  window.location.replace('/');
+}
 
 // Fund Configuration
 const FUND_CONFIG = {
@@ -225,9 +231,9 @@ function initializePieChart() {
     const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
     defs.innerHTML = `
       <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:#ff85a8;stop-opacity:1" />
+        <stop offset="0%" style="stop-color:#ffb3c6;stop-opacity:1" />
         <stop offset="50%" style="stop-color:#ff4d7d;stop-opacity:1" />
-        <stop offset="100%" style="stop-color:#667eea;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#d63865;stop-opacity:1" />
       </linearGradient>
     `;
     svg.insertBefore(defs, svg.firstChild);

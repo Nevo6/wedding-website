@@ -4,36 +4,68 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wedding Registry | Sal & Lauren</title>
-  <link rel="stylesheet" href="Styles.css">
-  <link rel="stylesheet" href="registry.css">
+  <title>Registry | Sal & Lauren - April 24th, 2027</title>
+  <meta name="description" content="Sal and Lauren's wedding registry — honeymoon fund, experience gifts, and store registries.">
+  <link rel="stylesheet" href="/static/Styles.css">
+  <link rel="stylesheet" href="/static/registry.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@300;400;500&display=swap"
     rel="stylesheet">
 </head>
 
-<body>
-  <!-- Navigation -->
-  <nav class="registry-nav">
-    <a href="index.html" class="back-link">← Back to Wedding Site</a>
-    <div class="nav-title">Sal & Lauren</div>
+<body class="registry-body">
+
+  <!-- Sticky Navbar -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo">S & L</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="/" class="nav-link">Home</a></li>
+        <li><a href="/#our-story" class="nav-link">Our Story</a></li>
+        <li><a href="/#venue" class="nav-link">Venue</a></li>
+        <li><a href="/#travel" class="nav-link">Travel</a></li>
+        <li><a href="/#faq" class="nav-link">FAQ</a></li>
+        <li><a href="/#rsvp" class="nav-link nav-cta">RSVP</a></li>
+        <li><a href="/registry.html" class="nav-link active">Registry</a></li>
+      </ul>
+    </div>
   </nav>
 
-  <!-- Hero Section -->
+  <!-- Hero -->
   <section class="registry-hero">
-    <div class="registry-hero-content">
+    <div class="registry-hero-overlay"></div>
+    <div class="registry-hero-card fade-in">
+      <div class="hero-heart">
+        <svg viewBox="0 0 32 29.6">
+          <path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2
+          c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z" />
+        </svg>
+      </div>
       <h1>Our Wedding Registry</h1>
-      <p class="registry-subtitle">Thank you for celebrating with us! Your presence is the greatest gift, but if you'd
-        like to give something, here are some options we'd love.</p>
+      <div class="registry-divider"></div>
+      <p class="registry-subtitle">Your presence is the greatest gift, but if you'd like to give something, we've shared
+        a few thoughtful options below.</p>
+      <div class="registry-quick-links">
+        <a href="#honeymoon" class="quick-link">🛳️ Honeymoon</a>
+        <a href="#experiences" class="quick-link">✨ Experiences</a>
+        <a href="#stores" class="quick-link">🎁 Stores</a>
+      </div>
     </div>
   </section>
 
-  <!-- Honeymoon Fund Section -->
-  <section class="honeymoon-section" id="honeymoon">
+  <!-- Honeymoon Fund -->
+  <section class="honeymoon-section fade-in-scroll" id="honeymoon">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">🚢 Honeymoon Cruise Fund</h2>
-        <p class="section-description">Help us set sail on the adventure of a lifetime! We're planning a romantic cruise
+        <h2 class="section-title">Honeymoon Cruise Fund</h2>
+        <p class="section-description">Help us set sail on the adventure of a lifetime — a romantic Caribbean cruise
           departing from Miami.</p>
       </div>
 
@@ -50,7 +82,7 @@
           </div>
         </div>
 
-        <!-- Fund Tracker (Pie Chart) - Shown for General Fund -->
+        <!-- Pie Chart Tracker -->
         <div class="fund-tracker" id="fundTracker">
           <div class="pie-chart-container">
             <svg class="pie-chart" viewBox="0 0 200 200">
@@ -79,7 +111,7 @@
           </div>
         </div>
 
-        <!-- Item Visual (Icon Display) - Shown for Specific Gifts -->
+        <!-- Item Visual -->
         <div class="item-visual" id="itemVisual" style="display: none;">
           <div class="item-icon-large" id="itemVisualIcon">🍷</div>
           <div class="item-price-tag" id="itemVisualPrice">$150</div>
@@ -89,7 +121,6 @@
         <div class="contribution-section">
           <h4>Contribute to Our Adventure</h4>
 
-          <!-- Gift Type Selection -->
           <div class="gift-type-container">
             <label for="giftTypeSelect" class="gift-label">What is this gift for?</label>
             <select id="giftTypeSelect" class="gift-select">
@@ -102,7 +133,6 @@
             </select>
           </div>
 
-          <!-- Amount Selection -->
           <div class="amount-buttons">
             <button class="amount-btn" data-amount="25">$25</button>
             <button class="amount-btn" data-amount="50">$50</button>
@@ -115,7 +145,6 @@
             <input type="number" id="customAmount" placeholder="Enter amount" min="1">
           </div>
 
-          <!-- Donor Details Form -->
           <div class="donor-details" id="donorDetails">
             <input type="text" id="donorName" placeholder="Your Name" required class="donor-input">
             <input type="email" id="donorEmail" placeholder="Your Email (for receipt)" required class="donor-input">
@@ -123,11 +152,10 @@
               rows="3"></textarea>
           </div>
 
-          <!-- Donate Button -->
           <button id="donateBtn" class="paypal-button">
             <img src="https://www.paypalobjects.com/webstatic/mktg/Logo/pp-logo-200px.png" alt="PayPal"
               class="paypal-logo">
-            <span>Donate & Send Message</span>
+            <span>Donate &amp; Send Message</span>
           </button>
 
           <p class="contribution-note">💝 You'll be redirected to PayPal securely after submitting.</p>
@@ -137,103 +165,12 @@
     </div>
   </section>
 
-  <!-- Registry Stores Section -->
-  <section class="stores-section" id="stores">
+  <!-- Experience Gifts -->
+  <section class="experiences-section fade-in-scroll" id="experiences">
     <div class="container">
       <div class="section-header">
-        <h2 class="section-title">🎁 Gift Registries</h2>
-        <p class="section-description">We've registered at these stores for items to help us build our new home
-          together.</p>
-      </div>
-
-      <div class="stores-grid">
-        <!-- Amazon -->
-        <a href="https://www.amazon.com/wedding" target="_blank" class="store-card">
-          <div class="store-logo-container amazon">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon"
-              class="store-logo">
-          </div>
-          <div class="store-info">
-            <h3>Amazon</h3>
-            <p>Browse our Amazon wishlist</p>
-          </div>
-          <span class="store-arrow">→</span>
-        </a>
-
-        <!-- Target -->
-        <a href="https://www.target.com/gift-registry/wedding" target="_blank" class="store-card">
-          <div class="store-logo-container target">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Target_logo.svg" alt="Target"
-              class="store-logo">
-          </div>
-          <div class="store-info">
-            <h3>Target</h3>
-            <p>View our Target registry</p>
-          </div>
-          <span class="store-arrow">→</span>
-        </a>
-
-        <!-- Crate & Barrel -->
-        <a href="https://www.crateandbarrel.com/gift-registry" target="_blank" class="store-card">
-          <div class="store-logo-container crate">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Crate_and_Barrel_logo.svg"
-              alt="Crate & Barrel" class="store-logo">
-          </div>
-          <div class="store-info">
-            <h3>Crate & Barrel</h3>
-            <p>Explore our home essentials</p>
-          </div>
-          <span class="store-arrow">→</span>
-        </a>
-
-        <!-- Bed Bath & Beyond / Overstock -->
-        <a href="https://www.bedbathandbeyond.com/store/registry/wedding" target="_blank" class="store-card">
-          <div class="store-logo-container bbb">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/6/69/Overstock_logo.svg" alt="Overstock"
-              class="store-logo">
-          </div>
-          <div class="store-info">
-            <h3>Overstock</h3>
-            <p>Shop our home registry</p>
-          </div>
-          <span class="store-arrow">→</span>
-        </a>
-
-        <!-- Williams Sonoma -->
-        <a href="https://www.williams-sonoma.com/registry" target="_blank" class="store-card">
-          <div class="store-logo-container williams">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Williams-Sonoma_Logo.svg"
-              alt="Williams Sonoma" class="store-logo">
-          </div>
-          <div class="store-info">
-            <h3>Williams Sonoma</h3>
-            <p>Kitchen & entertaining</p>
-          </div>
-          <span class="store-arrow">→</span>
-        </a>
-
-        <!-- Pottery Barn -->
-        <a href="https://www.potterybarn.com/registry" target="_blank" class="store-card">
-          <div class="store-logo-container pottery">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/8/84/Pottery_Barn_Logo.svg" alt="Pottery Barn"
-              class="store-logo">
-          </div>
-          <div class="store-info">
-            <h3>Pottery Barn</h3>
-            <p>Home furniture & decor</p>
-          </div>
-          <span class="store-arrow">→</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Experience Gifts Section -->
-  <section class="experiences-section" id="experiences">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-title">✨ Experience Gifts</h2>
-        <p class="section-description">Gift us an experience to enjoy together! These create lasting memories.</p>
+        <h2 class="section-title">Experience Gifts</h2>
+        <p class="section-description">Gift us an experience to enjoy together — these create lasting memories.</p>
       </div>
 
       <div class="experiences-grid">
@@ -252,7 +189,7 @@
         <div class="experience-card">
           <div class="experience-icon">💆</div>
           <h3>Spa Day</h3>
-          <p>Couples massage & relaxation</p>
+          <p>Couples massage &amp; relaxation</p>
           <span class="experience-price">$300</span>
         </div>
         <div class="experience-card">
@@ -265,27 +202,157 @@
     </div>
   </section>
 
-  <!-- Thank You Section -->
-  <section class="thankyou-section">
+  <!-- Registry Stores -->
+  <section class="stores-section fade-in-scroll" id="stores">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Gift Registries</h2>
+        <p class="section-description">We've registered at these stores for items to help us build our new home together.</p>
+      </div>
+
+      <div class="stores-grid">
+        <a href="https://www.amazon.com/wedding" target="_blank" rel="noopener" class="store-card">
+          <div class="store-logo-container">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon"
+              class="store-logo">
+          </div>
+          <div class="store-info">
+            <h3>Amazon</h3>
+            <p>Browse our Amazon wishlist</p>
+          </div>
+          <span class="store-arrow">→</span>
+        </a>
+
+        <a href="https://www.target.com/gift-registry/wedding" target="_blank" rel="noopener" class="store-card">
+          <div class="store-logo-container">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Target_logo.svg" alt="Target"
+              class="store-logo">
+          </div>
+          <div class="store-info">
+            <h3>Target</h3>
+            <p>View our Target registry</p>
+          </div>
+          <span class="store-arrow">→</span>
+        </a>
+
+        <a href="https://www.crateandbarrel.com/gift-registry" target="_blank" rel="noopener" class="store-card">
+          <div class="store-logo-container">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Crate_and_Barrel_logo.svg"
+              alt="Crate &amp; Barrel" class="store-logo">
+          </div>
+          <div class="store-info">
+            <h3>Crate &amp; Barrel</h3>
+            <p>Explore our home essentials</p>
+          </div>
+          <span class="store-arrow">→</span>
+        </a>
+
+        <a href="https://www.bedbathandbeyond.com/store/registry/wedding" target="_blank" rel="noopener"
+          class="store-card">
+          <div class="store-logo-container">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/6/69/Overstock_logo.svg" alt="Overstock"
+              class="store-logo">
+          </div>
+          <div class="store-info">
+            <h3>Overstock</h3>
+            <p>Shop our home registry</p>
+          </div>
+          <span class="store-arrow">→</span>
+        </a>
+
+        <a href="https://www.williams-sonoma.com/registry" target="_blank" rel="noopener" class="store-card">
+          <div class="store-logo-container">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Williams-Sonoma_Logo.svg"
+              alt="Williams Sonoma" class="store-logo">
+          </div>
+          <div class="store-info">
+            <h3>Williams Sonoma</h3>
+            <p>Kitchen &amp; entertaining</p>
+          </div>
+          <span class="store-arrow">→</span>
+        </a>
+
+        <a href="https://www.potterybarn.com/registry" target="_blank" rel="noopener" class="store-card">
+          <div class="store-logo-container">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/8/84/Pottery_Barn_Logo.svg" alt="Pottery Barn"
+              class="store-logo">
+          </div>
+          <div class="store-info">
+            <h3>Pottery Barn</h3>
+            <p>Home furniture &amp; decor</p>
+          </div>
+          <span class="store-arrow">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Thank You -->
+  <section class="thankyou-section fade-in-scroll">
     <div class="container">
       <div class="thankyou-content">
         <div class="hearts">💕</div>
-        <h2>Thank You!</h2>
+        <h2>Thank You</h2>
         <p>Your love and support mean the world to us. We can't wait to celebrate with you!</p>
-        <p class="signature">With love, Sal & Lauren</p>
+        <p class="signature">With love, Sal &amp; Lauren</p>
       </div>
     </div>
   </section>
 
   <!-- Footer -->
-  <footer class="registry-footer">
+  <footer class="footer">
     <div class="container">
-      <p>Sal & Lauren | March 20th, 2027</p>
-      <p>Questions? <a href="mailto:sal.caramucci@gmail.com">sal.caramucci@gmail.com</a></p>
+      <div class="footer-content">
+        <p class="footer-names">Sal &amp; Lauren</p>
+        <p class="footer-date">April 24th, 2027</p>
+        <p class="footer-venue">Hyatt Regency Clearwater Beach Resort and Spa</p>
+        <p class="footer-domain">caramucci.com</p>
+      </div>
+      <div class="footer-nav">
+        <a href="/">Home</a>
+        <a href="/#our-story">Our Story</a>
+        <a href="/#venue">Venue</a>
+        <a href="/#travel">Travel</a>
+        <a href="/#faq">FAQ</a>
+        <a href="/#rsvp">RSVP</a>
+      </div>
     </div>
   </footer>
 
-  <script src="registry.js"></script>
+  <script src="/static/registry.js"></script>
+  <script>
+    // Navbar hamburger + scroll behavior (mirrors Script.js)
+    (function () {
+      const navToggle = document.getElementById('navToggle');
+      const navMenu = document.getElementById('navMenu');
+      const navbar = document.getElementById('navbar');
+      if (navToggle && navMenu) {
+        navToggle.addEventListener('click', () => {
+          navToggle.classList.toggle('active');
+          navMenu.classList.toggle('open');
+        });
+        navMenu.querySelectorAll('.nav-link').forEach(link => {
+          link.addEventListener('click', () => {
+            navToggle.classList.remove('active');
+            navMenu.classList.remove('open');
+          });
+        });
+      }
+      let lastScrollY = 0;
+      window.addEventListener('scroll', () => {
+        const y = window.scrollY;
+        if (y > lastScrollY && y > 200) navbar.classList.add('nav-hidden');
+        else navbar.classList.remove('nav-hidden');
+        lastScrollY = y;
+      });
+
+      // Fade-in observer
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+      }, { threshold: 0.1, rootMargin: '0px 0px -100px 0px' });
+      document.querySelectorAll('.fade-in-scroll').forEach(el => obs.observe(el));
+    })();
+  </script>
 </body>
 
 </html>

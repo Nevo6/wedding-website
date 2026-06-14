@@ -4,14 +4,19 @@
 
 const CONFIG = {
   // -------------------------------------------------------
-  // BACKEND URL (Local Python Server):
-  // Points to the locally-hosted Flask backend.
-  // Change this if running on a different host/port.
+  // BACKEND URL:
+  // Points to the cloud-hosted backend API (Render).
   // -------------------------------------------------------
-  BACKEND_URL: 'https://accompanying-scenes-grab-static.trycloudflare.com/submit-rsvp',
+  BACKEND_URL: 'https://api.caramucci.com/submit-rsvp',
 
-  // Site Password
-  SITE_PASSWORD: 'LaurenandSal2027Clearwater',
+  // Tiered passwords: each unlocks the site AND determines RSVP permissions.
+  // Tier 1: plus-one + kids | Tier 2: kids only | Tier 3: plus-one only | Tier 4: neither
+  PASSWORDS: {
+    'HyattRegency2027': { tier: 1, plusOne: true,  kids: true  },
+    'HyattRegency':     { tier: 2, plusOne: false, kids: true  },
+    'Clearwater':       { tier: 3, plusOne: true,  kids: false },
+    'Clearwater2027':   { tier: 4, plusOne: false, kids: false }
+  },
 
   // Animation settings
   ANIMATION_DELAY: 100,
@@ -28,29 +33,71 @@ const passwordForm = document.getElementById('passwordForm');
 const passwordInput = document.getElementById('sitePassword');
 const passwordError = document.getElementById('passwordError');
 
-// Check if user has already authenticated
-function checkAuthentication() {
-  const isAuthenticated = sessionStorage.getItem('weddingAuthenticated');
-  if (isAuthenticated === 'true') {
-    showMainContent();
+// Look up tier rules for a given password (case-sensitive — invitations print exactly).
+function lookupTier(password) {
+  return CONFIG.PASSWORDS[password] || null;
+}
+
+// Apply tier permissions to the document by toggling body classes.
+// CSS rules in Styles.css use these classes to hide the corresponding RSVP sections:
+//   body.no-plus-one         → hides .plus-one-block
+//   body.no-kids             → hides .children-block
+//   body.no-plus-one.no-kids → also reveals .only-me-notice (Tier 4)
+function applyTier(rules) {
+  document.body.classList.toggle('no-plus-one', !rules.plusOne);
+  document.body.classList.toggle('no-kids', !rules.kids);
+  document.body.dataset.tier = String(rules.tier);
+
+  // Defensive cleanup — if a previous session had checkboxes set under a
+  // different tier, uncheck them and clear their detail sections.
+  if (!rules.plusOne) {
+    const cb = document.getElementById('hasPlusOne');
+    if (cb && cb.checked) {
+      cb.checked = false;
+      cb.dispatchEvent(new Event('change'));
+    }
+  }
+  if (!rules.kids) {
+    const cb = document.getElementById('hasChildren');
+    if (cb && cb.checked) {
+      cb.checked = false;
+      cb.dispatchEvent(new Event('change'));
+    }
   }
 }
 
-// Show main content and hide password overlay
+// Check if user has already authenticated and restore tier from session.
+function checkAuthentication() {
+  if (sessionStorage.getItem('weddingAuthenticated') !== 'true') return;
+  const storedTier = sessionStorage.getItem('weddingTier');
+  const rules = Object.values(CONFIG.PASSWORDS).find(r => String(r.tier) === storedTier);
+  if (!rules) {
+    // Tier missing/corrupted — force re-auth.
+    sessionStorage.removeItem('weddingAuthenticated');
+    return;
+  }
+  applyTier(rules);
+  showMainContent();
+}
+
+// Show main content and hide password overlay.
 function showMainContent() {
   passwordOverlay.classList.add('hidden');
   mainContent.classList.remove('hidden');
   sessionStorage.setItem('weddingAuthenticated', 'true');
 }
 
-// Handle password form submission
+// Handle password form submission.
 passwordForm.addEventListener('submit', (e) => {
   e.preventDefault();
 
-  const enteredPassword = passwordInput.value;
+  const rules = lookupTier(passwordInput.value);
 
-  if (enteredPassword === CONFIG.SITE_PASSWORD) {
+  if (rules) {
     passwordError.style.display = 'none';
+    sessionStorage.setItem('weddingTier', String(rules.tier));
+    sessionStorage.setItem('weddingPassword', passwordInput.value); // backend re-validates
+    applyTier(rules);
     showMainContent();
   } else {
     passwordError.style.display = 'block';
@@ -83,7 +130,7 @@ checkAuthentication();
 // COUNTDOWN TIMER
 // ========================================
 
-const weddingDate = new Date('March 20, 2027 16:00:00').getTime();
+const weddingDate = new Date('April 24, 2027 16:00:00').getTime();
 
 function updateCountdown() {
   const now = new Date().getTime();
@@ -190,6 +237,15 @@ const nextButton = document.querySelector('.lightbox-next');
 
 let currentImageIndex = 0;
 const galleryItems = Array.from(document.querySelectorAll('.gallery-item'));
+
+// Inject decorative corner brackets into each gallery frame
+galleryItems.forEach(item => {
+  ['tl', 'tr', 'bl', 'br'].forEach(pos => {
+    const c = document.createElement('span');
+    c.className = 'corner ' + pos;
+    item.appendChild(c);
+  });
+});
 
 // Open lightbox
 galleryItems.forEach((item, index) => {
@@ -312,44 +368,113 @@ phoneInput.addEventListener('input', (e) => {
 });
 
 // ========================================
-// PLUS ONE FIELD TOGGLE
+// PLUS-ONE TOGGLE (max 1, only when tier allows plus-one)
 // ========================================
 
-const guestCountSelect = document.getElementById('guestCount');
-const plusOneSection = document.getElementById('plusOneSection');
+const hasPlusOneCheckbox = document.getElementById('hasPlusOne');
+const plusOneDetailsSection = document.getElementById('plusOneDetailsSection');
 const plusOneNameInput = document.getElementById('plusOneName');
+const plusOnePhoneInput = document.getElementById('plusOnePhone');
+const plusOneEmailInput = document.getElementById('plusOneEmail');
 
-guestCountSelect.addEventListener('change', (e) => {
-  if (e.target.value === '2') {
-    plusOneSection.style.display = 'block';
-    plusOneNameInput.required = true;
-    plusOneSection.style.animation = 'slideDown 0.3s ease';
-  } else {
-    plusOneSection.style.display = 'none';
-    plusOneNameInput.required = false;
-    plusOneNameInput.value = '';
-  }
-});
+function setPlusOneRequired(required) {
+  plusOneNameInput.required = required;
+  plusOnePhoneInput.required = required;
+  plusOneEmailInput.required = required;
+}
 
-// ========================================
-// SPECIAL REQUEST TOGGLE
-// ========================================
-
-const specialRequestCheckbox = document.getElementById('hasSpecialRequest');
-const specialRequestSection = document.getElementById('specialRequestSection');
-const specialRequestDetails = document.getElementById('specialRequestDetails');
-
-specialRequestCheckbox.addEventListener('change', (e) => {
+hasPlusOneCheckbox.addEventListener('change', (e) => {
   if (e.target.checked) {
-    specialRequestSection.style.display = 'block';
-    specialRequestDetails.required = true;
-    specialRequestSection.style.animation = 'slideDown 0.3s ease';
+    plusOneDetailsSection.style.display = 'block';
+    plusOneDetailsSection.style.animation = 'slideDown 0.3s ease';
+    setPlusOneRequired(true);
   } else {
-    specialRequestSection.style.display = 'none';
-    specialRequestDetails.required = false;
-    specialRequestDetails.value = '';
+    plusOneDetailsSection.style.display = 'none';
+    setPlusOneRequired(false);
+    plusOneNameInput.value = '';
+    plusOnePhoneInput.value = '';
+    plusOneEmailInput.value = '';
   }
 });
+
+// Format plus-one phone the same way as the primary phone field.
+plusOnePhoneInput.addEventListener('input', (e) => {
+  let value = e.target.value.replace(/\D/g, '');
+  if (value.length > 10) value = value.substring(0, 10);
+  if (value.length >= 6) {
+    value = `(${value.substring(0, 3)}) ${value.substring(3, 6)}-${value.substring(6)}`;
+  } else if (value.length >= 3) {
+    value = `(${value.substring(0, 3)}) ${value.substring(3)}`;
+  } else if (value.length > 0) {
+    value = `(${value}`;
+  }
+  e.target.value = value;
+});
+
+// ========================================
+// CHILDREN TOGGLE + DYNAMIC LIST (multiple, only when tier allows kids)
+// ========================================
+
+const hasChildrenCheckbox = document.getElementById('hasChildren');
+const childrenDetailsSection = document.getElementById('childrenDetailsSection');
+const childrenListContainer = document.getElementById('childrenListContainer');
+const addChildBtn = document.getElementById('addChildBtn');
+
+hasChildrenCheckbox.addEventListener('change', (e) => {
+  if (e.target.checked) {
+    childrenDetailsSection.style.display = 'block';
+    childrenDetailsSection.style.animation = 'slideDown 0.3s ease';
+    if (childrenListContainer.children.length === 0) {
+      addChildRow();
+    }
+  } else {
+    childrenDetailsSection.style.display = 'none';
+    childrenListContainer.innerHTML = '';
+  }
+});
+
+addChildBtn.addEventListener('click', () => addChildRow());
+
+function addChildRow() {
+  const row = document.createElement('div');
+  row.className = 'child-row';
+  row.style.cssText = 'display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; align-items: center; background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);';
+
+  const nameInput = document.createElement('input');
+  nameInput.type = 'text';
+  nameInput.className = 'child-name';
+  nameInput.placeholder = "Child's full name";
+  nameInput.required = true;
+  nameInput.style.cssText = 'flex: 1; min-width: 150px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;';
+
+  const ageSelect = document.createElement('select');
+  ageSelect.className = 'child-age';
+  ageSelect.required = true;
+  ageSelect.style.cssText = 'padding: 8px; border: 1px solid #ccc; border-radius: 4px;';
+  ageSelect.innerHTML = `
+    <option value="">Select Age...</option>
+    <option value="Under 11">Child (Under 11)</option>
+    <option value="12-20">Young Adult (12-20)</option>
+  `;
+
+  const removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.innerHTML = '✖';
+  removeBtn.setAttribute('aria-label', 'Remove child');
+  removeBtn.style.cssText = 'background: #c86828; color: #fffcf8; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px;';
+  removeBtn.addEventListener('click', () => {
+    row.remove();
+    if (childrenListContainer.children.length === 0) {
+      hasChildrenCheckbox.checked = false;
+      hasChildrenCheckbox.dispatchEvent(new Event('change'));
+    }
+  });
+
+  row.appendChild(nameInput);
+  row.appendChild(ageSelect);
+  row.appendChild(removeBtn);
+  childrenListContainer.appendChild(row);
+}
 
 // ========================================
 // FORM VALIDATION & SUBMISSION
@@ -374,34 +499,84 @@ rsvpForm.addEventListener('submit', async (e) => {
   formMessage.className = 'form-message';
 
   try {
-    // Validate plus-one name if applicable
-    const guestCount = document.getElementById('guestCount').value;
-    const plusOneName = document.getElementById('plusOneName').value.trim();
+    // Resolve tier from sessionStorage (set during password unlock)
+    const tier = parseInt(sessionStorage.getItem('weddingTier'), 10);
+    const password = sessionStorage.getItem('weddingPassword') || '';
 
-    if (guestCount === '2' && !plusOneName) {
-      throw new Error('Please enter your plus one\'s name.');
+    // Validate mailing address
+    const mailingAddress = document.getElementById('mailingAddress').value.trim();
+    if (!mailingAddress) {
+      throw new Error('Please enter your mailing address.');
     }
 
-    // Validate special request details if applicable
-    const hasSpecialRequest = document.getElementById('hasSpecialRequest').checked;
-    const specialRequest = document.getElementById('specialRequestDetails').value.trim();
+    const tierAllowsPlusOne = !document.body.classList.contains('no-plus-one');
+    const tierAllowsKids = !document.body.classList.contains('no-kids');
 
-    if (hasSpecialRequest && !specialRequest) {
-      throw new Error('Please describe your special accommodation needs.');
+    // ----- Plus-one (max 1, only if tier allows) -----
+    const hasPlusOne = tierAllowsPlusOne && hasPlusOneCheckbox.checked;
+    const plusOneName = hasPlusOne ? plusOneNameInput.value.trim() : '';
+    const plusOnePhone = hasPlusOne ? plusOnePhoneInput.value.trim() : '';
+    const plusOneEmail = hasPlusOne ? plusOneEmailInput.value.trim() : '';
+
+    if (hasPlusOne) {
+      if (!plusOneName) throw new Error('Please enter your plus-one\'s full name.');
+      if (!plusOnePhone || !isValidPhone(plusOnePhone)) throw new Error('Please enter a valid phone number for your plus-one.');
+      if (!plusOneEmail || !isValidEmail(plusOneEmail)) throw new Error('Please enter a valid email for your plus-one.');
     }
+
+    // ----- Children (multiple, only if tier allows) -----
+    const hasChildren = tierAllowsKids && hasChildrenCheckbox.checked;
+    const childrenList = [];
+    let totalYoungAdults = 0;
+    let totalChildren = 0;
+
+    if (hasChildren) {
+      const rows = childrenListContainer.querySelectorAll('.child-row');
+      rows.forEach(row => {
+        const name = row.querySelector('.child-name').value.trim();
+        const age = row.querySelector('.child-age').value;
+        if (name && age) {
+          childrenList.push(`${name} (${age})`);
+          if (age === '12-20') totalYoungAdults++;
+          else if (age === 'Under 11') totalChildren++;
+        }
+      });
+      if (rows.length > 0 && childrenList.length === 0) {
+        throw new Error('Please complete each child\'s name and age, or remove empty rows.');
+      }
+      if (childrenList.length === 0) {
+        throw new Error('Please add at least one child or uncheck "I am bringing children".');
+      }
+    }
+
+    // Total adults = primary (1) + plus-one (0 or 1)
+    const totalAdults = 1 + (hasPlusOne ? 1 : 0);
 
     // Get form data
     const formData = {
       timestamp: new Date().toISOString(),
+      tier: tier,
+      password: password,
       firstName: document.getElementById('firstName').value.trim(),
       lastName: document.getElementById('lastName').value.trim(),
       email: document.getElementById('email').value.trim(),
       phone: document.getElementById('phone').value.trim(),
-      guestCount: guestCount,
-      plusOneName: guestCount === '2' ? plusOneName : '',
+      mailingAddress: mailingAddress,
+      hasPlusOne: hasPlusOne,
+      plusOneName: plusOneName,
+      plusOnePhone: plusOnePhone,
+      plusOneEmail: plusOneEmail,
+      hasChildren: hasChildren,
+      childrenCount: childrenList.length,
+      childrenList: childrenList.join(', '),
+      totalAdults: totalAdults,
+      totalYoungAdults: totalYoungAdults,
+      totalChildren: totalChildren,
+      additionalGuestsList: [
+        ...(hasPlusOne ? [`${plusOneName} (Plus-One)`] : []),
+        ...childrenList,
+      ].join(', '),
       additionalNotes: document.getElementById('additionalNotes').value.trim(),
-      hasSpecialRequest: hasSpecialRequest,
-      specialRequestDetails: hasSpecialRequest ? specialRequest : '',
       ipAddress: await getUserIP()
     };
 
@@ -433,13 +608,11 @@ rsvpForm.addEventListener('submit', async (e) => {
 
     if (result.status === 'success' || response.ok) {
       rsvpForm.reset();
-      plusOneSection.style.display = 'none';
-      specialRequestSection.style.display = 'none';
+      plusOneDetailsSection.style.display = 'none';
+      childrenDetailsSection.style.display = 'none';
+      childrenListContainer.innerHTML = '';
+      setPlusOneRequired(false);
       showSuccessAnimation();
-
-      if (formData.hasSpecialRequest) {
-        showSpecialRequestNotification();
-      }
 
       formMessage.textContent = '🎉 Thank you! Your RSVP has been received.';
       formMessage.className = 'form-message success';
@@ -498,7 +671,7 @@ successOverlay.addEventListener('click', (e) => {
 
 // Create confetti effect
 function createConfetti() {
-  const colors = ['#ff4d7d', '#ff85a8', '#ffb3c6', '#4CAF50', '#8BC34A', '#FFD700', '#667eea'];
+  const colors = ['#e8a840', '#c86828', '#f0d8a0', '#f5e8d0', '#7a3010', '#FFD700', '#5a98a8'];
 
   for (let i = 0; i < 50; i++) {
     const confetti = document.createElement('div');
@@ -514,49 +687,6 @@ function createConfetti() {
   setTimeout(() => {
     document.querySelectorAll('.confetti').forEach(c => c.remove());
   }, 5000);
-}
-
-// ========================================
-// SPECIAL REQUEST NOTIFICATION
-// ========================================
-
-function showSpecialRequestNotification() {
-  // Create notification overlay
-  const notification = document.createElement('div');
-  notification.className = 'special-request-notification';
-  notification.innerHTML = `
-    <div class="special-notification-content">
-      <div class="special-notification-icon">📬</div>
-      <h3>Special Request Sent!</h3>
-      <p>Your accommodation request has been forwarded to the bride and groom. They will review it and get back to you personally.</p>
-      <button class="special-notification-close">Got it!</button>
-    </div>
-  `;
-
-  document.body.appendChild(notification);
-
-  // Add animation
-  setTimeout(() => {
-    notification.classList.add('show');
-  }, 100);
-
-  // Close button
-  notification.querySelector('.special-notification-close').addEventListener('click', () => {
-    notification.classList.remove('show');
-    setTimeout(() => {
-      notification.remove();
-    }, 300);
-  });
-
-  // Auto-close after 8 seconds
-  setTimeout(() => {
-    if (document.body.contains(notification)) {
-      notification.classList.remove('show');
-      setTimeout(() => {
-        notification.remove();
-      }, 300);
-    }
-  }, 8000);
 }
 
 // ========================================
@@ -667,9 +797,9 @@ rsvpForm.addEventListener('submit', (e) => {
 // CONSOLE MESSAGE
 // ========================================
 
-console.log('%c💒 Sal & Lauren - March 20th, 2027 💒', 'font-size: 20px; font-weight: bold; color: #ff4d7d;');
-console.log('%cHyatt Regency Clearwater Beach Resort and Spa', 'font-size: 14px; color: #666;');
-console.log('%cBuilt with love 💕', 'font-size: 12px; color: #ff85a8;');
+console.log('%c💒 Sal & Lauren - April 24th, 2027 💒', 'font-size: 20px; font-weight: bold; color: #c86828;');
+console.log('%cHyatt Regency Clearwater Beach Resort and Spa', 'font-size: 14px; color: #7a3010;');
+console.log('%cBuilt with love 💕', 'font-size: 12px; color: #e8a840;');
 
 // ========================================
 // PAGE LOAD COMPLETE
@@ -739,3 +869,138 @@ window.addEventListener('scroll', () => {
   }
   lastScrollY = currentScrollY;
 });
+
+// ========================================
+// ADD TO CALENDAR
+// ========================================
+
+(function setupAddToCalendar() {
+  const btn = document.getElementById('addToCalendarBtn');
+  const modal = document.getElementById('calendarModal');
+  if (!btn || !modal) return;
+
+  const closeBtn = document.getElementById('calendarModalClose');
+  const googleLink = document.getElementById('calGoogle');
+  const outlookLink = document.getElementById('calOutlook');
+
+  // Event details
+  const title = 'Sal & Lauren\'s Wedding';
+  const description = 'Join us as we celebrate our wedding at the Hyatt Regency Clearwater Beach Resort & Spa. Ceremony begins at 5:30 PM. Cocktail attire (please avoid baby blue and white).';
+  const location = 'Hyatt Regency Clearwater Beach Resort & Spa, 301 S Gulfview Blvd, Clearwater, FL 33767';
+  const startDate = new Date('2027-04-24T17:00:00-04:00');
+  const endDate = new Date('2027-04-24T23:00:00-04:00');
+
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function toCalendarUTC(d) {
+    return d.getUTCFullYear() +
+      pad(d.getUTCMonth() + 1) +
+      pad(d.getUTCDate()) + 'T' +
+      pad(d.getUTCHours()) +
+      pad(d.getUTCMinutes()) +
+      pad(d.getUTCSeconds()) + 'Z';
+  }
+
+  const startUTC = toCalendarUTC(startDate);
+  const endUTC = toCalendarUTC(endDate);
+
+  // Google Calendar URL
+  const googleUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+    '&text=' + encodeURIComponent(title) +
+    '&dates=' + startUTC + '/' + endUTC +
+    '&details=' + encodeURIComponent(description) +
+    '&location=' + encodeURIComponent(location);
+  googleLink.href = googleUrl;
+
+  // Outlook Web URL (outlook.live.com for personal accounts)
+  const outlookUrl = 'https://outlook.live.com/calendar/0/action/compose?rru=addevent' +
+    '&subject=' + encodeURIComponent(title) +
+    '&startdt=' + startDate.toISOString() +
+    '&enddt=' + endDate.toISOString() +
+    '&body=' + encodeURIComponent(description) +
+    '&location=' + encodeURIComponent(location);
+  outlookLink.href = outlookUrl;
+
+  function openModal() {
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() {
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  btn.addEventListener('click', openModal);
+  closeBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+  });
+})();
+
+// ========================================
+// MOBILE STICKY RSVP CTA — hide when RSVP section is in view
+// ========================================
+(function () {
+  const cta = document.getElementById('mobileRsvpCta');
+  const rsvp = document.getElementById('rsvp');
+  if (!cta || !rsvp || !('IntersectionObserver' in window)) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        cta.classList.toggle('is-hidden', entry.isIntersecting);
+      });
+    },
+    { threshold: 0.15 }
+  );
+  observer.observe(rsvp);
+})();
+
+// ========================================
+// COUPLE NAMES ROTATION
+// (Handled entirely in CSS via @keyframes nameOrbit / nameCounterOrbit / heartSpin
+//  on .couple-names-card. No JS needed.)
+// ========================================
+
+// ========================================
+// HERO BACKGROUND ROTATION (every 10s)
+// ========================================
+(function rotateHeroBackground() {
+  const hero = document.querySelector('.hero');
+  if (!hero) return;
+
+  const photos = [
+    '/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-9482.jpg',
+    '/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-9093.jpg',
+    '/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-9111.jpg',
+    '/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-9308.jpg',
+    '/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-9394.jpg',
+    '/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-9440.jpg'
+  ];
+
+  // Create two layers for crossfade
+  const layerA = document.createElement('div');
+  const layerB = document.createElement('div');
+  layerA.className = 'hero-bg-layer active';
+  layerB.className = 'hero-bg-layer';
+  layerA.style.backgroundImage = `linear-gradient(180deg, rgba(46,22,8,0.25) 0%, rgba(46,22,8,0.55) 100%), url('${photos[0]}')`;
+  hero.insertBefore(layerB, hero.firstChild);
+  hero.insertBefore(layerA, hero.firstChild);
+  hero.classList.add('has-rotator');
+
+  // Preload
+  photos.forEach(src => { const img = new Image(); img.src = src; });
+
+  let idx = 0;
+  let activeIsA = true;
+  setInterval(() => {
+    idx = (idx + 1) % photos.length;
+    const next = photos[idx];
+    const incoming = activeIsA ? layerB : layerA;
+    const outgoing = activeIsA ? layerA : layerB;
+    incoming.style.backgroundImage = `linear-gradient(180deg, rgba(46,22,8,0.25) 0%, rgba(46,22,8,0.55) 100%), url('${next}')`;
+    incoming.classList.add('active');
+    outgoing.classList.remove('active');
+    activeIsA = !activeIsA;
+  }, 10000);
+})();

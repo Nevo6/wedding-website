@@ -1,11 +1,8 @@
-backend.py
-serve.py
-Google apps script.js
-fund_data.json
-*.xlsx
-.env
-google-credentials.json
-requirements.txt
-start-backend.bat
-stop-backend.bat
+# Backend lives in its own deployment (separate repo) — keep out of the Pages repo
+backend/
+
+# Frontend dev tooling
+node_modules/
+
 __pycache__/
+.env

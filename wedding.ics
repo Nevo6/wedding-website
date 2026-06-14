@@ -1,0 +1,16 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Sal and Lauren//Wedding//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:sal-lauren-wedding-2027@caramucci.com
+DTSTAMP:20260614T000000Z
+DTSTART:20270424T210000Z
+DTEND:20270425T030000Z
+SUMMARY:Sal & Lauren's Wedding
+DESCRIPTION:Join us as we celebrate our wedding at the Hyatt Regency Clearwater Beach Resort & Spa. Ceremony begins at 5:30 PM. Cocktail attire (please avoid baby blue and white).
+LOCATION:Hyatt Regency Clearwater Beach Resort & Spa\, 301 S Gulfview Blvd\, Clearwater\, FL 33767
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR
