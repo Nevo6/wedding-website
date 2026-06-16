@@ -11,7 +11,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Montserrat:wght@300;400;500;600&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="/static/groomsmen.css?v=20260616b">
+  <link rel="stylesheet" href="/static/groomsmen.css?v=20260616c">
 </head>
 
 <body>
@@ -26,15 +26,34 @@
 
       <div class="briefing-body">
         <div class="dossier frame">
-          <span class="stamp">Classified Dossier</span>
-          <div class="row"><span class="label">Agent</span><span class="val" id="dTarget"></span></div>
-          <div class="row"><span class="label">Designation</span><span class="val" id="dRole"></span></div>
-          <div class="row"><span class="label">Why You</span><span class="val" id="dIntel"></span></div>
-          <hr>
-          <div class="brief" id="dBrief"></div>
+          <span class="stamp">Character Sheet</span>
+
+          <div class="char-head">
+            <div class="char-name" id="charName">&mdash;</div>
+            <div class="char-meta">
+              <span class="char-class" id="charClass"></span>
+              <span class="char-level">LV&nbsp;<b id="charLevel"></b></span>
+            </div>
+          </div>
+
+          <div class="origin">
+            <div class="origin-label">Origin Lore</div>
+            <p class="origin-text" id="originText"></p>
+          </div>
+
+          <div class="stats">
+            <div class="stats-label">Core Stats</div>
+            <div id="statRows"></div>
+          </div>
+
+          <div class="skills">
+            <div class="skills-label">Special Abilities &amp; Perks</div>
+            <div class="skill-tree" id="skillTree"></div>
+            <div class="skill-readout" id="skillReadout">Hover a perk to inspect&hellip;</div>
+          </div>
         </div>
 
-        <div id="avatarWrap">
+        <div id="avatarWrap" class="breathing">
           <div class="avatar-tag">The Subject &middot; Identity Redacted</div>
         </div>
       </div>
@@ -51,21 +70,26 @@
       <p class="sub">Black tie. Open bar. No backing out.</p>
       <div class="ultimatum-buttons">
         <button id="declineBtn" class="btn">Decline</button>
-        <button id="acceptBtn" class="btn">Accept the Mission</button>
+        <button id="acceptBtn" class="btn">[ ACCEPT MISSION ]</button>
       </div>
       <p class="hint">Choose wisely, gentleman.</p>
     </section>
 
   </div>
 
-  <!-- Gold iris transition -->
-  <div id="curtain">
-    <div class="ring"></div>
-    <div class="seal">S &amp; L</div>
+  <!-- Boombox song (drop the mp3 at static/lethal-company-song.mp3) -->
+  <audio id="lethal-audio" src="/static/lethal-company-song.mp3" preload="auto"></audio>
+
+  <!-- Memory cascade celebration on accept -->
+  <div id="memoryCascade">
+    <div id="missionBanner">
+      <div class="b1">Mission Accepted</div>
+      <div class="b2">See you in Clearwater</div>
+    </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="/static/groomsmen.js?v=20260616b"></script>
+  <script src="/static/groomsmen.js?v=20260616c"></script>
 </body>
 
 </html>

@@ -22,6 +22,57 @@ const BYPASS_PASSWORD = 'HyattRegency2027';
 let activeCode = null;
 let activeTarget = null;
 
+// ---------- RPG character profiles ----------
+// Per-code character sheets. Fill these out as Sal supplies each agent's lore.
+const RPG = {
+  'Joey PS4': {
+    className: 'Supersonic Financial Vanguard',
+    level: 26,
+    origin: 'Spawned in the halls of McKamy Middle School and leveled up through ' +
+            'Flower Mound High School. Early game consisted of daily grinds at the ' +
+            'WAC, dominating the basketball court and accumulating mass in the weight room.',
+    stats: [
+      { name: 'Strength',     key: 'STR', val: 85, note: 'Forged from daily WAC lifting sessions.' },
+      { name: 'Agility',      key: 'AGI', val: 92, note: 'Unmatched ankle-breaking on the post-middle school basketball courts.' },
+      { name: 'Intelligence', key: 'INT', val: 88, note: 'Stock market analysis and shared portfolio gains.' },
+      { name: 'Mechanics',    key: 'MEC', val: 99, note: 'Aerials, flip resets, and daily Rocket League grinds.' },
+    ],
+    abilities: [
+      { name: 'Court Sweeper',     icon: '🏀',    anim: 'bounce', text: 'Passive ability activated every day after middle school. Grants +10 dominance against kids at the WAC.' },
+      { name: 'Bull Market Buff',  icon: 'chart', anim: 'chart',  text: 'Strategic investment protocol. Yields compounding returns when pooling stocks together.' },
+      { name: 'Supersonic Acrobat',icon: '🚀',    anim: 'roll',   text: 'Equips a rocket-powered battle-car for daily ranked grinds and clutch saves.' },
+    ],
+  },
+};
+
+// Tasteful generic sheet for agents whose lore Sal hasn't supplied yet.
+function profileFor(code, target) {
+  if (RPG[code]) return RPG[code];
+  const isBest = target.role === 'Best Man';
+  return {
+    className: isBest ? 'Right-Hand Legend' : 'Loyal Vanguard',
+    level: 26,
+    origin: target.intel + ' A founding member of the crew, battle-tested across ' +
+            'countless campaigns and ready for the final boss: April 24th, 2027.',
+    stats: [
+      { name: 'Strength',     key: 'STR', val: 80, note: 'Years of carrying the squad.' },
+      { name: 'Agility',      key: 'AGI', val: 84, note: 'Quick to show up when it counts.' },
+      { name: 'Intelligence', key: 'INT', val: 86, note: 'Always has the plan.' },
+      { name: 'Loyalty',      key: 'LOY', val: 99, note: 'Maxed out since day one.' },
+    ],
+    abilities: [
+      { name: 'Ride or Die',  icon: '🤝',    anim: 'bounce', text: 'Passive aura. Always answers the call, no questions asked.' },
+      { name: 'Hype Man',     icon: 'chart', anim: 'chart',  text: 'Buffs morale and keeps the whole party trending upward.' },
+      { name: 'Clutch Factor',icon: '🚀',    anim: 'roll',   text: 'Comes through when the stakes are highest.' },
+    ],
+  };
+}
+
+// Inline upward green line chart for the "chart" ability icon.
+const CHART_SVG = '<svg class="chart-svg" viewBox="0 0 40 28">' +
+  '<polyline class="chart-line" points="2,25 12,17 21,20 29,9 38,3"></polyline>' +
+  '<polyline class="chart-line" points="32,3 38,3 38,9"></polyline></svg>';
+
 // ---------- Stages ----------
 const stages = {
   briefing: document.getElementById('briefing'),
@@ -129,11 +180,11 @@ function playFunnyDecline() {
   FUNNY_SOUNDS[Math.floor(Math.random() * FUNNY_SOUNDS.length)]();
 }
 
-// ---------- BRIEFING ----------
+// ---------- BRIEFING (RPG character sheet) ----------
 function bootSequence() {
   showStage('briefing');
   initAvatar();
-  populateDossier(activeTarget);
+  renderCharacter(activeCode, activeTarget);
 }
 
 function typeInto(el, text, speed, done) {
@@ -153,27 +204,53 @@ function typeInto(el, text, speed, done) {
   tick();
 }
 
-function populateDossier(target) {
-  const lines = [
-    { el: 'dTarget', text: target.name, speed: 32 },
-    { el: 'dRole', text: target.role, speed: 32 },
-    { el: 'dIntel', text: target.intel, speed: 22 },
-    { el: 'dBrief', speed: 16, text:
-      'Your assignment, should you choose to accept it: report to the Hyatt Regency ' +
-      'in Clearwater Beach on the 24th of April, 2027, in full black tie. Stand beside ' +
-      'Sal Caramucci as he marries Lauren Hayle, keep the rings secure, the toasts ' +
-      'flowing, and the dance floor under control. Discretion optional. Style mandatory.' },
-  ];
-  let idx = 0;
-  const next = () => {
-    if (idx >= lines.length) {
-      document.getElementById('engageBtn').style.visibility = 'visible';
-      return;
-    }
-    const line = lines[idx++];
-    typeInto(document.getElementById(line.el), line.text, line.speed, next);
-  };
-  next();
+function renderCharacter(code, target) {
+  const p = profileFor(code, target);
+
+  document.getElementById('charName').textContent = target.name;
+  document.getElementById('charClass').textContent = p.className;
+  document.getElementById('charLevel').textContent = p.level;
+
+  // Core stats — the CSS "grow" keyframe animates each bar 0 → target on insert.
+  const rows = document.getElementById('statRows');
+  rows.innerHTML = '';
+  p.stats.forEach((s, i) => {
+    const row = document.createElement('div');
+    row.className = 'stat-row';
+    row.title = s.note;
+    row.innerHTML =
+      `<div class="stat-top"><span class="stat-name">${s.name} <small>(${s.key})</small></span>` +
+      `<span class="stat-num">${s.val}/100</span></div>` +
+      `<div class="stat-track"><div class="stat-fill" style="--val:${s.val}%;animation-delay:${(i * 0.12).toFixed(2)}s"></div></div>` +
+      `<div class="stat-note">${s.note}</div>`;
+    rows.appendChild(row);
+  });
+
+  // Skill tree — each node animates on hover and reveals its text in the readout.
+  const tree = document.getElementById('skillTree');
+  const readout = document.getElementById('skillReadout');
+  tree.innerHTML = '';
+  p.abilities.forEach(a => {
+    const node = document.createElement('div');
+    node.className = 'skill-node anim-' + a.anim;
+    node.tabIndex = 0;
+    node.innerHTML =
+      `<div class="skill-icon">${a.icon === 'chart' ? CHART_SVG : a.icon}</div>` +
+      `<div class="skill-name">${a.name}</div>`;
+    const reveal = () => {
+      readout.innerHTML = `<strong>${a.name}.</strong> ${a.text}`;
+      readout.classList.add('lit');
+    };
+    node.addEventListener('mouseenter', reveal);
+    node.addEventListener('focus', reveal);
+    node.addEventListener('click', reveal);
+    tree.appendChild(node);
+  });
+
+  // Type out the origin lore, then reveal the action button.
+  typeInto(document.getElementById('originText'), p.origin, 13, () => {
+    document.getElementById('engageBtn').style.visibility = 'visible';
+  });
 }
 
 // ---------- THREE.JS TUXEDO AGENT ----------
@@ -329,29 +406,60 @@ declineBtn.addEventListener('click', e => { e.preventDefault(); fleeDecline(); }
 
 acceptBtn.addEventListener('click', async () => {
   acceptBtn.disabled = true;
-  acceptBtn.textContent = 'Transmitting…';
+  declineBtn.style.pointerEvents = 'none';
+  acceptBtn.textContent = 'MISSION ACCEPTED';
+
+  // Kick off the celebration immediately (a user gesture is required for audio).
+  acceptSequence();
+
+  // Notify Sal + unlock the main site in the background (don't block the show).
   try {
-    await fetch(`${API_URL}/mission_response`, {
+    fetch(`${API_URL}/mission_response`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code: activeCode, response: 'accepted' }),
-    });
-  } catch (e) {
-    console.error('Mission transmit failed:', e);
-  }
-  // Unlock the main wedding site (bypass the password gate) for this session.
+    }).catch(e => console.error('Mission transmit failed:', e));
+  } catch (e) { /* ignore */ }
   try {
     sessionStorage.setItem('weddingAuthenticated', 'true');
     sessionStorage.setItem('weddingTier', '1');
     sessionStorage.setItem('weddingPassword', BYPASS_PASSWORD);
     if (activeTarget) sessionStorage.setItem('groomsmanCodename', activeTarget.name);
   } catch (e) { /* sessionStorage may be unavailable */ }
-  irisAndRedirect();
 });
 
-function irisAndRedirect() {
-  document.getElementById('curtain').classList.add('run');
-  setTimeout(() => { window.location.href = '/'; }, 1250);
+// ---------- ACCEPT SEQUENCE: boombox song + memory cascade + redirect ----------
+const MEMORY_EMOJI = ['🏀', '📈', '🚀', '🎮', '🥂', '🎓', '💪', '🤝', '🏎️', '📸', '🔥', '👑', '🎯', '🍻'];
+
+function acceptSequence() {
+  // Lethal Company boombox banger (drop the mp3 at /static/lethal-company-song.mp3).
+  const audio = document.getElementById('lethal-audio');
+  if (audio) {
+    audio.volume = 0.85;
+    try { audio.currentTime = 0; } catch (e) { /* not yet loaded */ }
+    audio.play().catch(() => { /* no file / autoplay blocked — visuals still run */ });
+  }
+
+  startMemoryCascade();
+
+  // Let the song play and the memories populate, then head to the wedding site.
+  setTimeout(() => { window.location.href = '/'; }, 6000);
+}
+
+function startMemoryCascade() {
+  const layer = document.getElementById('memoryCascade');
+  layer.classList.add('active');
+  const COUNT = 14;
+  for (let i = 0; i < COUNT; i++) {
+    const card = document.createElement('div');
+    card.className = 'memory-img';
+    card.style.setProperty('--rot', (Math.random() * 30 - 15).toFixed(1) + 'deg');
+    card.style.left = (4 + Math.random() * 78).toFixed(1) + 'vw';
+    card.style.top = (6 + Math.random() * 70).toFixed(1) + 'vh';
+    card.style.animationDelay = (i * 0.28).toFixed(2) + 's';
+    card.innerHTML = `<span class="memory-emoji">${MEMORY_EMOJI[i % MEMORY_EMOJI.length]}</span>`;
+    layer.appendChild(card);
+  }
 }
 
 // ---------- ENTRY ----------

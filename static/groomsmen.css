@@ -375,6 +375,123 @@ html, body {
   100% { filter: none; transform: translate(0,0); }
 }
 
+/* ---------- RPG CHARACTER SHEET ---------- */
+.char-head { margin-bottom: 14px; }
+.char-name { font-size: 30px; color: var(--cream); line-height: 1.05; }
+.char-meta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 6px; }
+.char-class {
+  font-family: var(--label); text-transform: uppercase; letter-spacing: 2px;
+  font-size: 11px; color: var(--gold);
+}
+.char-level {
+  font-family: var(--label); font-size: 11px; letter-spacing: 2px; color: var(--cream-dim);
+  border: 1px solid var(--gold-dim); padding: 2px 9px;
+}
+.char-level b { color: var(--gold-bright); }
+
+.origin-label, .stats-label, .skills-label {
+  font-family: var(--label); text-transform: uppercase; letter-spacing: 3px;
+  font-size: 10px; color: var(--gold); margin-bottom: 8px;
+}
+.origin { margin: 16px 0; }
+.origin-text {
+  font-style: italic; color: var(--cream-dim); line-height: 1.6;
+  font-size: 16px; min-height: 4.6em;
+}
+
+/* Core stats */
+.stats { margin: 18px 0; }
+.stat-row { margin-bottom: 13px; }
+.stat-top { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; }
+.stat-name { color: var(--cream); letter-spacing: .4px; }
+.stat-name small { color: var(--gold); font-family: var(--label); font-size: 10px; letter-spacing: 1px; }
+.stat-num { font-family: var(--label); font-size: 11px; color: var(--gold-bright); }
+.stat-track {
+  height: 9px; background: rgba(0, 0, 0, 0.5); border: 1px solid var(--gold-dim);
+  margin: 5px 0 3px; overflow: hidden;
+}
+.stat-fill {
+  height: 100%; width: var(--val);
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-bright));
+  box-shadow: 0 0 10px rgba(201, 162, 75, 0.5);
+  animation: grow 1.5s cubic-bezier(.2, .8, .2, 1) both;
+}
+@keyframes grow { from { width: 0; } to { width: var(--val); } }
+.stat-note { font-size: 11px; color: var(--cream-dim); font-style: italic; opacity: .78; }
+
+/* Skill tree */
+.skills { margin-top: 18px; }
+.skill-tree { display: flex; gap: 14px; flex-wrap: wrap; }
+.skill-node {
+  width: 86px; cursor: pointer; text-align: center; outline: none;
+  border: 1px solid var(--gold-dim); background: rgba(0, 0, 0, 0.35); padding: 10px 6px;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.skill-node:hover, .skill-node:focus {
+  border-color: var(--gold); box-shadow: 0 0 16px rgba(201, 162, 75, 0.4);
+  background: rgba(201, 162, 75, 0.08);
+}
+.skill-icon { font-size: 26px; height: 36px; display: flex; align-items: center; justify-content: center; }
+.skill-name {
+  font-family: var(--label); font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--cream-dim); margin-top: 6px; line-height: 1.25;
+}
+.skill-node:hover .skill-name, .skill-node:focus .skill-name { color: var(--gold-bright); }
+.skill-readout {
+  margin-top: 13px; min-height: 3.4em; font-size: 14px; color: var(--cream-dim);
+  border-left: 2px solid var(--gold-dim); padding-left: 12px; font-style: italic;
+  opacity: .55; transition: opacity .2s, border-color .2s;
+}
+.skill-readout.lit { opacity: 1; border-left-color: var(--gold); }
+.skill-readout strong { color: var(--gold-bright); font-style: normal; }
+
+/* Ability 1 — Court Sweeper: dribbling bounce */
+@keyframes dribble { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+.anim-bounce:hover .skill-icon, .anim-bounce:focus .skill-icon { animation: dribble .5s ease-in-out infinite; }
+
+/* Ability 2 — Bull Market Buff: green line drawn via clip-path */
+.chart-svg { width: 32px; height: 22px; fill: none; }
+.chart-line { stroke: #5dd66f; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+@keyframes draw { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+.anim-chart:hover .chart-svg, .anim-chart:focus .chart-svg { animation: draw .7s ease; }
+
+/* Ability 3 — Supersonic Acrobat: mid-air barrel roll */
+@keyframes barrelRoll { 0% { transform: translateX(-10px) rotate(0); } 100% { transform: translateX(10px) rotate(360deg); } }
+.anim-roll:hover .skill-icon, .anim-roll:focus .skill-icon { animation: barrelRoll .7s linear infinite; }
+
+/* Breathing idle animation for the avatar */
+.breathing { animation: breathe 3.6s ease-in-out infinite; transform-origin: center bottom; }
+@keyframes breathe { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.035); } }
+
+/* ---------- ACCEPT SEQUENCE: memory cascade ---------- */
+#memoryCascade { position: fixed; inset: 0; z-index: 900; display: none; pointer-events: none; }
+#memoryCascade.active { display: block; background: rgba(3, 3, 6, 0.72); }
+.memory-img {
+  position: absolute; width: 118px; height: 138px;
+  background: linear-gradient(150deg, #1b1812, #0b0b0f);
+  border: 1px solid var(--gold); border-bottom-width: 22px;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.6), 0 0 18px rgba(201, 162, 75, 0.25);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transform: rotate(var(--rot, 0deg)) scale(.6);
+  animation: popIn .6s cubic-bezier(.2, 1.3, .4, 1) forwards;
+}
+.memory-emoji { font-size: 46px; filter: drop-shadow(0 0 8px rgba(201, 162, 75, 0.4)); }
+@keyframes popIn { to { opacity: 1; transform: rotate(var(--rot, 0deg)) scale(1); } }
+
+#missionBanner {
+  position: fixed; top: 50%; left: 50%; z-index: 950; text-align: center; pointer-events: none;
+  opacity: 0; transform: translate(-50%, -50%) scale(.8);
+}
+#memoryCascade.active #missionBanner { animation: bannerIn .8s ease .25s forwards; }
+@keyframes bannerIn { to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+#missionBanner .b1 {
+  font-family: var(--label); letter-spacing: 6px; font-size: 12px; text-transform: uppercase; color: var(--gold);
+}
+#missionBanner .b2 {
+  font-family: var(--serif); font-size: clamp(34px, 7vw, 66px); color: var(--gold-bright);
+  text-shadow: 0 0 34px rgba(201, 162, 75, 0.6);
+}
+
 /* ---------- GOLD IRIS TRANSITION (007 gun-barrel) ---------- */
 #curtain {
   position: fixed;
