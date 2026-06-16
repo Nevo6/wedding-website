@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>// CLASSIFIED //</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/groomsmen.css">
+</head>
+
+<body>
+  <div id="screen">
+
+    <!-- ========== LOGIN ========== -->
+    <section id="login" class="stage active">
+      <div class="panel">
+        <span class="classified-tag">// CLASSIFIED //</span>
+        <h1 class="glow">OPERATION: SUIT UP</h1>
+        <p class="subtitle">RESTRICTED ACCESS — AUTHORIZED PERSONNEL ONLY</p>
+        <div class="code-row">
+          <input id="codeInput" type="text" placeholder="ENTER CLEARANCE CODE" autocomplete="off" spellcheck="false">
+          <button id="authBtn" class="btn">AUTHENTICATE</button>
+        </div>
+        <div id="loginError"></div>
+        <div class="prompt-list">
+          &gt; SYSTEM: BLACK OPS TERMINAL v4.27<br>
+          &gt; STATUS: AWAITING CREDENTIALS...<br>
+          &gt; WARNING: UNAUTHORIZED ACCESS WILL BE LOGGED
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== BRIEFING ========== -->
+    <section id="briefing" class="stage">
+      <div class="briefing-header">
+        <span class="op glow">OPERATION: APRIL 2027</span>
+        <span class="cls">// EYES ONLY //</span>
+      </div>
+
+      <div class="briefing-body">
+        <div class="dossier">
+          <div class="row"><span class="label">&gt; TARGET:</span><span class="val" id="dTarget"></span></div>
+          <div class="row"><span class="label">&gt; DESIGNATION:</span><span class="val" id="dRole"></span></div>
+          <div class="row"><span class="label">&gt; INTEL:</span><span class="val" id="dIntel"></span></div>
+          <hr style="border-color:#1f3d1f;margin:14px 0;">
+          <div class="typed" id="dBrief"></div>
+        </div>
+
+        <div id="avatarWrap">
+          <div class="avatar-tag">SUBJECT // IDENTITY REDACTED</div>
+        </div>
+      </div>
+
+      <div class="briefing-actions">
+        <button id="engageBtn" class="btn btn-engage" style="visibility:hidden;">REVIEW ASSIGNMENT</button>
+      </div>
+    </section>
+
+    <!-- ========== ULTIMATUM ========== -->
+    <section id="ultimatum" class="stage">
+      <h2>DO YOU ACCEPT THIS ASSIGNMENT?</h2>
+      <p class="sub">// THERE IS NO BACKING OUT //</p>
+      <div class="ultimatum-buttons">
+        <button id="declineBtn" class="btn">DECLINE</button>
+        <button id="acceptBtn" class="btn">ACCEPT</button>
+      </div>
+      <p class="hint">Choose wisely, soldier.</p>
+    </section>
+
+  </div>
+
+  <!-- CRT power-off transition -->
+  <div id="crtOff"><div class="dot"></div></div>
+
+  <!-- Three.js (pinned major version) then portal logic -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="/static/groomsmen.js"></script>
+</body>
+
+</html>
