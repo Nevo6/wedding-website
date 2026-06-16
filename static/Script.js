@@ -85,11 +85,50 @@ function showMainContent() {
   passwordOverlay.classList.add('hidden');
   mainContent.classList.remove('hidden');
   sessionStorage.setItem('weddingAuthenticated', 'true');
+  maybeWelcomeAgent();
 }
+
+// If the visitor just accepted their mission in the groomsmen portal, greet
+// them by codename once, then clear the flag.
+function maybeWelcomeAgent() {
+  const name = sessionStorage.getItem('groomsmanCodename');
+  if (!name) return;
+  sessionStorage.removeItem('groomsmanCodename');
+
+  const toast = document.createElement('div');
+  toast.textContent = `Welcome aboard, Agent ${name}. Mission accepted. 🥂`;
+  toast.style.cssText = [
+    'position:fixed', 'left:50%', 'bottom:32px', 'transform:translateX(-50%) translateY(20px)',
+    'z-index:9999', 'padding:14px 26px', 'background:#0a0a0d', 'color:#ecc874',
+    'border:1px solid #c9a24b', 'box-shadow:0 0 28px rgba(201,162,75,0.45)',
+    'font-family:Montserrat,sans-serif', 'letter-spacing:1px', 'font-size:14px',
+    'border-radius:2px', 'opacity:0', 'transition:opacity .6s ease, transform .6s ease'
+  ].join(';');
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => {
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateX(-50%) translateY(0)';
+  });
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(-50%) translateY(20px)';
+    setTimeout(() => toast.remove(), 700);
+  }, 5000);
+}
+
+// Secret clearance codes that route into the hidden groomsmen portal
+// (Operation: April 2027) instead of unlocking the site directly.
+const GROOMSMEN_CODES = ['WR_Groomsmen', 'JL_Groomsmen', 'JE_BestMan', 'JM_Groomsmen'];
 
 // Handle password form submission.
 passwordForm.addEventListener('submit', (e) => {
   e.preventDefault();
+
+  // Easter egg: a groomsman's clearance code launches the recruitment portal.
+  if (GROOMSMEN_CODES.includes(passwordInput.value.trim())) {
+    window.location.href = '/groomsmen.html?code=' + encodeURIComponent(passwordInput.value.trim());
+    return;
+  }
 
   const rules = lookupTier(passwordInput.value);
 

@@ -5,78 +5,83 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <title>// CLASSIFIED //</title>
+  <title>Operation: April 2027</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Montserrat:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="/static/groomsmen.css">
 </head>
 
 <body>
   <div id="screen">
 
-    <!-- ========== LOGIN ========== -->
+    <!-- ========== CLEARANCE ========== -->
     <section id="login" class="stage active">
-      <div class="panel">
-        <span class="classified-tag">// CLASSIFIED //</span>
-        <h1 class="glow">OPERATION: SUIT UP</h1>
-        <p class="subtitle">RESTRICTED ACCESS — AUTHORIZED PERSONNEL ONLY</p>
+      <div class="panel frame">
+        <div class="reticle"><span class="mono">S&nbsp;&amp;&nbsp;L</span></div>
+        <p class="kicker">Strictly Confidential &mdash; By Invitation Only</p>
+        <h1>You Are Hereby Recruited<br><span class="names">A Black-Tie Affair</span></h1>
+        <p class="op">Operation: April 24<sup>th</sup>, 2027 &middot; Hyatt Regency, Clearwater Beach</p>
+        <p class="intro">The wedding of <em>Sal Caramucci</em> &amp; <em>Lauren Hayle</em> requires
+          a hand-picked detail of distinguished gentlemen. Present your clearance code, Agent.</p>
         <div class="code-row">
           <input id="codeInput" type="text" placeholder="ENTER CLEARANCE CODE" autocomplete="off" spellcheck="false">
-          <button id="authBtn" class="btn">AUTHENTICATE</button>
+          <button id="authBtn" class="btn">Authenticate</button>
         </div>
         <div id="loginError"></div>
-        <div class="prompt-list">
-          &gt; SYSTEM: BLACK OPS TERMINAL v4.27<br>
-          &gt; STATUS: AWAITING CREDENTIALS...<br>
-          &gt; WARNING: UNAUTHORIZED ACCESS WILL BE LOGGED
-        </div>
+        <p class="footnote">This briefing will not self-destruct &mdash; but the open bar might.</p>
       </div>
     </section>
 
     <!-- ========== BRIEFING ========== -->
     <section id="briefing" class="stage">
       <div class="briefing-header">
-        <span class="op glow">OPERATION: APRIL 2027</span>
-        <span class="cls">// EYES ONLY //</span>
+        <span class="op">Operation: April 2027</span>
+        <span class="cls">For Your Eyes Only</span>
       </div>
 
       <div class="briefing-body">
-        <div class="dossier">
-          <div class="row"><span class="label">&gt; TARGET:</span><span class="val" id="dTarget"></span></div>
-          <div class="row"><span class="label">&gt; DESIGNATION:</span><span class="val" id="dRole"></span></div>
-          <div class="row"><span class="label">&gt; INTEL:</span><span class="val" id="dIntel"></span></div>
-          <hr style="border-color:#1f3d1f;margin:14px 0;">
-          <div class="typed" id="dBrief"></div>
+        <div class="dossier frame">
+          <span class="stamp">Classified Dossier</span>
+          <div class="row"><span class="label">Agent</span><span class="val" id="dTarget"></span></div>
+          <div class="row"><span class="label">Designation</span><span class="val" id="dRole"></span></div>
+          <div class="row"><span class="label">Why You</span><span class="val" id="dIntel"></span></div>
+          <hr>
+          <div class="brief" id="dBrief"></div>
         </div>
 
         <div id="avatarWrap">
-          <div class="avatar-tag">SUBJECT // IDENTITY REDACTED</div>
+          <div class="avatar-tag">The Subject &middot; Identity Redacted</div>
         </div>
       </div>
 
       <div class="briefing-actions">
-        <button id="engageBtn" class="btn btn-engage" style="visibility:hidden;">REVIEW ASSIGNMENT</button>
+        <button id="engageBtn" class="btn btn-engage" style="visibility:hidden;">Review the Assignment</button>
       </div>
     </section>
 
     <!-- ========== ULTIMATUM ========== -->
     <section id="ultimatum" class="stage">
-      <h2>DO YOU ACCEPT THIS ASSIGNMENT?</h2>
-      <p class="sub">// THERE IS NO BACKING OUT //</p>
+      <p class="kicker">The Ultimatum</p>
+      <h2>Will you stand beside Sal on the 24<sup>th</sup> of April, 2027?</h2>
+      <p class="sub">Black tie. Open bar. No backing out.</p>
       <div class="ultimatum-buttons">
-        <button id="declineBtn" class="btn">DECLINE</button>
-        <button id="acceptBtn" class="btn">ACCEPT</button>
+        <button id="declineBtn" class="btn">Decline</button>
+        <button id="acceptBtn" class="btn">Accept the Mission</button>
       </div>
-      <p class="hint">Choose wisely, soldier.</p>
+      <p class="hint">Choose wisely, gentleman.</p>
     </section>
 
   </div>
 
-  <!-- CRT power-off transition -->
-  <div id="crtOff"><div class="dot"></div></div>
+  <!-- Gold iris transition -->
+  <div id="curtain">
+    <div class="ring"></div>
+    <div class="seal">S &amp; L</div>
+  </div>
 
-  <!-- Three.js (pinned major version) then portal logic -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="/static/groomsmen.js"></script>
 </body>
