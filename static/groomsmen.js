@@ -6,11 +6,13 @@
 const API_URL = 'https://api.caramucci.com';
 
 // Clearance code -> dossier. Mirrors GROOMSMEN_ROSTER in backend.py.
+// Entry is ONLY via the main-site password box (passes ?code=…); there is no
+// second password prompt here.
 const ROSTER = {
-  WR_Groomsmen: { name: 'Wyatt Rayner', role: 'Groomsman', intel: "Sal's closest friend since the 6th grade." },
-  JL_Groomsmen: { name: 'James Lange',  role: 'Groomsman', intel: "Sal's longest-lasting friend since the 4th grade." },
-  JE_BestMan:   { name: 'Jon Edwards',  role: 'Best Man',  intel: 'Brother. Priority asset. The Best Man.' },
-  JM_Groomsmen: { name: 'Joey Moglia',  role: 'Groomsman', intel: "One of Sal's closest friends." },
+  'Wyatt Rayner': { name: 'Wyatt Rayner', role: 'Groomsman', intel: "Sal's closest friend since the 6th grade." },
+  'James Lange':  { name: 'James Lange',  role: 'Groomsman', intel: "Sal's longest-lasting friend since the 4th grade." },
+  'Jon Edwards':  { name: 'Jon Edwards',  role: 'Best Man',  intel: 'Brother. Priority asset. The Best Man.' },
+  'Joey PS4':     { name: 'Joey Moglia',  role: 'Groomsman', intel: "One of Sal's closest friends." },
 };
 
 // On Accept we unlock the main wedding site with a real Tier-1 password so the
@@ -22,7 +24,6 @@ let activeTarget = null;
 
 // ---------- Stages ----------
 const stages = {
-  login: document.getElementById('login'),
   briefing: document.getElementById('briefing'),
   ultimatum: document.getElementById('ultimatum'),
 };
@@ -127,29 +128,6 @@ function playFunnyDecline() {
   ensureAudio();
   FUNNY_SOUNDS[Math.floor(Math.random() * FUNNY_SOUNDS.length)]();
 }
-
-// ---------- LOGIN ----------
-const codeInput = document.getElementById('codeInput');
-const loginError = document.getElementById('loginError');
-
-function attemptLogin() {
-  ensureAudio();
-  const code = (codeInput.value || '').trim();
-  const target = ROSTER[code];
-  if (!target) {
-    loginError.textContent = 'ACCESS DENIED — credentials not recognized.';
-    screen.classList.add('glitch');
-    setTimeout(() => screen.classList.remove('glitch'), 800);
-    codeInput.value = '';
-    return;
-  }
-  activeCode = code;
-  activeTarget = target;
-  loginError.textContent = '';
-  bootSequence();
-}
-document.getElementById('authBtn').addEventListener('click', attemptLogin);
-codeInput.addEventListener('keydown', e => { if (e.key === 'Enter') attemptLogin(); });
 
 // ---------- BRIEFING ----------
 function bootSequence() {
@@ -322,6 +300,18 @@ const acceptBtn = document.getElementById('acceptBtn');
 const TAUNTS = ['Nope!', 'Too slow!', 'Nice try, 007.', 'Not today.', 'As if.',
                 'Catch me!', 'Denied.', 'You blinked.', 'Missed me.', 'Out of the question.'];
 
+// Tattle to Sal the first time someone tries to bail (once per session).
+let declineReported = false;
+function reportDeclineAttempt() {
+  if (declineReported || !activeCode) return;
+  declineReported = true;
+  fetch(`${API_URL}/decline_attempt`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code: activeCode }),
+  }).catch(e => console.error('Decline report failed:', e));
+}
+
 function fleeDecline() {
   const maxX = Math.min(window.innerWidth / 2 - 130, 240);
   const maxY = Math.min(window.innerHeight / 2 - 120, 180);
@@ -330,6 +320,7 @@ function fleeDecline() {
   declineBtn.style.transform = `translate(${x}px, ${y}px) rotate(${(Math.random() * 16 - 8).toFixed(1)}deg)`;
   declineBtn.textContent = TAUNTS[Math.floor(Math.random() * TAUNTS.length)];
   playFunnyDecline();
+  reportDeclineAttempt();
   screen.classList.add('glitch');
   setTimeout(() => screen.classList.remove('glitch'), 400);
 }
@@ -364,7 +355,8 @@ function irisAndRedirect() {
 }
 
 // ---------- ENTRY ----------
-// Allow entry from the main-site password box via ?code=XXX (skips the login).
+// Entry is only via the main-site password box, which passes ?code=…
+// No valid code = no business here, so send them to the wedding site.
 (function init() {
   const urlCode = new URLSearchParams(window.location.search).get('code');
   if (urlCode && ROSTER[urlCode]) {
@@ -372,7 +364,6 @@ function irisAndRedirect() {
     activeTarget = ROSTER[urlCode];
     bootSequence();
   } else {
-    showStage('login');
-    codeInput.focus();
+    window.location.replace('/');
   }
 })();

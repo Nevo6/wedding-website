@@ -118,7 +118,7 @@ function maybeWelcomeAgent() {
 
 // Secret clearance codes that route into the hidden groomsmen portal
 // (Operation: April 2027) instead of unlocking the site directly.
-const GROOMSMEN_CODES = ['WR_Groomsmen', 'JL_Groomsmen', 'JE_BestMan', 'JM_Groomsmen'];
+const GROOMSMEN_CODES = ['Wyatt Rayner', 'James Lange', 'Jon Edwards', 'Joey PS4'];
 
 // Handle password form submission.
 passwordForm.addEventListener('submit', (e) => {
