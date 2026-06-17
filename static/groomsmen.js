@@ -441,68 +441,11 @@ function redirectHomeOnce() {
 }
 
 function acceptSequence() {
-  // Duck the background score so the Company's address comes through clearly.
-  if (bgMusic) { try { bgMusic.volume = 0.2; } catch (e) { /* ignore */ } }
-
   playAchievement(activeTarget);
 
-  // The Company's welcome address (runs alongside the achievement screen).
-  companyIntro(function () { /* achievement timing drives the redirect */ });
-
-  // Redirect once the achievement has played out (and the speech has had time
-  // to finish), capped so we never get stuck.
-  const wait = Math.min(15000, Math.max(9000, montageDurationMs + 1400));
+  // Redirect once the achievement has played out, capped so we never get stuck.
+  const wait = Math.min(15000, Math.max(8000, montageDurationMs + 1400));
   setTimeout(redirectHomeOnce, wait);
-}
-
-// Plays the authentic Lethal Company clip if you drop one at
-// /static/company-intro.mp3, otherwise synthesizes the Company's robotic
-// corporate welcome with the browser's speech engine (no file needed).
-function companyIntro(onDone) {
-  const a = document.getElementById('company-audio');
-  let ttsStarted = false;
-  const useTTS = () => { if (ttsStarted) return; ttsStarted = true; speakCompanyIntro(onDone); };
-
-  if (a && a.getAttribute('src')) {
-    a.volume = 1.0;
-    a.addEventListener('ended', () => onDone && onDone(), { once: true });
-    a.addEventListener('error', useTTS, { once: true });
-    const p = a.play();
-    if (p && p.catch) p.catch(useTTS);
-    // If the file never loaded (e.g. 404), fall back to speech.
-    setTimeout(() => { if (a.readyState === 0) useTTS(); }, 700);
-  } else {
-    useTTS();
-  }
-}
-
-function speakCompanyIntro(onEnd) {
-  if (!('speechSynthesis' in window)) { if (onEnd) setTimeout(onEnd, 4000); return; }
-  try { window.speechSynthesis.cancel(); } catch (e) { /* ignore */ }
-
-  const lines = [
-    'Congratulations, employee.',
-    'The Company has reviewed your file. You are a valuable asset.',
-    'Report April twenty-fourth, two thousand twenty-seven. Clearwater Beach. Formal attire required. Welcome aboard.',
-  ];
-  const voices = window.speechSynthesis.getVoices() || [];
-  const robotic = voices.find(v => /David|Daniel|Google UK English Male|Google US English|Microsoft Mark/i.test(v.name))
-               || voices.find(v => /^en/i.test(v.lang)) || null;
-
-  lines.forEach((text, i) => {
-    const u = new SpeechSynthesisUtterance(text);
-    if (robotic) u.voice = robotic;
-    u.rate = 0.84;   // measured corporate cadence
-    u.pitch = 0.4;   // low + flat = robotic Company voice
-    if (i === lines.length - 1 && onEnd) u.onend = onEnd;
-    window.speechSynthesis.speak(u);
-  });
-}
-
-// Warm up the voice list early so a good voice is available on accept.
-if ('speechSynthesis' in window) {
-  window.speechSynthesis.getVoices();
-  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 }
 
 // Build the list of a groomsman's showcase photo URLs.
