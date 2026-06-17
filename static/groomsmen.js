@@ -10,13 +10,17 @@ const API_URL = 'https://api.caramucci.com';
 // second password prompt here.
 const ROSTER = {
   'Wyatt Rayner': { name: 'Wyatt Rayner', role: 'Groomsman', intel: "Sal's closest friend since the 6th grade.",
-                    img: '/static/portraits/wyatt.webp?v=1', focus: '60% 28%' },
+                    img: '/static/portraits/wyatt.webp?v=1', focus: '60% 28%',
+                    gallery: { dir: 'wyatt', count: 18 } },
   'James Lange':  { name: 'James Lange',  role: 'Groomsman', intel: "Sal's longest-lasting friend since the 4th grade.",
-                    img: '/static/portraits/james.webp?v=1', focus: 'center 30%' },
+                    img: '/static/portraits/james.webp?v=1', focus: 'center 30%',
+                    gallery: { dir: 'james', count: 14 } },
   'Jon Edwards':  { name: 'Jon Edwards',  role: 'Best Man',  intel: 'Brother. Priority asset. The Best Man.',
-                    img: '/static/portraits/jon.webp?v=1', focus: 'center 22%' },
+                    img: '/static/portraits/jon.webp?v=1', focus: 'center 22%',
+                    gallery: { dir: 'jon', count: 27 } },
   'Joey PS4':     { name: 'Joey Moglia',  role: 'Groomsman', intel: "One of Sal's closest friends.",
-                    img: '/static/portraits/joey.webp?v=1', focus: 'center 30%' },
+                    img: '/static/portraits/joey.webp?v=1', focus: 'center 30%',
+                    gallery: { dir: 'joey', count: 11 } },
 };
 
 // On Accept we unlock the main wedding site with a real Tier-1 password so the
@@ -405,11 +409,13 @@ function acceptSequence() {
     song.play().catch(() => { /* no file / autoplay blocked — visuals still run */ });
   }
 
-  // The Company's welcome address. Redirect home once it finishes.
-  companyIntro(redirectHomeOnce);
+  // The Company's welcome address (runs alongside the photo montage).
+  companyIntro(function () { /* montage timing drives the redirect */ });
 
-  // Safety net: head to the wedding site no later than 11s even if speech stalls.
-  setTimeout(redirectHomeOnce, 11000);
+  // Redirect once the memory montage has played out (and the speech has had
+  // time to finish), capped so we never get stuck.
+  const wait = Math.min(15000, Math.max(9000, montageDurationMs + 1400));
+  setTimeout(redirectHomeOnce, wait);
 }
 
 // Plays the authentic Lethal Company clip if you drop one at
@@ -462,9 +468,51 @@ if ('speechSynthesis' in window) {
   window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 }
 
+// Build the list of a groomsman's showcase photo URLs.
+function galleryUrls(target) {
+  if (!target || !target.gallery) return [];
+  const { dir, count } = target.gallery;
+  const urls = [];
+  for (let i = 1; i <= count; i++) urls.push(`/static/showcase/${dir}/${String(i).padStart(2, '0')}.webp`);
+  return urls;
+}
+
+let montageDurationMs = 6000;
+
 function startMemoryCascade() {
   const layer = document.getElementById('memoryCascade');
   layer.classList.add('active');
+  const photos = galleryUrls(activeTarget);
+  if (photos.length) montagePhotos(layer, photos);
+  else emojiCascade(layer);
+}
+
+// Real-photo memory montage: each photo flies in center-stage, holds, then
+// settles into a scattered collage. Staggered so they appear one at a time.
+function montagePhotos(layer, photos) {
+  const n = photos.length;
+  const interval = Math.min(0.30, 7.5 / n); // seconds between features
+  photos.forEach((url, i) => {
+    const card = document.createElement('div');
+    card.className = 'mphoto';
+    card.style.setProperty('--ox', (Math.random() * 80 - 40).toFixed(1) + 'vw');
+    card.style.setProperty('--oy', (Math.random() * 76 - 38).toFixed(1) + 'vh');
+    card.style.setProperty('--frot', (Math.random() * 26 - 13).toFixed(1) + 'deg');
+    card.style.setProperty('--fscale', (0.5 + Math.random() * 0.16).toFixed(2));
+    card.style.animationDelay = (i * interval).toFixed(2) + 's';
+    card.style.zIndex = String(910 + i);
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = '';
+    img.loading = 'eager';
+    card.appendChild(img);
+    layer.appendChild(card);
+  });
+  montageDurationMs = Math.round((n - 1) * interval * 1000 + 1800);
+}
+
+// Emoji fallback for any agent without a photo gallery.
+function emojiCascade(layer) {
   const COUNT = 14;
   for (let i = 0; i < COUNT; i++) {
     const card = document.createElement('div');
@@ -476,6 +524,7 @@ function startMemoryCascade() {
     card.innerHTML = `<span class="memory-emoji">${MEMORY_EMOJI[i % MEMORY_EMOJI.length]}</span>`;
     layer.appendChild(card);
   }
+  montageDurationMs = 5000;
 }
 
 // ---------- ENTRY ----------
