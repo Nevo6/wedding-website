@@ -550,47 +550,115 @@ html, body {
 .terminal.resolved .term-prompt-line { opacity: .4; }
 .terminal.resolved .term-key { pointer-events: none; }
 
-/* ---------- ACCEPT SEQUENCE: memory cascade ---------- */
-#memoryCascade { position: fixed; inset: 0; z-index: 900; display: none; pointer-events: none; }
-#memoryCascade.active { display: block; background: rgba(3, 3, 6, 0.72); }
-.memory-img {
-  position: absolute; width: 118px; height: 138px;
-  background: linear-gradient(150deg, #1b1812, #0b0b0f);
-  border: 1px solid var(--gold); border-bottom-width: 22px;
-  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.6), 0 0 18px rgba(201, 162, 75, 0.25);
+/* ---------- MUTE BUTTON ---------- */
+#muteBtn {
+  position: fixed; top: 16px; right: 16px; z-index: 1000;
+  width: 42px; height: 42px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  opacity: 0; transform: rotate(var(--rot, 0deg)) scale(.6);
-  animation: popIn .6s cubic-bezier(.2, 1.3, .4, 1) forwards;
+  background: rgba(10, 10, 13, 0.7); border: 1px solid var(--gold-dim);
+  color: var(--gold-bright); cursor: pointer; padding: 0;
+  transition: background .2s, box-shadow .2s, color .2s, border-color .2s;
 }
-.memory-emoji { font-size: 46px; filter: drop-shadow(0 0 8px rgba(201, 162, 75, 0.4)); }
-@keyframes popIn { to { opacity: 1; transform: rotate(var(--rot, 0deg)) scale(1); } }
+#muteBtn:hover { border-color: var(--gold); box-shadow: 0 0 16px rgba(201, 162, 75, 0.4); }
+#muteBtn svg { width: 22px; height: 22px; }
+#muteBtn.muted { color: var(--cream-dim); }
 
-/* Real-photo memory montage: feature center, then settle into a collage */
-.mphoto {
-  position: fixed; top: 50%; left: 50%;
-  width: clamp(150px, 32vw, 240px); aspect-ratio: 3 / 4;
-  background: #0b0b0f; border: 1px solid var(--gold); padding: 6px 6px 20px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65), 0 0 22px rgba(201, 162, 75, 0.3);
-  opacity: 0; overflow: hidden;
-  transform: translate(-50%, -50%) scale(.3);
-  animation: montagePhoto 1.8s ease forwards;
+/* ---------- ACHIEVEMENT UNLOCKED ---------- */
+#achievement {
+  position: fixed; inset: 0; z-index: 900; display: none;
+  flex-direction: column; align-items: center; justify-content: flex-start;
+  padding: 6vh 20px 2vh; overflow: hidden;
+  background: radial-gradient(ellipse at 50% 30%, rgba(40, 32, 14, 0.65), rgba(3, 3, 6, 0.94) 70%);
 }
-.mphoto img { width: 100%; height: 100%; object-fit: cover; display: block; }
-@keyframes montagePhoto {
-  0%   { opacity: 0; transform: translate(-50%, -50%) scale(.3); }
-  12%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-  40%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-  100% { opacity: 1; transform: translate(calc(-50% + var(--ox)), calc(-50% + var(--oy)))
-                              scale(var(--fscale, .55)) rotate(var(--frot, 0deg)); }
-}
+#achievement.active { display: flex; }
 
-#missionBanner {
-  position: fixed; bottom: 6vh; left: 50%; z-index: 960; text-align: center; pointer-events: none;
-  opacity: 0; transform: translate(-50%, 22px) scale(.9);
-  background: rgba(3, 3, 6, 0.78); padding: 10px 26px; border: 1px solid var(--gold-dim);
+.ach-flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+#achievement.active .ach-flash { animation: achFlash .6s ease forwards; }
+@keyframes achFlash { 0% { opacity: .85; } 100% { opacity: 0; } }
+
+.ach-core { text-align: center; }
+.ach-kicker {
+  font-family: var(--label); text-transform: uppercase; letter-spacing: 5px; font-size: 12px;
+  color: var(--gold); opacity: 0;
 }
-#memoryCascade.active #missionBanner { animation: bannerIn .8s ease .3s forwards; }
-@keyframes bannerIn { to { opacity: 1; transform: translate(-50%, 0) scale(1); } }
+#achievement.active .ach-kicker { animation: fadeUp .6s ease .15s both; }
+
+.ach-title {
+  position: relative; font-family: var(--serif); font-weight: 700;
+  font-size: clamp(40px, 10vw, 92px); line-height: 1; letter-spacing: 2px;
+  color: var(--gold-bright); margin: 4px 0 6px;
+  text-shadow: 0 0 36px rgba(201, 162, 75, 0.6); opacity: 0;
+  background: linear-gradient(100deg, var(--gold) 0%, #fff6dc 45%, var(--gold-bright) 55%, var(--gold) 100%);
+  background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+#achievement.active .ach-title { animation: achSlam .55s cubic-bezier(.2, 1.5, .4, 1) .2s both, achShine 2.4s ease 0.8s 1; }
+@keyframes achSlam { 0% { opacity: 0; transform: scale(2.4); letter-spacing: 18px; } 100% { opacity: 1; transform: scale(1); letter-spacing: 2px; } }
+@keyframes achShine { 0% { background-position: 120% 0; } 100% { background-position: -120% 0; } }
+
+.ach-levelrow {
+  display: flex; align-items: center; gap: 12px; justify-content: center;
+  margin: 10px auto 0; max-width: 460px; opacity: 0;
+}
+#achievement.active .ach-levelrow { animation: fadeUp .5s ease .7s both; }
+.ach-lv, .ach-lv-next { font-family: var(--label); letter-spacing: 2px; font-size: 13px; color: var(--cream-dim); }
+.ach-lv b { color: var(--gold-bright); font-size: 16px; }
+.ach-lv.levelup b { animation: lvPulse .5s ease; color: #5dd66f; }
+@keyframes lvPulse { 0% { transform: scale(1); } 50% { transform: scale(1.6); } 100% { transform: scale(1); } }
+.ach-xp {
+  flex: 1; height: 12px; min-width: 140px; background: rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--gold-dim); overflow: hidden;
+}
+.ach-xp-fill {
+  height: 100%; width: 0;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-bright));
+  box-shadow: 0 0 12px rgba(201, 162, 75, 0.6);
+}
+#achievement.active .ach-xp-fill { animation: xpFill 1.4s cubic-bezier(.2, .8, .2, 1) .8s forwards; }
+@keyframes xpFill { to { width: 100%; } }
+
+.ach-toast {
+  display: inline-block; margin-top: 16px; padding: 8px 20px;
+  font-family: var(--label); text-transform: uppercase; letter-spacing: 3px; font-size: 14px;
+  color: #061; color: #07351a; background: linear-gradient(90deg, #6ee08a, #36b85a);
+  border-radius: 2px; box-shadow: 0 0 22px rgba(93, 214, 111, 0.5); font-weight: 600;
+  opacity: 0;
+}
+#achievement.active .ach-toast { animation: toastIn .55s cubic-bezier(.2, 1.5, .4, 1) 2.4s both; }
+@keyframes toastIn { 0% { opacity: 0; transform: translateY(16px) scale(.7); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+
+.ach-cards {
+  display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-content: center;
+  margin: 22px auto 0; max-width: 920px; flex: 1; overflow: hidden;
+}
+.trophy {
+  position: relative; width: clamp(78px, 16vw, 112px); aspect-ratio: 3 / 4;
+  background: #0b0b0f; border: 1px solid var(--gold); padding: 4px 4px 13px; overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6), 0 0 14px rgba(201, 162, 75, 0.3);
+  opacity: 0; transform: scale(.3) rotate(var(--r, 0deg));
+  animation: trophyPop .5s cubic-bezier(.2, 1.5, .4, 1) both;
+}
+.trophy img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.trophy.emoji { display: flex; align-items: center; justify-content: center; font-size: 40px; }
+.trophy::after {
+  content: ""; position: absolute; top: 0; left: -60%; width: 50%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 246, 220, 0.55), transparent);
+  transform: skewX(-18deg);
+}
+.trophy { animation-name: trophyPop; }
+@keyframes trophyPop { to { opacity: 1; transform: scale(1) rotate(var(--r, 0deg)); } }
+
+.ach-banner {
+  position: relative; z-index: 2; text-align: center; margin-top: 8px;
+  opacity: 0; transform: translateY(16px);
+}
+#achievement.active .ach-banner { animation: fadeUp .7s ease .5s both; }
+.ach-banner .b1 {
+  font-family: var(--label); letter-spacing: 5px; text-transform: uppercase; font-size: 11px; color: var(--gold);
+}
+.ach-banner .b2 {
+  font-family: var(--serif); font-size: clamp(26px, 5vw, 44px); color: var(--gold-bright);
+  text-shadow: 0 0 28px rgba(201, 162, 75, 0.5);
+}
 #missionBanner .b1 {
   font-family: var(--label); letter-spacing: 6px; font-size: 12px; text-transform: uppercase; color: var(--gold);
 }

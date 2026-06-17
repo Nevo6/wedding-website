@@ -11,7 +11,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Montserrat:wght@300;400;500;600&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="/static/groomsmen.css?v=20260616f">
+  <link rel="stylesheet" href="/static/groomsmen.css?v=20260616g">
 </head>
 
 <body>
@@ -95,21 +95,36 @@
 
   </div>
 
-  <!-- Boombox song (drop the mp3 at static/lethal-company-song.mp3) -->
-  <audio id="lethal-audio" src="/static/lethal-company-song.mp3" preload="auto"></audio>
+  <!-- Background score (loops the whole time you're in the portal) -->
+  <audio id="bg-music" src="/static/wedding-battle-stations.mp3" preload="auto" loop></audio>
   <!-- Optional: real Company intro clip. If this file is absent, the browser
        synthesizes the speech instead. Drop an mp3 at static/company-intro.mp3. -->
   <audio id="company-audio" src="/static/company-intro.mp3" preload="auto"></audio>
 
-  <!-- Memory cascade celebration on accept -->
-  <div id="memoryCascade">
-    <div id="missionBanner">
+  <!-- Mute / unmute the background music -->
+  <button id="muteBtn" aria-label="Mute music"></button>
+
+  <!-- Achievement Unlocked celebration on accept -->
+  <div id="achievement">
+    <div class="ach-flash"></div>
+    <div class="ach-core">
+      <div class="ach-kicker">&#10022;&nbsp; Achievement Unlocked &nbsp;&#10022;</div>
+      <div class="ach-title" id="achTitle">GROOMSMAN</div>
+      <div class="ach-levelrow">
+        <span class="ach-lv">LV&nbsp;<b id="achLv">26</b></span>
+        <div class="ach-xp"><div class="ach-xp-fill" id="achXp"></div></div>
+        <span class="ach-lv-next">LV&nbsp;27</span>
+      </div>
+      <div class="ach-toast" id="achToast">+1 Groomsman</div>
+    </div>
+    <div class="ach-cards" id="achCards"></div>
+    <div class="ach-banner">
       <div class="b1">Mission Accepted</div>
       <div class="b2">See you in Clearwater</div>
     </div>
   </div>
 
-  <script src="/static/groomsmen.js?v=20260616f"></script>
+  <script src="/static/groomsmen.js?v=20260616g"></script>
 </body>
 
 </html>

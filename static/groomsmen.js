@@ -121,6 +121,48 @@ function showStage(name) {
 
 const screen = document.getElementById('screen');
 
+// ---------- Background music + mute ----------
+const bgMusic = document.getElementById('bg-music');
+const muteBtn = document.getElementById('muteBtn');
+const ICON_SOUND = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16 8.5a4 4 0 0 1 0 7M18.5 6a7.5 7.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+const ICON_MUTED = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16 9l5 5M21 9l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+
+let muted = false;
+try { muted = sessionStorage.getItem('portalMuted') === '1'; } catch (e) { /* ignore */ }
+
+function applyMute() {
+  if (bgMusic) bgMusic.muted = muted;
+  if (muteBtn) {
+    muteBtn.classList.toggle('muted', muted);
+    muteBtn.setAttribute('aria-label', muted ? 'Unmute music' : 'Mute music');
+    muteBtn.innerHTML = muted ? ICON_MUTED : ICON_SOUND;
+  }
+}
+
+function startMusic() {
+  if (!bgMusic) return;
+  bgMusic.volume = 0.45;
+  applyMute();
+  const p = bgMusic.play();
+  if (p && p.catch) p.catch(() => { /* autoplay blocked — starts on first gesture below */ });
+}
+
+if (muteBtn) {
+  muteBtn.addEventListener('click', () => {
+    muted = !muted;
+    try { sessionStorage.setItem('portalMuted', muted ? '1' : '0'); } catch (e) { /* ignore */ }
+    applyMute();
+    if (!muted && bgMusic && bgMusic.paused) bgMusic.play().catch(() => {});
+  });
+}
+applyMute();
+startMusic();
+// Browsers block autoplay until a gesture — kick the music off on the first one.
+['click', 'keydown', 'touchstart'].forEach(ev =>
+  window.addEventListener(ev, () => {
+    if (bgMusic && bgMusic.paused && !muted) bgMusic.play().catch(() => {});
+  }, { once: true }));
+
 // ---------- Audio ----------
 let audioCtx = null;
 function ensureAudio() {
@@ -399,21 +441,16 @@ function redirectHomeOnce() {
 }
 
 function acceptSequence() {
-  startMemoryCascade();
+  // Duck the background score so the Company's address comes through clearly.
+  if (bgMusic) { try { bgMusic.volume = 0.2; } catch (e) { /* ignore */ } }
 
-  // Boombox banger as low background music (drop the mp3 at /static/lethal-company-song.mp3).
-  const song = document.getElementById('lethal-audio');
-  if (song) {
-    song.volume = 0.4;
-    try { song.currentTime = 0; } catch (e) { /* not yet loaded */ }
-    song.play().catch(() => { /* no file / autoplay blocked — visuals still run */ });
-  }
+  playAchievement(activeTarget);
 
-  // The Company's welcome address (runs alongside the photo montage).
-  companyIntro(function () { /* montage timing drives the redirect */ });
+  // The Company's welcome address (runs alongside the achievement screen).
+  companyIntro(function () { /* achievement timing drives the redirect */ });
 
-  // Redirect once the memory montage has played out (and the speech has had
-  // time to finish), capped so we never get stuck.
+  // Redirect once the achievement has played out (and the speech has had time
+  // to finish), capped so we never get stuck.
   const wait = Math.min(15000, Math.max(9000, montageDurationMs + 1400));
   setTimeout(redirectHomeOnce, wait);
 }
@@ -479,52 +516,58 @@ function galleryUrls(target) {
 
 let montageDurationMs = 6000;
 
-function startMemoryCascade() {
-  const layer = document.getElementById('memoryCascade');
-  layer.classList.add('active');
-  const photos = galleryUrls(activeTarget);
-  if (photos.length) montagePhotos(layer, photos);
-  else emojiCascade(layer);
-}
+// ACHIEVEMENT UNLOCKED finale: title slam, XP bar fills to LV 27, a "+N role"
+// toast, and the groomsman's photos pop in as unlocked trophy cards.
+function playAchievement(target) {
+  const ov = document.getElementById('achievement');
+  if (!ov) return;
+  ov.classList.add('active');
 
-// Real-photo memory montage: each photo flies in center-stage, holds, then
-// settles into a scattered collage. Staggered so they appear one at a time.
-function montagePhotos(layer, photos) {
-  const n = photos.length;
-  const interval = Math.min(0.30, 7.5 / n); // seconds between features
-  photos.forEach((url, i) => {
-    const card = document.createElement('div');
-    card.className = 'mphoto';
-    card.style.setProperty('--ox', (Math.random() * 80 - 40).toFixed(1) + 'vw');
-    card.style.setProperty('--oy', (Math.random() * 76 - 38).toFixed(1) + 'vh');
-    card.style.setProperty('--frot', (Math.random() * 26 - 13).toFixed(1) + 'deg');
-    card.style.setProperty('--fscale', (0.5 + Math.random() * 0.16).toFixed(2));
-    card.style.animationDelay = (i * interval).toFixed(2) + 's';
-    card.style.zIndex = String(910 + i);
-    const img = document.createElement('img');
-    img.src = url;
-    img.alt = '';
-    img.loading = 'eager';
-    card.appendChild(img);
-    layer.appendChild(card);
-  });
-  montageDurationMs = Math.round((n - 1) * interval * 1000 + 1800);
-}
+  const role = (target && target.role) || 'Groomsman';
+  const title = document.getElementById('achTitle');
+  const toast = document.getElementById('achToast');
+  if (title) title.textContent = role.toUpperCase();
+  if (toast) toast.textContent = '+1 ' + role;
 
-// Emoji fallback for any agent without a photo gallery.
-function emojiCascade(layer) {
-  const COUNT = 14;
-  for (let i = 0; i < COUNT; i++) {
-    const card = document.createElement('div');
-    card.className = 'memory-img';
-    card.style.setProperty('--rot', (Math.random() * 30 - 15).toFixed(1) + 'deg');
-    card.style.left = (4 + Math.random() * 78).toFixed(1) + 'vw';
-    card.style.top = (6 + Math.random() * 70).toFixed(1) + 'vh';
-    card.style.animationDelay = (i * 0.28).toFixed(2) + 's';
-    card.innerHTML = `<span class="memory-emoji">${MEMORY_EMOJI[i % MEMORY_EMOJI.length]}</span>`;
-    layer.appendChild(card);
+  // Level up to 27 just as the XP bar finishes filling.
+  setTimeout(() => {
+    const lv = document.getElementById('achLv');
+    if (lv) { lv.textContent = '27'; lv.parentElement.classList.add('levelup'); }
+  }, 2200);
+
+  // Unlock the trophy cards.
+  const cards = document.getElementById('achCards');
+  cards.innerHTML = '';
+  const photos = galleryUrls(target);
+  const START = 3.0;                                   // seconds before first card
+  const STAGGER = photos.length > 16 ? 0.16 : 0.22;    // seconds between cards
+  const CARD_ANIM = 0.5;
+
+  if (photos.length) {
+    photos.forEach((url, i) => {
+      const t = document.createElement('div');
+      t.className = 'trophy';
+      t.style.setProperty('--r', (Math.random() * 10 - 5).toFixed(1) + 'deg');
+      t.style.animationDelay = (START + i * STAGGER).toFixed(2) + 's';
+      const img = document.createElement('img');
+      img.src = url; img.alt = ''; img.loading = 'eager';
+      t.appendChild(img);
+      cards.appendChild(t);
+    });
+    montageDurationMs = Math.round((START + (photos.length - 1) * STAGGER + CARD_ANIM) * 1000 + 600);
+  } else {
+    // Emoji trophies for any agent without a photo gallery.
+    const set = MEMORY_EMOJI.slice(0, 12);
+    set.forEach((e, i) => {
+      const t = document.createElement('div');
+      t.className = 'trophy emoji';
+      t.style.setProperty('--r', (Math.random() * 10 - 5).toFixed(1) + 'deg');
+      t.style.animationDelay = (START + i * 0.18).toFixed(2) + 's';
+      t.innerHTML = `<span>${e}</span>`;
+      cards.appendChild(t);
+    });
+    montageDurationMs = Math.round((START + set.length * 0.18 + CARD_ANIM) * 1000 + 600);
   }
-  montageDurationMs = 5000;
 }
 
 // ---------- ENTRY ----------
