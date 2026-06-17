@@ -11,7 +11,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Montserrat:wght@300;400;500;600&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="/static/groomsmen.css?v=20260616c">
+  <link rel="stylesheet" href="/static/groomsmen.css?v=20260616d">
 </head>
 
 <body>
@@ -51,28 +51,46 @@
             <div class="skill-tree" id="skillTree"></div>
             <div class="skill-readout" id="skillReadout">Hover a perk to inspect&hellip;</div>
           </div>
+
+          <div class="lore-section" id="campaignsSection" style="display:none;">
+            <div class="skills-label">Past Campaigns</div>
+            <ul class="lore-list campaigns" id="campaignsList"></ul>
+          </div>
+
+          <div class="lore-section" id="debuffsSection" style="display:none;">
+            <div class="skills-label">Known Debuffs</div>
+            <ul class="lore-list debuffs" id="debuffsList"></ul>
+          </div>
+
+          <div class="lore-section" id="gearSection" style="display:none;">
+            <div class="skills-label">Equipped Gear</div>
+            <ul class="lore-list gear" id="gearList"></ul>
+          </div>
         </div>
 
         <div id="avatarWrap" class="breathing">
-          <div class="avatar-tag">The Subject &middot; Identity Redacted</div>
+          <div class="portrait-frame decrypt">
+            <img id="portrait" class="portrait" alt="Operative" />
+            <div class="censor-bar"></div>
+            <div class="portrait-scan"></div>
+          </div>
+          <div class="avatar-tag">The Subject &middot; Identity Decrypted</div>
         </div>
       </div>
 
       <div class="briefing-actions">
-        <button id="engageBtn" class="btn btn-engage" style="visibility:hidden;">Review the Assignment</button>
+        <div id="terminal" class="terminal" style="visibility:hidden;">
+          <div class="term-prompt-line">
+            <span class="term-caret">&gt;</span>
+            DO YOU ACCEPT THIS MISSION?
+            <button id="btnYes" class="term-key">[ Y ]</button>
+            <span class="term-slash">/</span>
+            <button id="btnNo" class="term-key">[ N ]</button>
+            <span class="term-cursor"></span>
+          </div>
+          <div id="termOut" class="term-out"></div>
+        </div>
       </div>
-    </section>
-
-    <!-- ========== ULTIMATUM ========== -->
-    <section id="ultimatum" class="stage">
-      <p class="kicker">The Ultimatum</p>
-      <h2>Will you stand beside Sal on the 24<sup>th</sup> of April, 2027?</h2>
-      <p class="sub">Black tie. Open bar. No backing out.</p>
-      <div class="ultimatum-buttons">
-        <button id="declineBtn" class="btn">Decline</button>
-        <button id="acceptBtn" class="btn">[ ACCEPT MISSION ]</button>
-      </div>
-      <p class="hint">Choose wisely, gentleman.</p>
     </section>
 
   </div>
@@ -88,8 +106,7 @@
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="/static/groomsmen.js?v=20260616c"></script>
+  <script src="/static/groomsmen.js?v=20260616d"></script>
 </body>
 
 </html>

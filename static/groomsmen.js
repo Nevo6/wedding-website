@@ -9,10 +9,14 @@ const API_URL = 'https://api.caramucci.com';
 // Entry is ONLY via the main-site password box (passes ?code=…); there is no
 // second password prompt here.
 const ROSTER = {
-  'Wyatt Rayner': { name: 'Wyatt Rayner', role: 'Groomsman', intel: "Sal's closest friend since the 6th grade." },
-  'James Lange':  { name: 'James Lange',  role: 'Groomsman', intel: "Sal's longest-lasting friend since the 4th grade." },
-  'Jon Edwards':  { name: 'Jon Edwards',  role: 'Best Man',  intel: 'Brother. Priority asset. The Best Man.' },
-  'Joey PS4':     { name: 'Joey Moglia',  role: 'Groomsman', intel: "One of Sal's closest friends." },
+  'Wyatt Rayner': { name: 'Wyatt Rayner', role: 'Groomsman', intel: "Sal's closest friend since the 6th grade.",
+                    img: '/static/portraits/wyatt.webp?v=1', focus: '60% 28%' },
+  'James Lange':  { name: 'James Lange',  role: 'Groomsman', intel: "Sal's longest-lasting friend since the 4th grade.",
+                    img: '/static/portraits/james.webp?v=1', focus: 'center 30%' },
+  'Jon Edwards':  { name: 'Jon Edwards',  role: 'Best Man',  intel: 'Brother. Priority asset. The Best Man.',
+                    img: '/static/portraits/jon.webp?v=1', focus: 'center 22%' },
+  'Joey PS4':     { name: 'Joey Moglia',  role: 'Groomsman', intel: "One of Sal's closest friends.",
+                    img: '/static/portraits/joey.webp?v=1', focus: 'center 30%' },
 };
 
 // On Accept we unlock the main wedding site with a real Tier-1 password so the
@@ -41,6 +45,35 @@ const RPG = {
       { name: 'Court Sweeper',     icon: '🏀',    anim: 'bounce', text: 'Passive ability activated every day after middle school. Grants +10 dominance against kids at the WAC.' },
       { name: 'Bull Market Buff',  icon: 'chart', anim: 'chart',  text: 'Strategic investment protocol. Yields compounding returns when pooling stocks together.' },
       { name: 'Supersonic Acrobat',icon: '🚀',    anim: 'roll',   text: 'Equips a rocket-powered battle-car for daily ranked grinds and clutch saves.' },
+    ],
+  },
+
+  'Jon Edwards': {
+    className: 'Right-Hand Legend',
+    level: 26,
+    // Note: corrected to the real wedding date (April 24th, 2027).
+    origin: 'Brother. Priority asset. The Best Man. A founding member of the crew, ' +
+            'battle-tested across countless campaigns and ready for the final boss: April 24th, 2027.',
+    stats: [
+      { name: 'Strength',     key: 'STR', val: 90, note: 'Carries the squad, literally and figuratively.' },
+      { name: 'Agility',      key: 'AGI', val: 88, note: 'Quick reflexes — except after midnight.' },
+      { name: 'Intelligence', key: 'INT', val: 91, note: 'Always three moves ahead.' },
+      { name: 'Loyalty',      key: 'LOY', val: 100, note: 'Maxed since day one. The Best Man stat.' },
+    ],
+    abilities: [
+      { name: 'Ride or Die',   icon: '🤝',    anim: 'bounce', text: 'Passive aura. Answers the call every time, no questions asked.' },
+      { name: 'Hype Man',      icon: 'chart', anim: 'chart',  text: 'Buffs party morale and keeps the whole crew trending upward.' },
+      { name: 'Clutch Factor', icon: '🚀',    anim: 'roll',   text: 'Comes through when the stakes are highest. Best Man clutch.' },
+    ],
+    campaigns: [
+      'Operation: Grand Champ — Survived the Rocket League trenches.',
+    ],
+    debuffs: [
+      'Irish Exit: −50 Stealth when leaving a venue.',
+      'Midnight IPA: 2× damage penalty to Agility (AGI) after 12:00 AM.',
+    ],
+    gear: [
+      'Emergency Advil Cache (+20 Recovery)',
     ],
   },
 };
@@ -76,10 +109,9 @@ const CHART_SVG = '<svg class="chart-svg" viewBox="0 0 40 28">' +
 // ---------- Stages ----------
 const stages = {
   briefing: document.getElementById('briefing'),
-  ultimatum: document.getElementById('ultimatum'),
 };
 function showStage(name) {
-  Object.values(stages).forEach(s => s.classList.remove('active'));
+  Object.values(stages).forEach(s => s && s.classList.remove('active'));
   if (stages[name]) stages[name].classList.add('active');
 }
 
@@ -183,8 +215,20 @@ function playFunnyDecline() {
 // ---------- BRIEFING (RPG character sheet) ----------
 function bootSequence() {
   showStage('briefing');
-  initAvatar();
+  setPortrait(activeTarget);
   renderCharacter(activeCode, activeTarget);
+}
+
+// Swap the redacted portrait in and run the "decryption" reveal.
+function setPortrait(target) {
+  const img = document.getElementById('portrait');
+  if (!img) return;
+  img.style.setProperty('--focus', target.focus || 'center 25%');
+  img.alt = 'Operative ' + target.name;
+  img.src = target.img;
+  // restart the decrypt animation each load
+  const frame = document.querySelector('.portrait-frame');
+  if (frame) { frame.classList.remove('decrypt'); void frame.offsetWidth; frame.classList.add('decrypt'); }
 }
 
 function typeInto(el, text, speed, done) {
@@ -247,135 +291,29 @@ function renderCharacter(code, target) {
     tree.appendChild(node);
   });
 
-  // Type out the origin lore, then reveal the action button.
+  // Optional lore sections (Past Campaigns / Known Debuffs / Equipped Gear).
+  renderLoreSection('campaignsSection', 'campaignsList', p.campaigns);
+  renderLoreSection('debuffsSection', 'debuffsList', p.debuffs);
+  renderLoreSection('gearSection', 'gearList', p.gear);
+
+  // Type out the origin lore, then reveal the terminal RSVP prompt.
   typeInto(document.getElementById('originText'), p.origin, 13, () => {
-    document.getElementById('engageBtn').style.visibility = 'visible';
+    const term = document.getElementById('terminal');
+    if (term) term.style.visibility = 'visible';
   });
 }
 
-// ---------- THREE.JS TUXEDO AGENT ----------
-let renderer, scene, camera, agent, animId;
-function initAvatar() {
-  if (renderer) return;
-  const wrap = document.getElementById('avatarWrap');
-  const w = wrap.clientWidth, h = wrap.clientHeight;
-
-  scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(42, w / h, 0.1, 100);
-  camera.position.set(0, 0.6, 9.5);
-  camera.lookAt(0, 0.3, 0);
-
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(w, h);
-  wrap.appendChild(renderer.domElement);
-
-  // Warm gold key light + soft fill + gold rim
-  const key = new THREE.DirectionalLight(0xfff0d0, 1.15);
-  key.position.set(3, 6, 5);
-  scene.add(key);
-  scene.add(new THREE.AmbientLight(0x3a3326, 0.7));
-  const rim = new THREE.PointLight(0xc9a24b, 0.9, 22);
-  rim.position.set(-4, 2, -3);
-  scene.add(rim);
-
-  agent = new THREE.Group();
-
-  const suit   = new THREE.MeshStandardMaterial({ color: 0x0c0c10, roughness: 0.55, metalness: 0.25 });
-  const shirtM = new THREE.MeshStandardMaterial({ color: 0xf4efe3, roughness: 0.6 });
-  const black  = new THREE.MeshStandardMaterial({ color: 0x050507, roughness: 0.4, metalness: 0.3 });
-  const skin   = new THREE.MeshStandardMaterial({ color: 0xd2a982, roughness: 0.85 });
-  const censor = new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 1 });
-  const goldM  = new THREE.MeshStandardMaterial({ color: 0xc9a24b, roughness: 0.25, metalness: 0.9 });
-
-  // Torso (jacket)
-  const torso = new THREE.Mesh(new THREE.BoxGeometry(1.45, 1.85, 0.7), suit);
-  torso.position.y = 1.0;
-  agent.add(torso);
-
-  // White shirt panel down the front
-  const shirt = new THREE.Mesh(new THREE.BoxGeometry(0.42, 1.4, 0.06), shirtM);
-  shirt.position.set(0, 1.0, 0.37);
-  agent.add(shirt);
-
-  // Lapels (two angled black strips over the shirt edges)
-  [-1, 1].forEach(side => {
-    const lap = new THREE.Mesh(new THREE.BoxGeometry(0.26, 1.2, 0.04), black);
-    lap.position.set(side * 0.34, 1.05, 0.38);
-    lap.rotation.z = side * 0.18;
-    agent.add(lap);
-  });
-
-  // Bow tie
-  const knot = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 0.08), black);
-  knot.position.set(0, 1.72, 0.4);
-  agent.add(knot);
-  [-1, 1].forEach(side => {
-    const wing = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.16, 0.06), black);
-    wing.position.set(side * 0.18, 1.72, 0.4);
-    agent.add(wing);
-  });
-
-  // Gold boutonniere / lapel pin
-  const pin = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 12), goldM);
-  pin.position.set(-0.42, 1.35, 0.42);
-  agent.add(pin);
-
-  // Head + redaction bar
-  const head = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.95, 0.8), skin);
-  head.position.y = 2.4;
-  agent.add(head);
-  const bar = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.32, 0.92), censor);
-  bar.position.set(0, 2.5, 0);
-  agent.add(bar);
-
-  // Arms
-  [-1, 1].forEach(side => {
-    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.65, 0.45), suit);
-    arm.position.set(side * 0.98, 1.0, 0);
-    agent.add(arm);
-  });
-  // Legs (tux trousers)
-  [-1, 1].forEach(side => {
-    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.7, 0.55), suit);
-    leg.position.set(side * 0.38, -0.75, 0);
-    agent.add(leg);
-  });
-
-  agent.position.y = -0.55;
-  scene.add(agent);
-
-  // Gold pedestal ring at the feet
-  const ring = new THREE.Mesh(new THREE.TorusGeometry(1.7, 0.06, 12, 60), goldM);
-  ring.rotation.x = Math.PI / 2;
-  ring.position.y = -2.15;
-  scene.add(ring);
-
-  const onResize = () => {
-    const nw = wrap.clientWidth, nh = wrap.clientHeight;
-    if (!nw || !nh) return;
-    camera.aspect = nw / nh;
-    camera.updateProjectionMatrix();
-    renderer.setSize(nw, nh);
-  };
-  window.addEventListener('resize', onResize);
-
-  const animate = () => {
-    animId = requestAnimationFrame(animate);
-    agent.rotation.y += 0.007;
-    renderer.render(scene, camera);
-  };
-  animate();
+function renderLoreSection(sectionId, listId, items) {
+  const section = document.getElementById(sectionId);
+  const list = document.getElementById(listId);
+  if (!section || !list) return;
+  if (!items || !items.length) { section.style.display = 'none'; return; }
+  section.style.display = '';
+  list.innerHTML = items.map(t => `<li>${t}</li>`).join('');
 }
 
-// ---------- ULTIMATUM ----------
-document.getElementById('engageBtn').addEventListener('click', () => showStage('ultimatum'));
-
-const declineBtn = document.getElementById('declineBtn');
-const acceptBtn = document.getElementById('acceptBtn');
-
-const TAUNTS = ['Nope!', 'Too slow!', 'Nice try, 007.', 'Not today.', 'As if.',
-                'Catch me!', 'Denied.', 'You blinked.', 'Missed me.', 'Out of the question.'];
+// ---------- TERMINAL RSVP (replaces the 3D avatar + ultimatum) ----------
+const TAUNTS = ['Nice try.', 'Denied.', 'Out of the question.', 'Not happening.', 'There is no ‘N’.'];
 
 // Tattle to Sal the first time someone tries to bail (once per session).
 let declineReported = false;
@@ -389,30 +327,26 @@ function reportDeclineAttempt() {
   }).catch(e => console.error('Decline report failed:', e));
 }
 
-function fleeDecline() {
-  const maxX = Math.min(window.innerWidth / 2 - 130, 240);
-  const maxY = Math.min(window.innerHeight / 2 - 120, 180);
-  const x = (Math.random() * 2 - 1) * maxX;
-  const y = (Math.random() * 2 - 1) * maxY;
-  declineBtn.style.transform = `translate(${x}px, ${y}px) rotate(${(Math.random() * 16 - 8).toFixed(1)}deg)`;
-  declineBtn.textContent = TAUNTS[Math.floor(Math.random() * TAUNTS.length)];
-  playFunnyDecline();
-  reportDeclineAttempt();
-  screen.classList.add('glitch');
-  setTimeout(() => screen.classList.remove('glitch'), 400);
+let missionResolved = false;
+function termPrint(text, cls) {
+  const out = document.getElementById('termOut');
+  if (!out) return;
+  const line = document.createElement('div');
+  line.className = 'term-msg' + (cls ? ' ' + cls : '');
+  line.textContent = text;
+  out.appendChild(line);
 }
-declineBtn.addEventListener('mouseenter', fleeDecline);
-declineBtn.addEventListener('click', e => { e.preventDefault(); fleeDecline(); });
 
-acceptBtn.addEventListener('click', async () => {
-  acceptBtn.disabled = true;
-  declineBtn.style.pointerEvents = 'none';
-  acceptBtn.textContent = 'MISSION ACCEPTED';
+function acceptMission() {
+  if (missionResolved) return;
+  missionResolved = true;
+  const term = document.getElementById('terminal');
+  if (term) term.classList.add('resolved');
+  termPrint('> ACCESS GRANTED — MISSION ACCEPTED', 'ok');
 
-  // Kick off the celebration immediately (a user gesture is required for audio).
   acceptSequence();
 
-  // Notify Sal + unlock the main site in the background (don't block the show).
+  // Notify Sal, log to Google Sheets, and unlock the site (all in background).
   try {
     fetch(`${API_URL}/mission_response`, {
       method: 'POST',
@@ -426,7 +360,29 @@ acceptBtn.addEventListener('click', async () => {
     sessionStorage.setItem('weddingPassword', BYPASS_PASSWORD);
     if (activeTarget) sessionStorage.setItem('groomsmanCodename', activeTarget.name);
   } catch (e) { /* sessionStorage may be unavailable */ }
+}
+
+function declineMission() {
+  if (missionResolved) return;
+  playFunnyDecline();
+  reportDeclineAttempt();
+  termPrint('> ' + TAUNTS[Math.floor(Math.random() * TAUNTS.length)] + ' THERE IS NO BACKING OUT. [ Y / N ]', 'err');
+  screen.classList.add('glitch');
+  setTimeout(() => screen.classList.remove('glitch'), 400);
+}
+
+// Keyboard (desktop) + tap (mobile) for the Y / N prompt.
+window.addEventListener('keydown', e => {
+  const term = document.getElementById('terminal');
+  if (!term || term.style.visibility !== 'visible') return;
+  const k = (e.key || '').toLowerCase();
+  if (k === 'y') acceptMission();
+  else if (k === 'n') declineMission();
 });
+const btnYes = document.getElementById('btnYes');
+const btnNo = document.getElementById('btnNo');
+if (btnYes) btnYes.addEventListener('click', acceptMission);
+if (btnNo) btnNo.addEventListener('click', declineMission);
 
 // ---------- ACCEPT SEQUENCE: boombox song + memory cascade + redirect ----------
 const MEMORY_EMOJI = ['🏀', '📈', '🚀', '🎮', '🥂', '🎓', '💪', '🤝', '🏎️', '📸', '🔥', '👑', '🎯', '🍻'];
