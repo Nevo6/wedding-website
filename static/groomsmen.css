@@ -610,11 +610,54 @@ html, body {
 }
 .ach-xp-fill {
   height: 100%; width: 0;
-  background: linear-gradient(90deg, var(--gold-dim), var(--gold), var(--gold-bright));
-  box-shadow: 0 0 12px rgba(201, 162, 75, 0.6);
+  background: linear-gradient(90deg, #2f8f3e, #5dd66f, #aef5b6);
+  box-shadow: 0 0 12px rgba(93, 214, 111, 0.7);
+  transition: width .26s cubic-bezier(.3, .8, .3, 1);
 }
-#achievement.active .ach-xp-fill { animation: xpFill 1.4s cubic-bezier(.2, .8, .2, 1) .8s forwards; }
-@keyframes xpFill { to { width: 100%; } }
+.ach-xp.flash { box-shadow: 0 0 20px rgba(93, 214, 111, 0.85); border-color: #5dd66f; }
+
+/* ----- Minecraft-style XP orbs streaming into the bar ----- */
+.xp-orbs { position: absolute; inset: 0; z-index: 5; pointer-events: none; overflow: hidden; }
+.xp-orb {
+  position: absolute; width: 13px; height: 13px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #eafff0 0%, #8df29a 35%, #41c95a 70%, #1f8a35 100%);
+  box-shadow: 0 0 8px 2px rgba(95, 224, 120, 0.85), 0 0 16px rgba(95, 224, 120, 0.5);
+  will-change: transform, opacity;
+}
+
+/* ----- BO2 Zombies-style rank emblem + EP counter ----- */
+.ach-rankrow { display: flex; align-items: center; justify-content: center; gap: 20px; margin: 14px auto 2px; opacity: 0; }
+#achievement.active .ach-rankrow { animation: fadeUp .5s ease .6s both; }
+.ach-rank { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.rank-emblem {
+  position: relative; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 50% 40%, #1b1b22, #0a0a0e);
+  border: 1px solid var(--gold-dim); transform: rotate(45deg);
+  box-shadow: 0 0 16px rgba(201, 162, 75, 0.35), inset 0 0 14px rgba(0, 0, 0, 0.7);
+}
+.rank-skull { transform: rotate(-45deg); font-size: 25px; filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.4)); }
+.rank-knives { position: absolute; transform: rotate(-45deg); font-size: 30px; opacity: 0.5; }
+.ach-rank.up .rank-emblem { animation: rankPop .5s cubic-bezier(.2, 1.6, .4, 1); border-color: var(--gold-bright); }
+@keyframes rankPop { 0% { transform: rotate(45deg) scale(1); } 50% { transform: rotate(45deg) scale(1.35); } 100% { transform: rotate(45deg) scale(1); } }
+.rank-tallies { display: flex; gap: 4px; height: 12px; }
+.rank-tally { width: 3px; height: 12px; background: var(--gold-bright); box-shadow: 0 0 6px rgba(201, 162, 75, 0.8); transform: scaleY(0); transform-origin: bottom; }
+.rank-tally.show { animation: tallyIn .3s ease forwards; }
+@keyframes tallyIn { to { transform: scaleY(1); } }
+
+.ach-ep { text-align: left; min-width: 150px; }
+.ach-ep-num { font-family: var(--label); letter-spacing: 2px; color: var(--cream-dim); font-size: 14px; }
+.ach-ep-num b { font-family: var(--serif); font-weight: 700; font-size: clamp(26px, 5vw, 40px); color: var(--gold-bright); text-shadow: 0 0 16px rgba(201, 162, 75, 0.5); }
+.ach-ep-num span { font-size: 13px; color: var(--gold); }
+.ach-ep-gain { font-family: var(--label); letter-spacing: 2px; font-size: 13px; color: #5dd66f; min-height: 16px; opacity: 0; }
+.ach-ep-gain.show { opacity: 1; }
+
+.ach-rankup {
+  font-family: var(--label); text-transform: uppercase; letter-spacing: 8px;
+  font-size: clamp(15px, 3vw, 23px); color: #5dd66f; text-shadow: 0 0 18px rgba(93, 214, 111, 0.7);
+  margin: 6px 0 0; opacity: 0; font-weight: 600;
+}
+.ach-rankup.show { animation: rankUpFlash .85s ease; }
+@keyframes rankUpFlash { 0% { opacity: 0; transform: scale(.6); } 25% { opacity: 1; transform: scale(1.12); } 70% { opacity: 1; transform: scale(1); } 100% { opacity: 0; } }
 
 .ach-toast {
   display: inline-block; margin-top: 16px; padding: 8px 20px;

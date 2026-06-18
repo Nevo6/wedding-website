@@ -495,6 +495,150 @@ function galleryUrls(target) {
 
 let montageDurationMs = 6000;
 
+// ---------- Minecraft-style XP orbs + BO2 rank-up audio ----------
+// Sounds are synthesized with the Web Audio API (no asset files / no licensing).
+let _xpAudio = null;
+function xpAudioCtx() {
+  if (!_xpAudio) {
+    try { _xpAudio = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch (e) { return null; }
+  }
+  if (_xpAudio.state === 'suspended') _xpAudio.resume().catch(() => {});
+  return _xpAudio;
+}
+
+// Short pitched blip approximating Minecraft's orb-pickup ("random.orb") sound.
+function playOrbBlip() {
+  const ctx = xpAudioCtx(); if (!ctx) return;
+  const now = ctx.currentTime;
+  const base = 500 + Math.random() * 240;
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = 'triangle';
+  o.frequency.setValueAtTime(base, now);
+  o.frequency.exponentialRampToValueAtTime(base * 1.5, now + 0.05);
+  g.gain.setValueAtTime(0.0001, now);
+  g.gain.exponentialRampToValueAtTime(0.16, now + 0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+  o.connect(g).connect(ctx.destination);
+  o.start(now); o.stop(now + 0.18);
+}
+
+// Brighter two-note rising chime on each level / rank up.
+function playLevelChime() {
+  const ctx = xpAudioCtx(); if (!ctx) return;
+  const now = ctx.currentTime;
+  [0, 0.09].forEach((dt, i) => {
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'square';
+    o.frequency.setValueAtTime(i === 0 ? 784 : 1175, now + dt); // G5 -> D6
+    g.gain.setValueAtTime(0.0001, now + dt);
+    g.gain.exponentialRampToValueAtTime(0.11, now + dt + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + dt + 0.22);
+    o.connect(g).connect(ctx.destination);
+    o.start(now + dt); o.stop(now + dt + 0.24);
+  });
+}
+
+// One green XP orb: flies from a random spot, arcs, and lands in the XP bar.
+function spawnXpOrb(tx, ty, onArrive) {
+  const layer = document.getElementById('xpOrbs');
+  if (!layer) { onArrive && onArrive(); return; }
+  const orb = document.createElement('div');
+  orb.className = 'xp-orb';
+  const sx = Math.random() * window.innerWidth;
+  const sy = (Math.random() < 0.5 ? 0.06 : 0.5) * window.innerHeight + Math.random() * 0.32 * window.innerHeight;
+  orb.style.left = sx + 'px';
+  orb.style.top = sy + 'px';
+  layer.appendChild(orb);
+  const midX = (sx + tx) / 2 + (Math.random() * 160 - 80);
+  const midY = Math.min(sy, ty) - (50 + Math.random() * 90);
+  const anim = orb.animate([
+    { transform: 'translate(0,0) scale(.7)', opacity: 0.25 },
+    { transform: `translate(${midX - sx}px,${midY - sy}px) scale(1.2)`, opacity: 1, offset: 0.55 },
+    { transform: `translate(${tx - sx}px,${ty - sy}px) scale(.35)`, opacity: 0.9 },
+  ], { duration: 620 + Math.random() * 360, easing: 'cubic-bezier(.55,0,.7,1)' });
+  anim.onfinish = () => { orb.remove(); onArrive && onArrive(); };
+  anim.oncancel = () => { orb.remove(); };
+}
+
+// Drive the whole show: a flood of orbs streaming into the bar, EP rocketing
+// up by a ton, and the level bumping through several BO2-Zombies-style ranks.
+function playXpRankUp() {
+  const fill = document.getElementById('achXp');
+  const xpBar = fill && fill.parentElement;
+  const epEl = document.getElementById('achEp');
+  const lvEl = document.getElementById('achLv');
+  const lvNextEl = document.getElementById('achLvNext');
+  const gainEl = document.getElementById('achEpGain');
+  const tallies = document.getElementById('rankTallies');
+  const rank = document.getElementById('achRank');
+  const rankUp = document.getElementById('achRankUp');
+
+  const ORBS = 30;
+  const ORBS_PER_LEVEL = 6;
+  const EP_START = 24800;
+  const EP_PER_ORB = 540;            // ~16,200 EP gained — a ton more EP
+
+  let collected = 0;
+  let ep = EP_START;
+  let level = 26;
+  let levelProgress = 0;
+  if (epEl) epEl.textContent = EP_START.toLocaleString();
+  if (lvEl) lvEl.textContent = String(level);
+  if (lvNextEl) lvNextEl.textContent = String(level + 1);
+
+  function target() {
+    if (!xpBar) return { x: window.innerWidth / 2, y: window.innerHeight * 0.45 };
+    const r = xpBar.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  }
+
+  function onArrive() {
+    collected++;
+    playOrbBlip();
+    ep += EP_PER_ORB;
+    if (epEl) epEl.textContent = ep.toLocaleString();
+    if (gainEl) { gainEl.textContent = '+' + (ep - EP_START).toLocaleString() + ' EP'; gainEl.classList.add('show'); }
+    levelProgress++;
+    const pct = Math.min(100, (levelProgress / ORBS_PER_LEVEL) * 100);
+    if (fill) fill.style.width = pct + '%';
+    if (xpBar) { xpBar.classList.add('flash'); setTimeout(() => xpBar.classList.remove('flash'), 120); }
+
+    if (levelProgress >= ORBS_PER_LEVEL && collected < ORBS) {
+      levelProgress = 0;
+      level++;
+      if (lvEl) {
+        lvEl.textContent = String(level);
+        const p = lvEl.parentElement;
+        p.classList.remove('levelup'); void p.offsetWidth; p.classList.add('levelup');
+      }
+      if (lvNextEl) lvNextEl.textContent = String(level + 1);
+      // Snap the bar back to empty (no transition) for the next level.
+      if (fill) { fill.style.transition = 'none'; fill.style.width = '0%'; void fill.offsetWidth; fill.style.transition = ''; }
+      playLevelChime();
+      // BO2 rank-up: pop the skull emblem, add a tally, flash "RANK UP".
+      if (rank) { rank.classList.add('up'); setTimeout(() => rank.classList.remove('up'), 520); }
+      if (tallies) {
+        const t = document.createElement('span');
+        t.className = 'rank-tally';
+        tallies.appendChild(t);
+        requestAnimationFrame(() => t.classList.add('show'));
+      }
+      if (rankUp) { rankUp.classList.remove('show'); void rankUp.offsetWidth; rankUp.classList.add('show'); }
+    }
+  }
+
+  // Stream the orbs out in a staggered flood.
+  for (let i = 0; i < ORBS; i++) {
+    setTimeout(() => {
+      const t = target();   // recompute each time in case of layout shift
+      spawnXpOrb(t.x, t.y, onArrive);
+    }, 120 + i * 95);
+  }
+}
+
 // ACHIEVEMENT UNLOCKED finale: title slam, XP bar fills to LV 27, a "+N role"
 // toast, and the groomsman's photos pop in as unlocked trophy cards.
 function playAchievement(target) {
@@ -508,11 +652,9 @@ function playAchievement(target) {
   if (title) title.textContent = role.toUpperCase();
   if (toast) toast.textContent = '+1 ' + role;
 
-  // Level up to 27 just as the XP bar finishes filling.
-  setTimeout(() => {
-    const lv = document.getElementById('achLv');
-    if (lv) { lv.textContent = '27'; lv.parentElement.classList.add('levelup'); }
-  }, 2200);
+  // Kick off the Minecraft-style XP-orb flood + BO2-style rank-up cascade
+  // once the rank/level row has faded in.
+  setTimeout(playXpRankUp, 900);
 
   // Unlock the trophy cards.
   const cards = document.getElementById('achCards');

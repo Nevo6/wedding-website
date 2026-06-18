@@ -11,7 +11,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Montserrat:wght@300;400;500;600&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="/static/groomsmen.css?v=20260616h">
+  <link rel="stylesheet" href="/static/groomsmen.css?v=20260618a">
 </head>
 
 <body>
@@ -104,14 +104,31 @@
   <!-- Achievement Unlocked celebration on accept -->
   <div id="achievement">
     <div class="ach-flash"></div>
+    <div class="xp-orbs" id="xpOrbs"></div>
     <div class="ach-core">
       <div class="ach-kicker">&#10022;&nbsp; Achievement Unlocked &nbsp;&#10022;</div>
       <div class="ach-title" id="achTitle">GROOMSMAN</div>
+
+      <div class="ach-rankrow">
+        <div class="ach-rank" id="achRank" aria-hidden="true">
+          <div class="rank-emblem">
+            <span class="rank-knives">&#9876;</span>
+            <span class="rank-skull">&#128128;</span>
+          </div>
+          <div class="rank-tallies" id="rankTallies"></div>
+        </div>
+        <div class="ach-ep">
+          <div class="ach-ep-num"><b id="achEp">0</b> <span>EP</span></div>
+          <div class="ach-ep-gain" id="achEpGain"></div>
+        </div>
+      </div>
+
       <div class="ach-levelrow">
         <span class="ach-lv">LV&nbsp;<b id="achLv">26</b></span>
         <div class="ach-xp"><div class="ach-xp-fill" id="achXp"></div></div>
-        <span class="ach-lv-next">LV&nbsp;27</span>
+        <span class="ach-lv-next">LV&nbsp;<b id="achLvNext">27</b></span>
       </div>
+      <div class="ach-rankup" id="achRankUp">Rank Up</div>
       <div class="ach-toast" id="achToast">+1 Groomsman</div>
     </div>
     <div class="ach-cards" id="achCards"></div>
@@ -121,7 +138,7 @@
     </div>
   </div>
 
-  <script src="/static/groomsmen.js?v=20260616h"></script>
+  <script src="/static/groomsmen.js?v=20260618a"></script>
 </body>
 
 </html>
