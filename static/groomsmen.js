@@ -479,8 +479,8 @@ function redirectHomeOnce() {
 function acceptSequence() {
   playAchievement(activeTarget);
 
-  // Redirect once the achievement has played out, capped so we never get stuck.
-  const wait = Math.min(15000, Math.max(8000, montageDurationMs + 1400));
+  // 10-second level animation + trophy cards + a beat to enjoy 999.
+  const wait = Math.min(20000, Math.max(14000, montageDurationMs + 4500));
   setTimeout(redirectHomeOnce, wait);
 }
 
@@ -494,6 +494,7 @@ function galleryUrls(target) {
 }
 
 let montageDurationMs = 6000;
+let _orbInterval = null;   // guard against double-invocation
 
 // ---------- Minecraft-style XP orbs + BO2 rank-up audio ----------
 // Sounds are synthesized with the Web Audio API (no asset files / no licensing).
@@ -563,80 +564,146 @@ function spawnXpOrb(tx, ty, onArrive) {
   anim.oncancel = () => { orb.remove(); };
 }
 
-// Drive the whole show: a flood of orbs streaming into the bar, EP rocketing
-// up by a ton, and the level bumping through several BO2-Zombies-style ranks.
+// Level 1 → 999 in 10 seconds.
+// Piecewise easing: levels 1-900 in 6 s (blurring fast), 900-970 in 2 s (slowing),
+// 970-999 in 2 s (one level at a time, super dramatic).
 function playXpRankUp() {
-  const fill = document.getElementById('achXp');
-  const xpBar = fill && fill.parentElement;
-  const epEl = document.getElementById('achEp');
-  const lvEl = document.getElementById('achLv');
-  const lvNextEl = document.getElementById('achLvNext');
-  const gainEl = document.getElementById('achEpGain');
+  const DURATION = 10000;
+  const MAX_LEVEL = 999;
+
+  function levelAtTime(t) {
+    if (t < 0.60) {
+      return Math.max(1, Math.floor(1 + 899 * Math.pow(t / 0.60, 0.28)));
+    } else if (t < 0.80) {
+      return 900 + Math.floor(70 * (t - 0.60) / 0.20);
+    } else {
+      return 970 + Math.floor(29 * (t - 0.80) / 0.20);
+    }
+  }
+
+  function continuousLevel(t) {
+    if (t < 0.60) return 1 + 899 * Math.pow(t / 0.60, 0.28);
+    if (t < 0.80) return 900 + 70 * (t - 0.60) / 0.20;
+    return 970 + 29 * (t - 0.80) / 0.20;
+  }
+
+  const fill    = document.getElementById('achXp');
+  const xpBar   = fill && fill.parentElement;
+  const epEl    = document.getElementById('achEp');
+  const lvBig   = document.getElementById('achLvBig');
+  const lvEl    = document.getElementById('achLv');
+  const lvNextEl= document.getElementById('achLvNext');
+  const gainEl  = document.getElementById('achEpGain');
   const tallies = document.getElementById('rankTallies');
-  const rank = document.getElementById('achRank');
-  const rankUp = document.getElementById('achRankUp');
+  const rank    = document.getElementById('achRank');
+  const rankUp  = document.getElementById('achRankUp');
 
-  const ORBS = 30;
-  const ORBS_PER_LEVEL = 6;
-  const EP_START = 24800;
-  const EP_PER_ORB = 540;            // ~16,200 EP gained — a ton more EP
+  let startTime = null;
+  let lastLevel = 0;
 
-  let collected = 0;
-  let ep = EP_START;
-  let level = 26;
-  let levelProgress = 0;
-  if (epEl) epEl.textContent = EP_START.toLocaleString();
-  if (lvEl) lvEl.textContent = String(level);
-  if (lvNextEl) lvNextEl.textContent = String(level + 1);
-
-  function target() {
-    if (!xpBar) return { x: window.innerWidth / 2, y: window.innerHeight * 0.45 };
+  function barTarget() {
+    if (!xpBar) return { x: window.innerWidth / 2, y: window.innerHeight * 0.55 };
     const r = xpBar.getBoundingClientRect();
     return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
   }
 
-  function onArrive() {
-    collected++;
-    playOrbBlip();
-    ep += EP_PER_ORB;
-    if (epEl) epEl.textContent = ep.toLocaleString();
-    if (gainEl) { gainEl.textContent = '+' + (ep - EP_START).toLocaleString() + ' EP'; gainEl.classList.add('show'); }
-    levelProgress++;
-    const pct = Math.min(100, (levelProgress / ORBS_PER_LEVEL) * 100);
-    if (fill) fill.style.width = pct + '%';
-    if (xpBar) { xpBar.classList.add('flash'); setTimeout(() => xpBar.classList.remove('flash'), 120); }
+  // Init display
+  if (lvBig)    lvBig.textContent = '1';
+  if (lvEl)     lvEl.textContent  = '1';
+  if (lvNextEl) lvNextEl.textContent = '2';
+  if (epEl)     epEl.textContent  = '0';
 
-    if (levelProgress >= ORBS_PER_LEVEL && collected < ORBS) {
-      levelProgress = 0;
-      level++;
-      if (lvEl) {
-        lvEl.textContent = String(level);
-        const p = lvEl.parentElement;
-        p.classList.remove('levelup'); void p.offsetWidth; p.classList.add('levelup');
+  // Continuous orb stream for the full 10 s (clear any previous invocation)
+  if (_orbInterval) { clearInterval(_orbInterval); _orbInterval = null; }
+  _orbInterval = setInterval(() => {
+    const bt = barTarget();
+    spawnXpOrb(bt.x, bt.y, () => {});
+  }, 200);
+
+  function tick(ts) {
+    if (!startTime) startTime = ts;
+    const elapsed = Math.min(ts - startTime, DURATION);
+    const t = elapsed / DURATION;
+
+    const currentLevel = levelAtTime(t);
+    const ep = Math.floor(currentLevel * 9980);
+    if (epEl) epEl.textContent = ep.toLocaleString();
+
+    // XP bar fills within each level then snaps (no CSS transition — we drive it)
+    const barPct = (continuousLevel(t) % 1) * 100;
+    if (fill) { fill.style.transition = 'none'; fill.style.width = barPct + '%'; }
+
+    if (currentLevel !== lastLevel) {
+      const jumped = currentLevel - lastLevel;
+      lastLevel = currentLevel;
+
+      if (lvBig) lvBig.textContent = currentLevel;
+      if (lvEl)  lvEl.textContent  = currentLevel;
+      if (lvNextEl) lvNextEl.textContent = currentLevel < MAX_LEVEL ? currentLevel + 1 : 'MAX';
+
+      // EP gain readout
+      if (gainEl) { gainEl.textContent = '+' + ep.toLocaleString() + ' EP'; gainEl.classList.add('show'); }
+
+      // Blur: heavy in fast phase, fades to zero in slow phase
+      const blurPx = t < 0.60 ? Math.min(14, jumped * 0.6) :
+                     t < 0.80 ? Math.min(4,  jumped * 0.5) : 0;
+      if (lvBig) lvBig.style.filter = blurPx > 0 ? `blur(${blurPx}px)` : '';
+
+      // Growing glow as you approach 999
+      const glowA = 0.25 + (currentLevel / MAX_LEVEL) * 0.75;
+      const glowR = 30 + Math.floor(currentLevel / 10);
+      if (lvBig) lvBig.style.textShadow =
+        `0 0 ${glowR}px rgba(201,162,75,${glowA.toFixed(2)}), ` +
+        `0 0 ${glowR * 2}px rgba(201,162,75,${(glowA * 0.45).toFixed(2)})`;
+
+      // Sound: every 12 levels fast, every 3 medium, every 1 slow
+      const playBlip = t < 0.60 ? (currentLevel % 12 === 0) :
+                       t < 0.80 ? (currentLevel % 3  === 0) : true;
+      if (playBlip) playOrbBlip();
+
+      // Chime + RANK UP: medium phase every 7, slow phase every single level
+      const doRankUp = (t >= 0.80) || (t >= 0.60 && currentLevel % 7 === 0);
+      if (doRankUp) {
+        playLevelChime();
+        if (rankUp) { rankUp.classList.remove('show'); void rankUp.offsetWidth; rankUp.classList.add('show'); }
+        if (rank)   { rank.classList.remove('up');    void rank.offsetWidth;   rank.classList.add('up'); setTimeout(() => rank.classList.remove('up'), 480); }
       }
-      if (lvNextEl) lvNextEl.textContent = String(level + 1);
-      // Snap the bar back to empty (no transition) for the next level.
-      if (fill) { fill.style.transition = 'none'; fill.style.width = '0%'; void fill.offsetWidth; fill.style.transition = ''; }
+
+      // BO2 tally mark: one per 100 levels
+      if (tallies && currentLevel % 100 === 0 && currentLevel < MAX_LEVEL) {
+        const tk = document.createElement('span');
+        tk.className = 'rank-tally';
+        tallies.appendChild(tk);
+        requestAnimationFrame(() => tk.classList.add('show'));
+      }
+
+      // XP bar flash on level-up
+      if (xpBar) { xpBar.classList.add('flash'); setTimeout(() => xpBar.classList.remove('flash'), 100); }
+    }
+
+    if (elapsed < DURATION) {
+      requestAnimationFrame(tick);
+    } else {
+      // ── FINALE: hit 999 ──
+      clearInterval(_orbInterval); _orbInterval = null;
+      if (lvBig) { lvBig.textContent = '999'; lvBig.style.filter = ''; lvBig.style.textShadow = ''; lvBig.classList.add('max'); }
+      if (fill)  { fill.style.transition = ''; fill.style.width = '100%'; }
+      if (lvEl)  lvEl.textContent = '999';
+      if (lvNextEl) lvNextEl.textContent = 'MAX';
+      if (epEl)  epEl.textContent = (MAX_LEVEL * 9980).toLocaleString();
+      if (rankUp) { rankUp.textContent = '⚡ MAX RANK ⚡'; rankUp.classList.remove('show'); void rankUp.offsetWidth; rankUp.classList.add('show'); }
+      // Triple chime salvo
       playLevelChime();
-      // BO2 rank-up: pop the skull emblem, add a tally, flash "RANK UP".
-      if (rank) { rank.classList.add('up'); setTimeout(() => rank.classList.remove('up'), 520); }
-      if (tallies) {
-        const t = document.createElement('span');
-        t.className = 'rank-tally';
-        tallies.appendChild(t);
-        requestAnimationFrame(() => t.classList.add('show'));
+      setTimeout(playLevelChime, 220);
+      setTimeout(playLevelChime, 440);
+      // Final orb burst
+      for (let i = 0; i < 10; i++) {
+        setTimeout(() => { const bt = barTarget(); spawnXpOrb(bt.x, bt.y, () => {}); }, i * 55);
       }
-      if (rankUp) { rankUp.classList.remove('show'); void rankUp.offsetWidth; rankUp.classList.add('show'); }
     }
   }
 
-  // Stream the orbs out in a staggered flood.
-  for (let i = 0; i < ORBS; i++) {
-    setTimeout(() => {
-      const t = target();   // recompute each time in case of layout shift
-      spawnXpOrb(t.x, t.y, onArrive);
-    }, 120 + i * 95);
-  }
+  requestAnimationFrame(tick);
 }
 
 // ACHIEVEMENT UNLOCKED finale: title slam, XP bar fills to LV 27, a "+N role"

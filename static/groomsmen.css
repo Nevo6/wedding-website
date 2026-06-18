@@ -604,6 +604,33 @@ html, body {
 .ach-lv b { color: var(--gold-bright); font-size: 16px; }
 .ach-lv.levelup b { animation: lvPulse .5s ease; color: #5dd66f; }
 @keyframes lvPulse { 0% { transform: scale(1); } 50% { transform: scale(1.6); } 100% { transform: scale(1); } }
+
+/* ----- Big centre level number (the star of the show) ----- */
+.ach-lvcenter { text-align: center; margin: 6px 0 4px; line-height: 1; }
+.ach-lv-label {
+  font-family: var(--label); letter-spacing: 10px; font-size: 11px;
+  color: var(--gold); text-transform: uppercase; margin-bottom: 2px; opacity: 0.8;
+}
+.ach-lvbig {
+  font-family: var(--serif); font-weight: 700;
+  font-size: clamp(88px, 20vw, 172px);
+  line-height: 0.92; letter-spacing: -2px;
+  color: var(--gold-bright);
+  text-shadow: 0 0 40px rgba(201,162,75,0.55), 0 0 90px rgba(201,162,75,0.25);
+  transition: filter 0.08s linear, text-shadow 0.15s ease;
+  will-change: filter, text-shadow;
+  display: block;
+}
+.ach-lvbig.max {
+  color: #5dd66f;
+  text-shadow: 0 0 50px rgba(93,214,111,0.9), 0 0 120px rgba(93,214,111,0.5);
+  animation: maxRankPulse 0.6s cubic-bezier(.2,1.6,.4,1) forwards;
+}
+@keyframes maxRankPulse {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.10); }
+  100% { transform: scale(1); }
+}
 .ach-xp {
   flex: 1; height: 12px; min-width: 140px; background: rgba(0, 0, 0, 0.55);
   border: 1px solid var(--gold-dim); overflow: hidden;
