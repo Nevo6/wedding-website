@@ -80,6 +80,42 @@ const RPG = {
       'Emergency Advil Cache (+20 Recovery)',
     ],
   },
+
+  'James Lange': {
+    className: 'Ride-or-Die Vanguard',
+    level: 26,
+    origin: 'Our story starts all the way back in 4th grade on North View Court in ' +
+            'Flower Mound. Back then, my main memory is being completely terrified of ' +
+            'him during after-school lacrosse — he played all the time and would chuck ' +
+            'the ball so ridiculously fast I was afraid to even join in. We survived ' +
+            'Wellington, McKamy, and Flower Mound High School together, where James easily ' +
+            'cemented himself as the funniest guy in the room. During a game of "two ' +
+            'truths and a lie" in history class, his truth was that "we are best friends" ' +
+            '(even though we didn\'t really know each other yet) and his lie was something ' +
+            'entirely absurd, like having wet socks. The joke was so genius I immediately ' +
+            'stole it to use on strangers. From those early days to now, the friendship ' +
+            'hasn\'t skipped a beat, and I absolutely cannot wait to celebrate him at his ' +
+            'own wedding in Mexico City this year.',
+    stats: [
+      { name: 'Strength',     key: 'STR', val: 86, note: 'Chucked a lacrosse ball so fast it scared kids off the field.' },
+      { name: 'Agility',      key: 'AGI', val: 89, note: 'Wheels ready in the driver seat the second he got his license.' },
+      { name: 'Intelligence', key: 'INT', val: 90, note: 'The "two truths and a lie" mastermind. Genius-tier comedic timing.' },
+      { name: 'Loyalty',      key: 'LOY', val: 100, note: 'Longest-lasting friend since the 4th grade. Maxed since day one.' },
+    ],
+    abilities: [
+      { name: 'Ride or Die',   icon: '🤝',    anim: 'bounce', text: 'The second he got his license, he made sure I always had a shotgun seat waiting for the morning commute. While everyone else was hunting for high school parties, you could find us holding it down, marathoning Rick and Morty, and dominating as undisputed Halo 3 champs. Today we still lock in every Friday night to catch up and game online — with James always ready to spot me some fake cash and carry my online poker habits.' },
+      { name: 'Hype Man',      icon: 'chart', anim: 'chart',  text: 'If you need someone to bring the energy, James is your guy. Nothing beats cruising in and out of the high school parking lot — blasting Hannah Montana one minute, aggressively rapping Migos\' "Pipe It Up" the next, and dropping our own legendary (and probably terrible) freestyles from the passenger seat.' },
+      { name: 'Clutch Factor', icon: '🚀',    anim: 'roll',   text: 'Whenever we link up, it feels like we step into a movie. Whether we meet in Nashville or he comes down to Tampa, a chain of unbelievable events always unfolds. Case in point: his Tampa trip — three spins into the slots at the Hard Rock, the man hits a real-money jackpot, then immediately splits the winnings with me and covers our drinks all night. James always comes through when it counts.' },
+    ],
+    campaigns: [
+      'Operation: Hard Rock Jackpot — Hit real money three spins in, split it on the spot.',
+      'The North View Court Origin — Survived Wellington, McKamy, and Flower Mound High together.',
+    ],
+    gear: [
+      'Shotgun Seat (permanently reserved, +15 Loyalty)',
+      'Infinite Fake-Cash Buy-In (+poker carry)',
+    ],
+  },
 };
 
 // Tasteful generic sheet for agents whose lore Sal hasn't supplied yet.
