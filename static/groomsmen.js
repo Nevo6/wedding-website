@@ -479,8 +479,8 @@ function redirectHomeOnce() {
 function acceptSequence() {
   playAchievement(activeTarget);
 
-  // 10-second level animation + trophy cards + a beat to enjoy 999.
-  const wait = Math.min(20000, Math.max(14000, montageDurationMs + 4500));
+  // 15-second level animation + trophy cards + a beat to enjoy MAX RANK.
+  const wait = Math.min(26000, Math.max(18000, montageDurationMs + 4500));
   setTimeout(redirectHomeOnce, wait);
 }
 
@@ -564,42 +564,39 @@ function spawnXpOrb(tx, ty, onArrive) {
   anim.oncancel = () => { orb.remove(); };
 }
 
-// Level 1 → 999 in 10 seconds.
-// Piecewise easing: levels 1-900 in 6 s (blurring fast), 900-970 in 2 s (slowing),
-// 970-999 in 2 s (one level at a time, super dramatic).
+// Level 26 → 99 over 15 seconds, piecewise easing:
+//   0-8.25s  (t 0.00-0.55): lvls 26-90  — numbers blur past
+//   8.25-11.7s (t 0.55-0.78): lvls 90-97  — visibly slowing, each readable
+//   11.7-15s   (t 0.78-1.00): lvls 97-99  — ~1.6 s per level, climax crawl
 function playXpRankUp() {
-  const DURATION = 10000;
-  const MAX_LEVEL = 999;
+  const DURATION    = 15000;
+  const START_LEVEL = 26;
+  const MAX_LEVEL   = 99;
 
   function levelAtTime(t) {
-    if (t < 0.60) {
-      return Math.max(1, Math.floor(1 + 899 * Math.pow(t / 0.60, 0.28)));
-    } else if (t < 0.80) {
-      return 900 + Math.floor(70 * (t - 0.60) / 0.20);
-    } else {
-      return 970 + Math.floor(29 * (t - 0.80) / 0.20);
-    }
+    if (t < 0.55) return START_LEVEL + Math.floor(64 * Math.pow(t / 0.55, 0.30));
+    if (t < 0.78) return 90 + Math.floor(7 * (t - 0.55) / 0.23);
+    return Math.min(MAX_LEVEL, 97 + Math.floor(2 * (t - 0.78) / 0.22));
+  }
+  function continuousLvl(t) {
+    if (t < 0.55) return START_LEVEL + 64 * Math.pow(t / 0.55, 0.30);
+    if (t < 0.78) return 90 + 7 * (t - 0.55) / 0.23;
+    return 97 + 2 * (t - 0.78) / 0.22;
   }
 
-  function continuousLevel(t) {
-    if (t < 0.60) return 1 + 899 * Math.pow(t / 0.60, 0.28);
-    if (t < 0.80) return 900 + 70 * (t - 0.60) / 0.20;
-    return 970 + 29 * (t - 0.80) / 0.20;
-  }
-
-  const fill    = document.getElementById('achXp');
-  const xpBar   = fill && fill.parentElement;
-  const epEl    = document.getElementById('achEp');
-  const lvBig   = document.getElementById('achLvBig');
-  const lvEl    = document.getElementById('achLv');
-  const lvNextEl= document.getElementById('achLvNext');
-  const gainEl  = document.getElementById('achEpGain');
-  const tallies = document.getElementById('rankTallies');
-  const rank    = document.getElementById('achRank');
-  const rankUp  = document.getElementById('achRankUp');
+  const fill     = document.getElementById('achXp');
+  const xpBar    = fill && fill.parentElement;
+  const epEl     = document.getElementById('achEp');
+  const lvBig    = document.getElementById('achLvBig');
+  const lvEl     = document.getElementById('achLv');
+  const lvNextEl = document.getElementById('achLvNext');
+  const gainEl   = document.getElementById('achEpGain');
+  const tallies  = document.getElementById('rankTallies');
+  const rank     = document.getElementById('achRank');
+  const rankUp   = document.getElementById('achRankUp');
 
   let startTime = null;
-  let lastLevel = 0;
+  let lastLevel = START_LEVEL - 1;
 
   function barTarget() {
     if (!xpBar) return { x: window.innerWidth / 2, y: window.innerHeight * 0.55 };
@@ -607,18 +604,20 @@ function playXpRankUp() {
     return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
   }
 
-  // Init display
-  if (lvBig)    lvBig.textContent = '1';
-  if (lvEl)     lvEl.textContent  = '1';
-  if (lvNextEl) lvNextEl.textContent = '2';
-  if (epEl)     epEl.textContent  = '0';
+  // Init display at level 26
+  if (lvBig)    { lvBig.textContent = String(START_LEVEL); lvBig.classList.remove('max'); lvBig.style.filter = ''; }
+  if (lvEl)     lvEl.textContent  = String(START_LEVEL);
+  if (lvNextEl) lvNextEl.textContent = String(START_LEVEL + 1);
+  if (epEl)     epEl.textContent  = (START_LEVEL * 135000).toLocaleString();
+  if (rankUp)   rankUp.classList.remove('show', 'max');
 
-  // Continuous orb stream for the full 10 s (clear any previous invocation)
+  // Dense orb flood — 2 orbs every 110 ms ≈ 18/sec, max ~15 concurrent
   if (_orbInterval) { clearInterval(_orbInterval); _orbInterval = null; }
   _orbInterval = setInterval(() => {
     const bt = barTarget();
     spawnXpOrb(bt.x, bt.y, () => {});
-  }, 200);
+    setTimeout(() => spawnXpOrb(bt.x, bt.y, () => {}), 35);
+  }, 110);
 
   function tick(ts) {
     if (!startTime) startTime = ts;
@@ -626,11 +625,12 @@ function playXpRankUp() {
     const t = elapsed / DURATION;
 
     const currentLevel = levelAtTime(t);
-    const ep = Math.floor(currentLevel * 9980);
+    const ep = Math.floor((currentLevel - 25) * 135000);
     if (epEl) epEl.textContent = ep.toLocaleString();
 
-    // XP bar fills within each level then snaps (no CSS transition — we drive it)
-    const barPct = (continuousLevel(t) % 1) * 100;
+    // XP bar: fractional progress within the current level
+    const cl = continuousLvl(t);
+    const barPct = (cl - Math.floor(cl)) * 100;
     if (fill) { fill.style.transition = 'none'; fill.style.width = barPct + '%'; }
 
     if (currentLevel !== lastLevel) {
@@ -639,66 +639,68 @@ function playXpRankUp() {
 
       if (lvBig) lvBig.textContent = currentLevel;
       if (lvEl)  lvEl.textContent  = currentLevel;
-      if (lvNextEl) lvNextEl.textContent = currentLevel < MAX_LEVEL ? currentLevel + 1 : 'MAX';
+      if (lvNextEl) lvNextEl.textContent = currentLevel < MAX_LEVEL ? String(currentLevel + 1) : 'MAX';
 
-      // EP gain readout
       if (gainEl) { gainEl.textContent = '+' + ep.toLocaleString() + ' EP'; gainEl.classList.add('show'); }
 
-      // Blur: heavy in fast phase, fades to zero in slow phase
-      const blurPx = t < 0.60 ? Math.min(14, jumped * 0.6) :
-                     t < 0.80 ? Math.min(4,  jumped * 0.5) : 0;
+      // Blur fades as we slow down
+      const blurPx = t < 0.55 ? Math.min(12, jumped * 0.7) :
+                     t < 0.78 ? Math.min(3,  jumped * 0.5) : 0;
       if (lvBig) lvBig.style.filter = blurPx > 0 ? `blur(${blurPx}px)` : '';
 
-      // Growing glow as you approach 999
-      const glowA = 0.25 + (currentLevel / MAX_LEVEL) * 0.75;
-      const glowR = 30 + Math.floor(currentLevel / 10);
+      // Glow builds toward max
+      const pct = (currentLevel - START_LEVEL) / (MAX_LEVEL - START_LEVEL);
+      const glowA = 0.25 + pct * 0.75;
+      const glowR = 28 + Math.floor(pct * 52);
       if (lvBig) lvBig.style.textShadow =
         `0 0 ${glowR}px rgba(201,162,75,${glowA.toFixed(2)}), ` +
-        `0 0 ${glowR * 2}px rgba(201,162,75,${(glowA * 0.45).toFixed(2)})`;
+        `0 0 ${glowR * 2}px rgba(201,162,75,${(glowA * 0.4).toFixed(2)})`;
 
-      // Sound: every 12 levels fast, every 3 medium, every 1 slow
-      const playBlip = t < 0.60 ? (currentLevel % 12 === 0) :
-                       t < 0.80 ? (currentLevel % 3  === 0) : true;
+      // Blips: every 8 levels fast, every 2 medium, every 1 slow
+      const playBlip = t < 0.55 ? (currentLevel % 8 === 0) :
+                       t < 0.78 ? (currentLevel % 2 === 0) : true;
       if (playBlip) playOrbBlip();
 
-      // Chime + RANK UP: medium phase every 7, slow phase every single level
-      const doRankUp = (t >= 0.80) || (t >= 0.60 && currentLevel % 7 === 0);
+      // RANK UP flash + chime — medium every 5, slow every level
+      const doRankUp = (t >= 0.78) || (t >= 0.55 && currentLevel % 5 === 0);
       if (doRankUp) {
         playLevelChime();
-        if (rankUp) { rankUp.classList.remove('show'); void rankUp.offsetWidth; rankUp.classList.add('show'); }
-        if (rank)   { rank.classList.remove('up');    void rank.offsetWidth;   rank.classList.add('up'); setTimeout(() => rank.classList.remove('up'), 480); }
+        if (rankUp) { rankUp.classList.remove('show', 'max'); void rankUp.offsetWidth; rankUp.classList.add('show'); }
+        if (rank)   { rank.classList.remove('up'); void rank.offsetWidth; rank.classList.add('up'); setTimeout(() => rank.classList.remove('up'), 480); }
       }
 
-      // BO2 tally mark: one per 100 levels
-      if (tallies && currentLevel % 100 === 0 && currentLevel < MAX_LEVEL) {
+      // Tally mark every 10 levels (up to ~7 marks for 26→96)
+      if (tallies && (currentLevel - START_LEVEL) % 10 === 0 && currentLevel < MAX_LEVEL) {
         const tk = document.createElement('span');
         tk.className = 'rank-tally';
         tallies.appendChild(tk);
         requestAnimationFrame(() => tk.classList.add('show'));
       }
 
-      // XP bar flash on level-up
-      if (xpBar) { xpBar.classList.add('flash'); setTimeout(() => xpBar.classList.remove('flash'), 100); }
+      if (xpBar) { xpBar.classList.add('flash'); setTimeout(() => xpBar.classList.remove('flash'), 90); }
     }
 
     if (elapsed < DURATION) {
       requestAnimationFrame(tick);
     } else {
-      // ── FINALE: hit 999 ──
+      // ── MAX RANK FINALE ──
       clearInterval(_orbInterval); _orbInterval = null;
-      if (lvBig) { lvBig.textContent = '999'; lvBig.style.filter = ''; lvBig.style.textShadow = ''; lvBig.classList.add('max'); }
+      if (lvBig) { lvBig.textContent = '99'; lvBig.style.filter = ''; lvBig.style.textShadow = ''; lvBig.classList.add('max'); }
       if (fill)  { fill.style.transition = ''; fill.style.width = '100%'; }
-      if (lvEl)  lvEl.textContent = '999';
+      if (lvEl)  lvEl.textContent = '99';
       if (lvNextEl) lvNextEl.textContent = 'MAX';
-      if (epEl)  epEl.textContent = (MAX_LEVEL * 9980).toLocaleString();
-      if (rankUp) { rankUp.textContent = '⚡ MAX RANK ⚡'; rankUp.classList.remove('show'); void rankUp.offsetWidth; rankUp.classList.add('show'); }
+      if (epEl)  epEl.textContent = ((MAX_LEVEL - 25) * 135000).toLocaleString();
+      if (gainEl) { gainEl.textContent = 'MAX RANK REACHED'; gainEl.classList.add('show'); }
+      // Persistent MAX RANK indicator
+      if (rankUp) { rankUp.textContent = '⚡ MAX RANK ⚡'; rankUp.classList.remove('show'); rankUp.classList.add('max'); }
+      if (rank)   { rank.classList.remove('up'); void rank.offsetWidth; rank.classList.add('up'); }
       // Triple chime salvo
       playLevelChime();
       setTimeout(playLevelChime, 220);
       setTimeout(playLevelChime, 440);
-      // Final orb burst
-      for (let i = 0; i < 10; i++) {
-        setTimeout(() => { const bt = barTarget(); spawnXpOrb(bt.x, bt.y, () => {}); }, i * 55);
+      // Big final orb burst
+      for (let i = 0; i < 20; i++) {
+        setTimeout(() => { const bt = barTarget(); spawnXpOrb(bt.x, bt.y, () => {}); }, i * 40);
       }
     }
   }
