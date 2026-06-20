@@ -38,8 +38,8 @@ html, body {
   overflow: hidden;
   background:
     radial-gradient(ellipse 80% 55% at 50% -10%, rgba(201, 162, 75, 0.18), transparent 60%),
-    radial-gradient(ellipse at center, rgba(30, 26, 18, 0.6) 0%, #05050a 80%),
-    var(--noir);
+    radial-gradient(ellipse at center, rgba(10, 8, 4, 0.72) 0%, rgba(3, 3, 6, 0.88) 80%),
+    url("/static/groomsmen-bg.jpg") center / cover no-repeat;
 }
 
 /* faint static film grain (pre-rasterized; no per-frame repaint) */
