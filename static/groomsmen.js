@@ -157,14 +157,30 @@ function showStage(name) {
 
 const screen = document.getElementById('screen');
 
-// ---------- Background music + mute ----------
-const bgMusic = document.getElementById('bg-music');
-const muteBtn = document.getElementById('muteBtn');
+// ---------- Background music + mute + volume ----------
+const bgMusic   = document.getElementById('bg-music');
+const muteBtn   = document.getElementById('muteBtn');
+const volSlider = document.getElementById('volSlider');
+const audioCtrls = document.getElementById('audioControls');
 const ICON_SOUND = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16 8.5a4 4 0 0 1 0 7M18.5 6a7.5 7.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
 const ICON_MUTED = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16 9l5 5M21 9l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
 
+// Default music volume kept gentle (0.22) so it sits under the UI sounds.
 let muted = false;
-try { muted = sessionStorage.getItem('portalMuted') === '1'; } catch (e) { /* ignore */ }
+let volume = 0.22;
+try {
+  muted = sessionStorage.getItem('portalMuted') === '1';
+  const sv = parseFloat(sessionStorage.getItem('portalVolume'));
+  if (!isNaN(sv) && sv >= 0 && sv <= 1) volume = sv;
+} catch (e) { /* ignore */ }
+
+function applyVolume() {
+  if (bgMusic) bgMusic.volume = volume;
+  if (volSlider) {
+    volSlider.value = Math.round(volume * 100);
+    volSlider.style.setProperty('--vol', Math.round(volume * 100) + '%');
+  }
+}
 
 function applyMute() {
   if (bgMusic) bgMusic.muted = muted;
@@ -173,11 +189,12 @@ function applyMute() {
     muteBtn.setAttribute('aria-label', muted ? 'Unmute music' : 'Mute music');
     muteBtn.innerHTML = muted ? ICON_MUTED : ICON_SOUND;
   }
+  if (audioCtrls) audioCtrls.classList.toggle('muted', muted);
 }
 
 function startMusic() {
   if (!bgMusic) return;
-  bgMusic.volume = 0.45;
+  applyVolume();
   applyMute();
   const p = bgMusic.play();
   if (p && p.catch) p.catch(() => { /* autoplay blocked — starts on first gesture below */ });
@@ -191,6 +208,24 @@ if (muteBtn) {
     if (!muted && bgMusic && bgMusic.paused) bgMusic.play().catch(() => {});
   });
 }
+
+if (volSlider) {
+  volSlider.addEventListener('input', () => {
+    volume = Math.max(0, Math.min(1, volSlider.value / 100));
+    try { sessionStorage.setItem('portalVolume', String(volume)); } catch (e) { /* ignore */ }
+    // Sliding off zero implicitly unmutes; sliding to zero mutes.
+    if (volume === 0 && !muted) { muted = true; applyMute(); }
+    else if (volume > 0 && muted) {
+      muted = false;
+      try { sessionStorage.setItem('portalMuted', '0'); } catch (e) { /* ignore */ }
+      applyMute();
+      if (bgMusic && bgMusic.paused) bgMusic.play().catch(() => {});
+    }
+    applyVolume();
+  });
+}
+
+applyVolume();
 applyMute();
 startMusic();
 // Browsers block autoplay until a gesture — kick the music off on the first one.

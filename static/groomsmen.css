@@ -550,18 +550,50 @@ html, body {
 .terminal.resolved .term-prompt-line { opacity: .4; }
 .terminal.resolved .term-key { pointer-events: none; }
 
-/* ---------- MUTE BUTTON ---------- */
-#muteBtn {
+/* ---------- MUSIC CONTROLS (mute + volume) ---------- */
+#audioControls {
   position: fixed; top: 16px; right: 16px; z-index: 1000;
-  width: 42px; height: 42px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
+  display: flex; align-items: center; gap: 10px;
+  padding: 5px 12px 5px 5px; border-radius: 24px;
   background: rgba(10, 10, 13, 0.7); border: 1px solid var(--gold-dim);
-  color: var(--gold-bright); cursor: pointer; padding: 0;
-  transition: background .2s, box-shadow .2s, color .2s, border-color .2s;
+  transition: border-color .2s, box-shadow .2s;
 }
-#muteBtn:hover { border-color: var(--gold); box-shadow: 0 0 16px rgba(201, 162, 75, 0.4); }
-#muteBtn svg { width: 22px; height: 22px; }
+#audioControls:hover { border-color: var(--gold); box-shadow: 0 0 16px rgba(201, 162, 75, 0.35); }
+
+#muteBtn {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent; border: none;
+  color: var(--gold-bright); cursor: pointer; padding: 0;
+  transition: color .2s, transform .12s;
+}
+#muteBtn:hover { color: var(--gold); transform: scale(1.08); }
+#muteBtn svg { width: 21px; height: 21px; }
 #muteBtn.muted { color: var(--cream-dim); }
+
+/* Slim gold volume slider, themed across WebKit + Firefox */
+#volSlider {
+  -webkit-appearance: none; appearance: none;
+  width: 86px; height: 4px; border-radius: 3px; cursor: pointer;
+  background: linear-gradient(90deg, var(--gold) 0%, var(--gold) var(--vol, 22%), rgba(201,162,75,0.22) var(--vol, 22%), rgba(201,162,75,0.22) 100%);
+  outline: none; margin: 0;
+  transition: opacity .2s;
+}
+#volSlider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 13px; height: 13px; border-radius: 50%;
+  background: var(--gold-bright); border: 1px solid rgba(10,10,13,0.8);
+  box-shadow: 0 0 8px rgba(201,162,75,0.6); cursor: pointer;
+}
+#volSlider::-moz-range-thumb {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--gold-bright); border: 1px solid rgba(10,10,13,0.8);
+  box-shadow: 0 0 8px rgba(201,162,75,0.6); cursor: pointer;
+}
+#volSlider::-moz-range-track { height: 4px; border-radius: 3px; background: transparent; }
+#audioControls.muted #volSlider { opacity: 0.4; }
+
+@media (max-width: 560px) { #volSlider { width: 64px; } }
 
 /* ---------- ACHIEVEMENT UNLOCKED ---------- */
 #achievement {
