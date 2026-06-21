@@ -7,11 +7,11 @@
   <title>Sal & Lauren - April 24th, 2027 | Clearwater Beach Wedding</title>
   <meta name="description"
     content="Join Sal Caramucci and Lauren Hayle for their wedding celebration at Hyatt Regency Clearwater Beach Resort and Spa on April 24th, 2027.">
-  <link rel="stylesheet" href="/static/Styles.css?v=20260509e">
+  <link rel="stylesheet" href="/static/Styles.css?v=20260620f">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@300;400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&family=Pacifico&family=Playfair+Display:wght@500;600;700&family=Montserrat:wght@300;400;500;600&display=swap"
     rel="stylesheet">
 </head>
 
@@ -64,6 +64,7 @@
           <li><a href="#gallery" class="nav-link">Gallery</a></li>
           <li><a href="#venue" class="nav-link">Venue</a></li>
           <li><a href="#travel" class="nav-link">Travel</a></li>
+          <li><a href="#attire" class="nav-link">Attire</a></li>
           <li><a href="#faq" class="nav-link">FAQ</a></li>
           <li><a href="#rsvp" class="nav-link nav-cta">RSVP</a></li>
           <!-- Registry link hidden until REGISTRY_LIVE is True
@@ -186,15 +187,35 @@
           <figure class="gallery-item" data-caption="Sand Key Beach — Clearwater">
             <img class="gallery-img" src="/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-9308.jpg" alt="Beach scene" loading="lazy">
           </figure>
-          <figure class="gallery-item" data-caption="Sand Key Beach — golden hour">
-            <img class="gallery-img" src="/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-9394.jpg" alt="Golden hour" loading="lazy">
+          <figure class="gallery-item" data-caption="Sand Key Beach — Sal & Lauren">
+            <img class="gallery-img" src="/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-9374.jpg" alt="Sal and Lauren on the beach" loading="lazy">
           </figure>
           <figure class="gallery-item" data-caption="She said yes — the ring reveal">
             <img class="gallery-img" src="/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-9440.jpg" alt="The ring" loading="lazy">
           </figure>
         </div>
+
+        <div class="gallery-actions">
+          <button id="viewMorePhotosBtn" class="view-more-btn" type="button">📸 View More Photos</button>
+        </div>
       </div>
     </section>
+
+    <!-- Full Gallery Modal -->
+    <div id="fullGalleryModal" class="full-gallery-modal" aria-hidden="true">
+      <div class="full-gallery-panel">
+        <button class="full-gallery-close" id="fullGalleryClose" type="button" aria-label="Close gallery">×</button>
+        <h3 class="full-gallery-title">Engagement Gallery</h3>
+        <p class="full-gallery-sub">Sal &amp; Lauren · Sand Key Beach, Clearwater</p>
+        <div class="full-gallery-grid" id="fullGalleryGrid"></div>
+      </div>
+      <div class="fg-viewer" id="fgViewer" aria-hidden="true">
+        <button class="fg-viewer-close" id="fgViewerClose" type="button" aria-label="Close photo">×</button>
+        <button class="fg-viewer-nav fg-viewer-prev" id="fgViewerPrev" type="button" aria-label="Previous photo">‹</button>
+        <img class="fg-viewer-img" id="fgViewerImg" src="" alt="Engagement photo">
+        <button class="fg-viewer-nav fg-viewer-next" id="fgViewerNext" type="button" aria-label="Next photo">›</button>
+      </div>
+    </div>
 
     <!-- Venue Section -->
     <section class="venue-section fade-in-scroll" id="venue">
@@ -310,6 +331,26 @@
       </div>
     </section>
 
+    <!-- Attire Inspiration Section -->
+    <section class="attire-section fade-in-scroll" id="attire">
+      <div class="container">
+        <h2 class="section-title">Attire Inspiration</h2>
+        <p class="attire-intro">For our spring celebration, please draw inspiration from the palette below. For the
+          ladies, we suggest floor-length cocktail dresses. For the gentlemen, we would love to see you cleaned up
+          in a suit — but linen shirts are encouraged since we'll be near the beach.</p>
+
+        <figure class="palette-feature">
+          <img class="palette-feature-img" src="/static/Pictures/spring-color-palette.png"
+            alt="Spring Wedding Color Palette — Blush Pink, Peach, Sage Green, Lilac, and Butter Yellow, with soft, romantic, and timeless spring florals"
+            loading="lazy">
+        </figure>
+
+        <p class="attire-note">💡 Florals and palette-matching colors are warmly welcomed for everyone. Cocktail /
+          semi-formal — please avoid <span class="color-avoid">baby blue</span> and
+          <span class="color-avoid-white">white</span>.</p>
+      </div>
+    </section>
+
     <!-- FAQ Section -->
     <section class="faq-section fade-in-scroll" id="faq">
       <div class="container">
@@ -329,7 +370,7 @@
                 <button class="faq-question"><span>When is the RSVP deadline?</span><span
                     class="faq-toggle">+</span></button>
                 <div class="faq-answer">
-                  <p><strong>August 1st, 2026.</strong> If we don't hear from you by the deadline, we'll assume you're
+                  <p><strong>January 15th, 2027.</strong> If we don't hear from you by the deadline, we'll assume you're
                     unable to attend. Contact us at <a href="mailto:sal.caramucci@hotmail.com">sal.caramucci@hotmail.com</a>
                   </p>
                 </div>
@@ -446,8 +487,8 @@
           <div class="notice-icon">⚠️</div>
           <h2>Important Notice</h2>
           <p>Please RSVP to confirm your attendance for our special day!</p>
-          <p class="emphasis deadline-warning">🗓️ RSVP Deadline: August 1st, 2026</p>
-          <p class="sub-notice warning-text">If we do not receive your RSVP by August 1st, we will assume you are unable
+          <p class="emphasis deadline-warning">🗓️ RSVP Deadline: January 15th, 2027</p>
+          <p class="sub-notice warning-text">If we do not receive your RSVP by January 15th, we will assume you are unable
             to attend and your invitation will be revoked.</p>
           <p class="sub-notice contact-note">📧 Need to reach us after the deadline? Please contact the bride and groom
             directly at <a href="mailto:sal.caramucci@hotmail.com">sal.caramucci@hotmail.com</a></p>
@@ -600,7 +641,7 @@
     <span class="mobile-rsvp-cta-arrow" aria-hidden="true">→</span>
   </a>
 
-  <script src="/static/Script.js?v=20260616b"></script>
+  <script src="/static/Script.js?v=20260620a"></script>
 </body>
 
 </html>

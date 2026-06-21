@@ -1043,3 +1043,103 @@ window.addEventListener('scroll', () => {
     activeIsA = !activeIsA;
   }, 10000);
 })();
+
+// ========================================
+// FULL ENGAGEMENT GALLERY ("View More Photos")
+// ========================================
+
+(function () {
+  const galleryFiles = [
+    '9061', '9093', '9094', '9111', '9113', '9118', '9132', '9229', '9248',
+    '9252', '9254', '9289', '9308', '9322', '9349', '9374', '9402', '9426',
+    '9440', '9462', '9464', '9475', '9482', '9485', '9492'
+  ].map(n => `/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-${n}.jpg`);
+
+  const openBtn = document.getElementById('viewMorePhotosBtn');
+  const modal = document.getElementById('fullGalleryModal');
+  const grid = document.getElementById('fullGalleryGrid');
+  const closeBtn = document.getElementById('fullGalleryClose');
+  const viewer = document.getElementById('fgViewer');
+  const viewerImg = document.getElementById('fgViewerImg');
+  const viewerClose = document.getElementById('fgViewerClose');
+  const viewerPrev = document.getElementById('fgViewerPrev');
+  const viewerNext = document.getElementById('fgViewerNext');
+
+  if (!openBtn || !modal || !grid) return;
+
+  let built = false;
+  let current = 0;
+
+  function buildGrid() {
+    if (built) return;
+    galleryFiles.forEach((src, i) => {
+      const fig = document.createElement('button');
+      fig.className = 'fg-thumb';
+      fig.type = 'button';
+      fig.setAttribute('aria-label', `Open photo ${i + 1}`);
+      const img = document.createElement('img');
+      img.loading = 'lazy';
+      img.src = src;
+      img.alt = `Engagement photo ${i + 1}`;
+      fig.appendChild(img);
+      fig.addEventListener('click', () => openViewer(i));
+      grid.appendChild(fig);
+    });
+    built = true;
+  }
+
+  function openModal() {
+    buildGrid();
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    closeViewer();
+    document.body.style.overflow = '';
+  }
+
+  function openViewer(index) {
+    current = index;
+    viewerImg.src = galleryFiles[current];
+    viewer.classList.add('open');
+    viewer.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeViewer() {
+    viewer.classList.remove('open');
+    viewer.setAttribute('aria-hidden', 'true');
+  }
+
+  function step(dir) {
+    current = (current + dir + galleryFiles.length) % galleryFiles.length;
+    viewerImg.src = galleryFiles[current];
+  }
+
+  openBtn.addEventListener('click', openModal);
+  closeBtn.addEventListener('click', closeModal);
+  viewerClose.addEventListener('click', closeViewer);
+  viewerPrev.addEventListener('click', () => step(-1));
+  viewerNext.addEventListener('click', () => step(1));
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+  viewer.addEventListener('click', (e) => {
+    if (e.target === viewer) closeViewer();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (!modal.classList.contains('open')) return;
+    if (viewer.classList.contains('open')) {
+      if (e.key === 'Escape') closeViewer();
+      else if (e.key === 'ArrowLeft') step(-1);
+      else if (e.key === 'ArrowRight') step(1);
+    } else if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();
