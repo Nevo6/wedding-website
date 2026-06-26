@@ -34,21 +34,36 @@ let activeTarget = null;
 // Per-code character sheets. Fill these out as Sal supplies each agent's lore.
 const RPG = {
   'Joey PS4': {
-    className: 'Supersonic Financial Vanguard',
+    className: 'Nash-Ops Market Vanguard',
     level: 26,
-    origin: 'Spawned in the halls of McKamy Middle School and leveled up through ' +
-            'Flower Mound High School. Early game consisted of daily grinds at the ' +
-            'WAC, dominating the basketball court and accumulating mass in the weight room.',
+    origin: 'The first true ally unlocked after the server transfer from Flower Mound ' +
+            'to Ravenwood High School. The origin story kicked off during Junior year ' +
+            '(his Senior year) in an Intro to Accounting class, but the bond was truly ' +
+            'forged over a summer of non-stop gaming grinds—dominating in Smite, ' +
+            'Minecraft, and Madden. Since then, it\'s been a blur of epic side quests: ' +
+            'wrecking it at Pins Mechanical, tearing up Broadway, getting rowdy at ' +
+            'Nashville SC games, and surviving legendary Christmas parties.',
     stats: [
-      { name: 'Strength',     key: 'STR', val: 85, note: 'Forged from daily WAC lifting sessions.' },
-      { name: 'Agility',      key: 'AGI', val: 92, note: 'Unmatched ankle-breaking on the post-middle school basketball courts.' },
-      { name: 'Intelligence', key: 'INT', val: 88, note: 'Stock market analysis and shared portfolio gains.' },
-      { name: 'Mechanics',    key: 'MEC', val: 99, note: 'Aerials, flip resets, and daily Rocket League grinds.' },
+      { name: 'Strength',     key: 'STR', val: 85, note: 'Can go shot-for-shot with tequila at the parents\' Christmas party.' },
+      { name: 'Agility',      key: 'AGI', val: 92, note: 'Always the first one with the engine running to provide a ride.' },
+      { name: 'Intelligence', key: 'INT', val: 95, note: 'The undisputed oracle for market insights and business movements.' },
+      { name: 'Endurance',    key: 'END', val: 99, note: 'Survived a rain-delayed Nashville SC game with unlimited club-seat drinks and sprinted to the car in the pouring rain.' },
     ],
     abilities: [
-      { name: 'Court Sweeper',     icon: '🏀',    anim: 'bounce', text: 'Passive ability activated every day after middle school. Grants +10 dominance against kids at the WAC.' },
-      { name: 'Bull Market Buff',  icon: 'chart', anim: 'chart',  text: 'Strategic investment protocol. Yields compounding returns when pooling stocks together.' },
-      { name: 'Supersonic Acrobat',icon: '🚀',    anim: 'roll',   text: 'Equips a rocket-powered battle-car for daily ranked grinds and clutch saves.' },
+      { name: 'The Getaway Driver', icon: '🚗',    anim: 'roll',   text: 'The ultimate fast-travel point. Joey never misses a deployment and is consistently the first person to offer a ride, ensuring the squad always makes it out and gets home safe.' },
+      { name: 'Tolerance Overflow', icon: '🍻',    anim: 'bounce', text: 'Possesses a dangerously high party buff that occasionally requires a tactical extraction. Legendary feats include downing tequila and keg beer at the parents\' Christmas party (requiring a carry-out to the car), dodging traffic after a night out with Wyatt and James, and maximizing the free-drink modifier during a rain-delayed Nashville SC game in club seats (shoutout Matthew).' },
+      { name: 'Market Bull Buff',   icon: 'chart', anim: 'chart',  text: 'The designated financial oracle. Whenever market insights or business movements are needed, Joey is the very first contact in the comms network.' },
+      { name: 'Zombie Survivalist', icon: '🧟',    anim: 'bounce', text: 'Elite tactical endurance forged through countless rounds of Black Ops Zombies. Always ready to hold down the windows, hit the mystery box, and clutch up to revive the squad when the horde closes in.' },
+    ],
+    campaigns: [
+      'The Christmas Party Extraction — Downed tequila and keg beer, requiring a tactical carry-out to the car.',
+      'The Nashville SC Rain Delay — Exploited Matthew\'s free club tickets to maximize drinking time.',
+      'Broadway Survival Mode — Navigated the chaos of Nashville nightlife and dodged traffic with Wyatt and James.',
+    ],
+    gear: [
+      'Getaway Car Keys (+50 Reliability, always ready to drive)',
+      'VIP Club Seat Pass (+100 Drink Capacity, courtesy of Matthew)',
+      'Wall Street Terminal (+20 Business Insight)',
     ],
   },
 
