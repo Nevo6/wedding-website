@@ -36,7 +36,7 @@ const RPG = {
   'Joey PS4': {
     className: 'Nash-Ops Market Vanguard',
     level: 26,
-    origin: 'The first true ally unlocked after the server transfer from Flower Mound ' +
+    origin: 'The first true ally unlocked after the move from Flower Mound ' +
             'to Ravenwood High School. The origin story kicked off during Junior year ' +
             '(his Senior year) in an Intro to Accounting class, but the bond was truly ' +
             'forged over a summer of non-stop gaming grinds—dominating in Smite, ' +
