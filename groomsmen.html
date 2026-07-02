@@ -11,7 +11,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Montserrat:wght@300;400;500;600&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="/static/groomsmen.css?v=20260619c">
+  <link rel="stylesheet" href="/static/groomsmen.css?v=20260702a">
 </head>
 
 <body>
@@ -66,6 +66,19 @@
             <div class="skills-label">Equipped Gear</div>
             <ul class="lore-list gear" id="gearList"></ul>
           </div>
+
+          <div class="lore-section" id="classifiedSection" style="display:none;">
+            <div class="skills-label">Classified Intel</div>
+            <ul class="lore-list classified" id="classifiedList"></ul>
+          </div>
+
+          <button id="btnLoadout" class="loadout-open" type="button">▚&nbsp; CREATE-A-CLASS &nbsp;▞</button>
+
+          <div class="lore-section" id="squadSection">
+            <div class="skills-label">Squad Roster</div>
+            <div class="squad-grid" id="squadGrid"></div>
+            <div class="squad-note" id="squadNote">Establishing uplink&hellip;</div>
+          </div>
         </div>
 
         <div id="avatarWrap" class="breathing">
@@ -89,10 +102,79 @@
             <span class="term-cursor"></span>
           </div>
           <div id="termOut" class="term-out"></div>
+          <div class="term-cmdline">
+            <span class="term-caret">&gt;</span>
+            <input id="termInput" type="text" autocomplete="off" autocapitalize="characters"
+                   spellcheck="false" maxlength="40" placeholder="TYPE 'HELP' FOR COMMANDS_"
+                   aria-label="Terminal command input">
+          </div>
         </div>
       </div>
     </section>
 
+  </div>
+
+  <!-- ========== CREATE-A-CLASS (loadout transmission to HQ) ========== -->
+  <div id="loadout" class="loadout-overlay" aria-hidden="true">
+    <div class="loadout-panel">
+      <button id="loadoutClose" class="loadout-close" type="button" aria-label="Close Create-a-Class">&times;</button>
+      <div class="loadout-head">Create-a-Class</div>
+      <div class="loadout-sub">Operative loadout &middot; transmits directly to HQ &middot; April 24, 2027</div>
+
+      <form id="loadoutForm">
+        <div class="slot">
+          <div class="slot-tag">Primary Weapon</div>
+          <label class="slot-label" for="ldPrimary">Suit Fit</label>
+          <select id="ldPrimary" required>
+            <option value="" disabled selected>Select fit&hellip;</option>
+            <option>Slim Cut</option>
+            <option>Modern Fit</option>
+            <option>Classic Fit</option>
+            <option>Athletic Fit</option>
+            <option>Tailor's Choice — surprise me</option>
+          </select>
+        </div>
+
+        <div class="slot">
+          <div class="slot-tag">Secondary</div>
+          <label class="slot-label" for="ldDrink">Drink of Choice</label>
+          <input id="ldDrink" type="text" maxlength="60" placeholder="e.g. Old Fashioned, Modelo, tequila soda" required>
+        </div>
+
+        <div class="slot">
+          <div class="slot-tag">Lethal Equipment</div>
+          <label class="slot-label" for="ldDance">Signature Dance Move</label>
+          <input id="ldDance" type="text" maxlength="60" placeholder="e.g. The Worm, invisible lasso" required>
+        </div>
+
+        <div class="slot">
+          <div class="slot-tag">Tactical</div>
+          <label class="slot-label" for="ldSong">Hype Song Request</label>
+          <input id="ldSong" type="text" maxlength="80" placeholder="One song guaranteed to send you" required>
+        </div>
+
+        <div class="slot">
+          <div class="slot-tag">Field Upgrade</div>
+          <label class="slot-label" for="ldShoe">Shoe Size</label>
+          <input id="ldShoe" type="text" maxlength="10" placeholder="e.g. 11" required>
+        </div>
+
+        <div class="slot slot-perks">
+          <div class="slot-tag">Perks &middot; Pick 3</div>
+          <div class="perk-picks" id="perkPicks">
+            <label><input type="checkbox" value="Groom-a-Nog — never leaves the dance floor"><span>🥤 Groom-a-Nog<em>Never leaves the dance floor</em></span></label>
+            <label><input type="checkbox" value="Speed Cola — first to the open bar"><span>🥤 Speed Cola<em>First to the open bar</em></span></label>
+            <label><input type="checkbox" value="Stamin-Up — last man standing at the afterparty"><span>🥤 Stamin-Up<em>Last man standing at the afterparty</em></span></label>
+            <label><input type="checkbox" value="Quick Revive — designated hangover medic"><span>🥤 Quick Revive<em>Designated hangover medic</em></span></label>
+            <label><input type="checkbox" value="Double Tap — two drinks at all times"><span>🥤 Double Tap<em>Two drinks at all times</em></span></label>
+            <label><input type="checkbox" value="Deadshot Daiquiri — bouquet-toss interceptor"><span>🥤 Deadshot Daiquiri<em>Bouquet-toss interceptor</em></span></label>
+          </div>
+        </div>
+
+        <button id="ldDeploy" class="loadout-deploy" type="submit">▸ DEPLOY LOADOUT</button>
+        <div class="loadout-status" id="loadoutStatus"></div>
+      </form>
+    </div>
   </div>
 
   <!-- Background score (loops the whole time you're in the portal) -->
@@ -147,7 +229,7 @@
     </div>
   </div>
 
-  <script src="/static/groomsmen.js?v=20260626c"></script>
+  <script src="/static/groomsmen.js?v=20260702a"></script>
 </body>
 
 </html>

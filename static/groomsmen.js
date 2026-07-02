@@ -349,6 +349,8 @@ function bootSequence() {
   showStage('briefing');
   setPortrait(activeTarget);
   renderCharacter(activeCode, activeTarget);
+  renderSquad();
+  updateSquadStatuses();
 }
 
 // Swap the redacted portrait in and run the "decryption" reveal.
@@ -402,24 +404,44 @@ function renderCharacter(code, target) {
     rows.appendChild(row);
   });
 
-  // Skill tree — each node animates on hover and reveals its text in the readout.
+  // Skill tree — perks rendered as Zombies-style Perk-a-Cola bottles.
+  // Hover/click reveals the perk text; click also "drinks" the perk (jingle).
+  const PERK_COLORS = ['#b3202e', '#35b1c9', '#2f9e44', '#e0912f', '#7048a8'];
+  const PERK_COSTS  = [2500, 1500, 3000, 2000, 4000];
   const tree = document.getElementById('skillTree');
   const readout = document.getElementById('skillReadout');
   tree.innerHTML = '';
-  p.abilities.forEach(a => {
+  p.abilities.forEach((a, i) => {
     const node = document.createElement('div');
-    node.className = 'skill-node anim-' + a.anim;
+    node.className = 'skill-node perk-node anim-' + a.anim;
     node.tabIndex = 0;
+    node.style.setProperty('--perk-c', PERK_COLORS[i % PERK_COLORS.length]);
     node.innerHTML =
-      `<div class="skill-icon">${a.icon === 'chart' ? CHART_SVG : a.icon}</div>` +
-      `<div class="skill-name">${a.name}</div>`;
+      `<div class="perk-bottle">` +
+        `<span class="bottle-cap"></span>` +
+        `<span class="bottle-neck"></span>` +
+        `<span class="bottle-body">` +
+          `<span class="bottle-liquid"></span>` +
+          `<span class="bottle-fizz"><i></i><i></i><i></i></span>` +
+          `<span class="bottle-label">${a.icon === 'chart' ? CHART_SVG : a.icon}</span>` +
+        `</span>` +
+      `</div>` +
+      `<div class="skill-name">${a.name}</div>` +
+      `<div class="perk-cost">${PERK_COSTS[i % PERK_COSTS.length]}</div>`;
     const reveal = () => {
       readout.innerHTML = `<strong>${a.name}.</strong> ${a.text}`;
       readout.classList.add('lit');
     };
     node.addEventListener('mouseenter', reveal);
     node.addEventListener('focus', reveal);
-    node.addEventListener('click', reveal);
+    node.addEventListener('click', () => {
+      reveal();
+      // "drink" the perk — flash + jingle, once per perk
+      if (!node.classList.contains('drank')) {
+        node.classList.add('drank');
+        playPerkJingle();
+      }
+    });
     tree.appendChild(node);
   });
 
@@ -467,6 +489,7 @@ function termPrint(text, cls) {
   line.className = 'term-msg' + (cls ? ' ' + cls : '');
   line.textContent = text;
   out.appendChild(line);
+  out.scrollTop = out.scrollHeight;
 }
 
 function acceptMission() {
@@ -475,6 +498,7 @@ function acceptMission() {
   const term = document.getElementById('terminal');
   if (term) term.classList.add('resolved');
   termPrint('> ACCESS GRANTED — MISSION ACCEPTED', 'ok');
+  markRecruited(activeCode);
 
   acceptSequence();
 
@@ -504,7 +528,10 @@ function declineMission() {
 }
 
 // Keyboard (desktop) + tap (mobile) for the Y / N prompt.
+// (Skipped while typing in the terminal command input or a form field.)
 window.addEventListener('keydown', e => {
+  const tag = (e.target && e.target.tagName) || '';
+  if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
   const term = document.getElementById('terminal');
   if (!term || term.style.visibility !== 'visible') return;
   const k = (e.key || '').toLowerCase();
@@ -515,6 +542,298 @@ const btnYes = document.getElementById('btnYes');
 const btnNo = document.getElementById('btnNo');
 if (btnYes) btnYes.addEventListener('click', acceptMission);
 if (btnNo) btnNo.addEventListener('click', declineMission);
+
+// ---------- PERK-A-COLA JINGLE (little 3-note vending chime) ----------
+function playPerkJingle() {
+  try {
+    const ctx = xpAudioCtx();
+    const t0 = ctx.currentTime;
+    [523.25, 659.25, 783.99].forEach((f, i) => {   // C5 E5 G5
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'square';
+      o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t0 + i * 0.09);
+      g.gain.exponentialRampToValueAtTime(0.05, t0 + i * 0.09 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + i * 0.09 + 0.22);
+      o.connect(g).connect(ctx.destination);
+      o.start(t0 + i * 0.09);
+      o.stop(t0 + i * 0.09 + 0.25);
+    });
+  } catch (e) { /* audio optional */ }
+}
+
+// ---------- CIA TERMINAL COMMANDS (BO1 easter eggs) ----------
+// Type HELP in the prompt below the Y/N line. Some commands are classified.
+const CLASSIFIED_COMMON = [
+  'Bachelor party coordinates: ██████████ (need-to-know basis).',
+  'Operation Suit Up budget: [REDACTED BY ORDER OF THE BRIDE].',
+  'The groom cried writing this dossier: CONFIRMED.',
+];
+
+let intelUnlocked = false;
+function unlockAllIntel() {
+  if (intelUnlocked) { termPrint('ALL INTEL ALREADY DECLASSIFIED.', 'ok'); return; }
+  intelUnlocked = true;
+  const p = profileFor(activeCode, activeTarget);
+  const items = (p.classified || []).concat(CLASSIFIED_COMMON);
+  renderLoreSection('classifiedSection', 'classifiedList', items);
+  termPrint('3ARC UNLOCK ACCEPTED — ALL INTEL DECLASSIFIED.', 'ok');
+  termPrint('SCROLL UP, OPERATIVE. NEW SECTION: CLASSIFIED INTEL.', 'ok');
+  screen.classList.add('glitch');
+  setTimeout(() => screen.classList.remove('glitch'), 400);
+  try { playLevelChime(); } catch (e) { /* optional */ }
+}
+
+function execTerminalCommand(raw) {
+  const cmd = (raw || '').trim().toUpperCase().replace(/\s+/g, ' ');
+  if (!cmd) return;
+  termPrint('> ' + cmd);
+
+  switch (cmd) {
+    case 'HELP':
+    case '?':
+      termPrint('AVAILABLE COMMANDS:');
+      termPrint('  HELP · WHOAMI · DOSSIER · ROSTER · LOADOUT');
+      termPrint('  MUSIC · CLEAR · Y · N');
+      termPrint('SOME COMMANDS ARE CLASSIFIED. TREYARCH SENDS REGARDS.');
+      break;
+
+    case 'WHOAMI':
+    case 'WHO AM I': {
+      const p = profileFor(activeCode, activeTarget);
+      termPrint(`OPERATIVE: ${activeTarget.name.toUpperCase()}`);
+      termPrint(`ROLE: ${activeTarget.role.toUpperCase()} · CLASS: ${p.className.toUpperCase()} · LV ${p.level}`);
+      termPrint(`CLEARANCE CODE: "${activeCode.toUpperCase()}" — FOR YOUR EYES ONLY.`);
+      break;
+    }
+
+    case 'DOSSIER':
+    case 'CAT DOSSIER': {
+      const p = profileFor(activeCode, activeTarget);
+      const top = p.stats.reduce((a, b) => (b.val > a.val ? b : a), p.stats[0]);
+      termPrint(`SUBJECT: ${activeTarget.name.toUpperCase()} · ${p.className.toUpperCase()}`);
+      termPrint(`TOP STAT: ${top.name.toUpperCase()} ${top.val}/100 — ${top.note}`);
+      termPrint(`PERKS ON FILE: ${p.abilities.map(a => a.name).join(' · ').toUpperCase()}`);
+      break;
+    }
+
+    case '3ARC UNLOCK':
+      unlockAllIntel();
+      break;
+
+    case '3ARC INTEL':
+      termPrint('NICE TRY. EVEN HQ COULD NEVER FIND ALL THE INTEL.', 'err');
+      break;
+
+    case 'ZORK':
+      termPrint('WEST OF HOUSE.');
+      termPrint('YOU ARE STANDING IN AN OPEN FIELD WEST OF A WHITE CHAPEL.');
+      termPrint('IT IS PITCH BLACK. YOU ARE LIKELY TO BE EATEN BY A GRUE.');
+      termPrint('THE GRUE IS WEARING A TUXEDO. ON APRIL 24, 2027 — SO ARE YOU.');
+      break;
+
+    case 'DOA':
+      termPrint('DEAD OPS ARCADE: ACCESS DENIED.', 'err');
+      termPrint('THE ONLY ARCADE THAT NIGHT IS THE OPEN BAR.');
+      break;
+
+    case 'MASON':
+    case 'THE NUMBERS':
+      termPrint('THE NUMBERS, MASON. WHAT DO THEY MEAN?');
+      termPrint('4 · 24 · 27 — THEY MEAN SAVE THE DATE.', 'ok');
+      break;
+
+    case 'REZNOV':
+      termPrint('REZNOV IS NOT ON THE GUEST LIST. REZNOV WAS NEVER ON THE GUEST LIST.');
+      break;
+
+    case 'MUSIC':
+      if (muteBtn) muteBtn.click();
+      termPrint('AUDIO PROTOCOL TOGGLED.');
+      break;
+
+    case 'CLEAR': {
+      const out = document.getElementById('termOut');
+      if (out) out.innerHTML = '';
+      break;
+    }
+
+    case 'ROSTER':
+      termPrint('SQUAD ROSTER IS PINNED TO THE BOTTOM OF YOUR DOSSIER, OPERATIVE.');
+      updateSquadStatuses();
+      break;
+
+    case 'LOADOUT':
+      openLoadout();
+      termPrint('CREATE-A-CLASS TERMINAL OPENED.');
+      break;
+
+    case 'Y':
+    case 'YES':
+      acceptMission();
+      break;
+
+    case 'N':
+    case 'NO':
+      declineMission();
+      break;
+
+    default:
+      termPrint(`COMMAND NOT RECOGNIZED: ${cmd}. TYPE HELP.`, 'err');
+  }
+}
+
+const termInput = document.getElementById('termInput');
+if (termInput) {
+  termInput.addEventListener('keydown', e => {
+    e.stopPropagation(); // keep single-key Y/N handler out of typed commands
+    if (e.key === 'Enter') {
+      execTerminalCommand(termInput.value);
+      termInput.value = '';
+    }
+  });
+}
+
+// ---------- SQUAD ROSTER (live recruitment status from HQ) ----------
+function renderSquad() {
+  const grid = document.getElementById('squadGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  Object.entries(ROSTER).forEach(([code, t]) => {
+    const chip = document.createElement('div');
+    chip.className = 'squad-chip pending' + (code === activeCode ? ' you' : '');
+    chip.dataset.code = code;
+    chip.innerHTML =
+      `<img src="${t.img}" alt="${t.name}" style="object-position:${t.focus || 'center 25%'}">` +
+      `<div class="squad-meta">` +
+        `<div class="squad-name">${t.name}${code === activeCode ? ' <i>(YOU)</i>' : ''}</div>` +
+        `<div class="squad-role">${t.role}</div>` +
+      `</div>` +
+      `<div class="squad-status">PENDING</div>`;
+    grid.appendChild(chip);
+  });
+}
+
+function markRecruited(code) {
+  const chip = document.querySelector(`.squad-chip[data-code="${CSS.escape(code)}"]`);
+  if (!chip) return;
+  chip.classList.remove('pending');
+  chip.classList.add('recruited');
+  const st = chip.querySelector('.squad-status');
+  if (st) st.textContent = 'RECRUITED';
+}
+
+function updateSquadStatuses() {
+  const note = document.getElementById('squadNote');
+  fetch(`${API_URL}/squad_status`)
+    .then(r => r.json())
+    .then(d => {
+      if (!d || d.status !== 'success') throw new Error('bad payload');
+      (d.squad || []).forEach(m => { if (m.status === 'RECRUITED') markRecruited(m.code); });
+      if (note) {
+        const n = (d.squad || []).filter(m => m.status === 'RECRUITED').length;
+        note.textContent = `Live uplink · ${n}/${(d.squad || []).length} operatives recruited`;
+      }
+    })
+    .catch(() => { if (note) note.textContent = 'COMMS OFFLINE — STATUS UNKNOWN'; });
+}
+
+// ---------- CREATE-A-CLASS (loadout transmission) ----------
+const loadoutEl = document.getElementById('loadout');
+const loadoutForm = document.getElementById('loadoutForm');
+const loadoutStatus = document.getElementById('loadoutStatus');
+const LOADOUT_KEY = () => 'groomsmanLoadout::' + (activeCode || 'unknown');
+
+function openLoadout() {
+  if (!loadoutEl) return;
+  loadoutEl.classList.add('open');
+  loadoutEl.setAttribute('aria-hidden', 'false');
+  // Restore a previously transmitted loadout for edits
+  try {
+    const saved = JSON.parse(localStorage.getItem(LOADOUT_KEY()) || 'null');
+    if (saved) {
+      document.getElementById('ldPrimary').value = saved.primary || '';
+      document.getElementById('ldDrink').value  = saved.drink  || '';
+      document.getElementById('ldDance').value  = saved.dance  || '';
+      document.getElementById('ldSong').value   = saved.song   || '';
+      document.getElementById('ldShoe').value   = saved.shoe   || '';
+      document.querySelectorAll('#perkPicks input').forEach(cb => {
+        cb.checked = (saved.perks || []).includes(cb.value);
+      });
+      if (loadoutStatus) loadoutStatus.textContent = 'LOADOUT ON FILE AT HQ — REDEPLOY TO UPDATE.';
+    }
+  } catch (e) { /* localStorage optional */ }
+}
+
+function closeLoadout() {
+  if (!loadoutEl) return;
+  loadoutEl.classList.remove('open');
+  loadoutEl.setAttribute('aria-hidden', 'true');
+}
+
+const btnLoadout = document.getElementById('btnLoadout');
+if (btnLoadout) btnLoadout.addEventListener('click', openLoadout);
+const loadoutClose = document.getElementById('loadoutClose');
+if (loadoutClose) loadoutClose.addEventListener('click', closeLoadout);
+if (loadoutEl) {
+  loadoutEl.addEventListener('click', e => { if (e.target === loadoutEl) closeLoadout(); });
+}
+window.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && loadoutEl && loadoutEl.classList.contains('open')) closeLoadout();
+});
+
+// Enforce the classic "pick 3" perk limit.
+const perkPicks = document.getElementById('perkPicks');
+if (perkPicks) {
+  perkPicks.addEventListener('change', e => {
+    const checked = perkPicks.querySelectorAll('input:checked');
+    if (checked.length > 3) {
+      e.target.checked = false;
+      if (loadoutStatus) {
+        loadoutStatus.textContent = 'MAX 3 PERKS, OPERATIVE. THIS ISN\'T CREATIVE MODE.';
+        setTimeout(() => { if (loadoutStatus.textContent.startsWith('MAX 3')) loadoutStatus.textContent = ''; }, 2500);
+      }
+    }
+  });
+}
+
+if (loadoutForm) {
+  loadoutForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const perks = Array.from(document.querySelectorAll('#perkPicks input:checked')).map(cb => cb.value);
+    const payload = {
+      code: activeCode,
+      primary: document.getElementById('ldPrimary').value,
+      drink:  document.getElementById('ldDrink').value.trim(),
+      dance:  document.getElementById('ldDance').value.trim(),
+      song:   document.getElementById('ldSong').value.trim(),
+      shoe:   document.getElementById('ldShoe').value.trim(),
+      perks,
+    };
+    if (loadoutStatus) loadoutStatus.textContent = 'TRANSMITTING TO HQ…';
+    const deployBtn = document.getElementById('ldDeploy');
+    if (deployBtn) deployBtn.disabled = true;
+
+    fetch(`${API_URL}/loadout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+      .then(r => r.json())
+      .then(d => {
+        if (!d || d.status !== 'success') throw new Error(d && d.message);
+        try { localStorage.setItem(LOADOUT_KEY(), JSON.stringify(payload)); } catch (err) { /* ok */ }
+        if (loadoutStatus) loadoutStatus.textContent = '✔ LOADOUT CONFIRMED — HQ NOTIFIED.';
+        try { playLevelChime(); } catch (err) { /* optional */ }
+        setTimeout(closeLoadout, 1800);
+      })
+      .catch(() => {
+        if (loadoutStatus) loadoutStatus.textContent = '✖ TRANSMISSION FAILED — RETRY, OPERATIVE.';
+      })
+      .finally(() => { if (deployBtn) deployBtn.disabled = false; });
+  });
+}
 
 // ---------- ACCEPT SEQUENCE: boombox song + memory cascade + redirect ----------
 const MEMORY_EMOJI = ['🏀', '📈', '🚀', '🎮', '🥂', '🎓', '💪', '🤝', '🏎️', '📸', '🔥', '👑', '🎯', '🍻'];

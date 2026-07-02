@@ -819,3 +819,461 @@ html, body {
   85%     { opacity: 1; transform: scale(1.05); }
   100%    { opacity: 1; transform: scale(1); }
 }
+
+/* =========================================================
+   CIA TERMINAL COMMAND LINE (BO1 easter eggs)
+   ========================================================= */
+.term-out {
+  max-height: 180px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold-dim) transparent;
+}
+
+.term-cmdline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(201, 162, 75, 0.25);
+}
+
+#termInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--gold-bright);
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  caret-color: var(--gold-bright);
+}
+
+#termInput::placeholder {
+  color: var(--gold-dim);
+  opacity: 0.7;
+}
+
+/* =========================================================
+   PERK-A-COLA BOTTLES (Zombies-style perk machines)
+   ========================================================= */
+.perk-node {
+  --perk-c: #b3202e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.perk-bottle {
+  position: relative;
+  width: 46px;
+  height: 74px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.55));
+  transition: transform 0.25s ease;
+}
+
+.perk-node:hover .perk-bottle,
+.perk-node:focus .perk-bottle {
+  transform: translateY(-4px) rotate(-3deg);
+}
+
+.bottle-cap {
+  width: 14px;
+  height: 7px;
+  border-radius: 2px 2px 0 0;
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold-dim));
+}
+
+.bottle-neck {
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.24), rgba(255,255,255,0.08));
+  border-left: 1px solid rgba(255,255,255,0.22);
+  border-right: 1px solid rgba(255,255,255,0.22);
+}
+
+.bottle-body {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  border-radius: 8px 8px 10px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 100%);
+  overflow: hidden;
+}
+
+.bottle-liquid {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 72%;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--perk-c) 78%, white 22%) 0%,
+    var(--perk-c) 55%,
+    color-mix(in srgb, var(--perk-c) 70%, black 30%) 100%);
+  box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.35);
+}
+
+.bottle-fizz { position: absolute; inset: 0; pointer-events: none; }
+.bottle-fizz i {
+  position: absolute;
+  bottom: 6%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.75);
+  opacity: 0;
+}
+.perk-node:hover .bottle-fizz i,
+.perk-node.drank .bottle-fizz i { animation: fizz-rise 1.15s ease-in infinite; }
+.bottle-fizz i:nth-child(1) { left: 22%; animation-delay: 0s; }
+.bottle-fizz i:nth-child(2) { left: 50%; animation-delay: 0.35s; }
+.bottle-fizz i:nth-child(3) { left: 72%; animation-delay: 0.7s; }
+
+@keyframes fizz-rise {
+  0%   { transform: translateY(0) scale(0.7); opacity: 0; }
+  15%  { opacity: 0.9; }
+  100% { transform: translateY(-46px) scale(1.15); opacity: 0; }
+}
+
+.bottle-label {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.05rem;
+  line-height: 1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+  z-index: 2;
+}
+
+.bottle-label .chart-svg { width: 22px; height: 16px; }
+
+.perk-node.drank .perk-bottle { animation: perk-drank 0.5s ease; }
+@keyframes perk-drank {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.18) rotate(4deg); }
+  100% { transform: scale(1); }
+}
+
+.perk-cost {
+  font-family: var(--label);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: var(--gold-bright);
+  background: rgba(201, 162, 75, 0.12);
+  border: 1px solid rgba(201, 162, 75, 0.35);
+  border-radius: 3px;
+  padding: 1px 7px;
+}
+
+.perk-node.drank .perk-cost {
+  color: #7ee08a;
+  border-color: rgba(126, 224, 138, 0.5);
+  background: rgba(47, 158, 68, 0.15);
+}
+
+/* =========================================================
+   SQUAD ROSTER (live recruitment status)
+   ========================================================= */
+.squad-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.squad-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border: 1px solid rgba(201, 162, 75, 0.25);
+  border-radius: 6px;
+  background: rgba(10, 10, 13, 0.5);
+}
+
+.squad-chip.you { border-color: var(--gold); box-shadow: 0 0 12px rgba(201, 162, 75, 0.18); }
+
+.squad-chip img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--gold-dim);
+  filter: saturate(0.85);
+}
+
+.squad-meta { flex: 1; min-width: 0; }
+
+.squad-name {
+  font-family: var(--label);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--cream);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.squad-name i { color: var(--gold-bright); font-style: normal; font-size: 0.6rem; }
+
+.squad-role {
+  font-family: var(--label);
+  font-size: 0.58rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--cream-dim);
+}
+
+.squad-status {
+  font-family: var(--label);
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.squad-chip.pending .squad-status {
+  color: #e0b34f;
+  border: 1px solid rgba(224, 179, 79, 0.45);
+  background: rgba(224, 179, 79, 0.08);
+  animation: pending-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes pending-pulse {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+
+.squad-chip.recruited .squad-status {
+  color: #7ee08a;
+  border: 1px solid rgba(126, 224, 138, 0.5);
+  background: rgba(47, 158, 68, 0.12);
+}
+
+.squad-note {
+  margin-top: 7px;
+  font-family: var(--label);
+  font-size: 0.58rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--cream-dim);
+}
+
+/* =========================================================
+   CREATE-A-CLASS (loadout overlay)
+   ========================================================= */
+.loadout-open {
+  display: block;
+  width: 100%;
+  margin: 16px 0 4px;
+  padding: 11px 14px;
+  background: linear-gradient(180deg, rgba(201, 162, 75, 0.16), rgba(201, 162, 75, 0.06));
+  border: 1px solid var(--gold);
+  border-radius: 4px;
+  color: var(--gold-bright);
+  font-family: var(--label);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.loadout-open:hover {
+  background: linear-gradient(180deg, rgba(201, 162, 75, 0.3), rgba(201, 162, 75, 0.12));
+  box-shadow: 0 0 18px rgba(201, 162, 75, 0.25);
+}
+
+.loadout-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  background: rgba(4, 4, 7, 0.88);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+.loadout-overlay.open { display: flex; }
+
+.loadout-panel {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: 92vh;
+  overflow-y: auto;
+  background: linear-gradient(180deg, #141219 0%, #0c0b10 100%);
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  padding: 26px 24px 22px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 40px rgba(201, 162, 75, 0.08);
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold-dim) transparent;
+}
+
+.loadout-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  background: none;
+  border: 1px solid rgba(201, 162, 75, 0.4);
+  border-radius: 50%;
+  color: var(--gold-bright);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.loadout-close:hover { background: rgba(201, 162, 75, 0.18); }
+
+.loadout-head {
+  font-family: var(--serif);
+  font-size: 1.55rem;
+  font-weight: 600;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--gold-bright);
+  text-align: center;
+}
+
+.loadout-sub {
+  font-family: var(--label);
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--cream-dim);
+  text-align: center;
+  margin: 4px 0 18px;
+}
+
+.slot { margin-bottom: 14px; }
+
+.slot-tag {
+  font-family: var(--label);
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-bottom: 2px;
+}
+
+.slot-label {
+  display: block;
+  font-family: var(--serif);
+  font-size: 1.02rem;
+  color: var(--cream);
+  margin-bottom: 6px;
+}
+
+.slot input[type="text"],
+.slot select {
+  width: 100%;
+  padding: 9px 12px;
+  background: rgba(10, 10, 13, 0.75);
+  border: 1px solid rgba(201, 162, 75, 0.35);
+  border-radius: 4px;
+  color: var(--cream);
+  font-family: var(--label);
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.slot input[type="text"]:focus,
+.slot select:focus {
+  border-color: var(--gold-bright);
+  box-shadow: 0 0 10px rgba(201, 162, 75, 0.2);
+}
+
+.slot select option { background: #14121a; color: var(--cream); }
+
+.perk-picks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 7px;
+}
+
+.perk-picks label {
+  display: block;
+  cursor: pointer;
+}
+
+.perk-picks input { display: none; }
+
+.perk-picks span {
+  display: block;
+  padding: 8px 11px;
+  border: 1px solid rgba(201, 162, 75, 0.25);
+  border-radius: 4px;
+  background: rgba(10, 10, 13, 0.5);
+  font-family: var(--label);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  color: var(--cream);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.perk-picks span em {
+  display: block;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 0.62rem;
+  letter-spacing: 1px;
+  color: var(--cream-dim);
+  margin-top: 1px;
+}
+
+.perk-picks input:checked + span {
+  border-color: #7ee08a;
+  background: rgba(47, 158, 68, 0.12);
+  box-shadow: 0 0 10px rgba(47, 158, 68, 0.15);
+}
+
+.loadout-deploy {
+  display: block;
+  width: 100%;
+  margin-top: 18px;
+  padding: 13px;
+  background: linear-gradient(180deg, var(--gold), var(--gold-dim));
+  border: none;
+  border-radius: 4px;
+  color: #14121a;
+  font-family: var(--label);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 3.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: filter 0.2s ease, transform 0.15s ease;
+}
+
+.loadout-deploy:hover { filter: brightness(1.15); transform: translateY(-1px); }
+.loadout-deploy:disabled { opacity: 0.55; cursor: wait; }
+
+.loadout-status {
+  min-height: 18px;
+  margin-top: 10px;
+  text-align: center;
+  font-family: 'Courier New', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 1.5px;
+  color: var(--gold-bright);
+}
