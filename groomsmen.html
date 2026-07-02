@@ -11,7 +11,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Montserrat:wght@300;400;500;600&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="/static/groomsmen.css?v=20260702a">
+  <link rel="stylesheet" href="/static/groomsmen.css?v=20260702b">
 </head>
 
 <body>
@@ -123,16 +123,9 @@
 
       <form id="loadoutForm">
         <div class="slot">
-          <div class="slot-tag">Primary Weapon</div>
-          <label class="slot-label" for="ldPrimary">Suit Fit</label>
-          <select id="ldPrimary" required>
-            <option value="" disabled selected>Select fit&hellip;</option>
-            <option>Slim Cut</option>
-            <option>Modern Fit</option>
-            <option>Classic Fit</option>
-            <option>Athletic Fit</option>
-            <option>Tailor's Choice — surprise me</option>
-          </select>
+          <div class="slot-tag">Comms Channel</div>
+          <label class="slot-label" for="ldEmail">Your Email</label>
+          <input id="ldEmail" type="email" maxlength="120" placeholder="you@example.com — HQ sends mission details here" required>
         </div>
 
         <div class="slot">
@@ -151,12 +144,6 @@
           <div class="slot-tag">Tactical</div>
           <label class="slot-label" for="ldSong">Hype Song Request</label>
           <input id="ldSong" type="text" maxlength="80" placeholder="One song guaranteed to send you" required>
-        </div>
-
-        <div class="slot">
-          <div class="slot-tag">Field Upgrade</div>
-          <label class="slot-label" for="ldShoe">Shoe Size</label>
-          <input id="ldShoe" type="text" maxlength="10" placeholder="e.g. 11" required>
         </div>
 
         <div class="slot slot-perks">
@@ -229,7 +216,7 @@
     </div>
   </div>
 
-  <script src="/static/groomsmen.js?v=20260702a"></script>
+  <script src="/static/groomsmen.js?v=20260702b"></script>
 </body>
 
 </html>

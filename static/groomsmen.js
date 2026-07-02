@@ -20,7 +20,7 @@ const ROSTER = {
                     gallery: { dir: 'jon', count: 27 } },
   'Joey PS4':     { name: 'Joey Moglia',  role: 'Groomsman', intel: "One of Sal's closest friends.",
                     img: '/static/portraits/joey.webp?v=1', focus: 'center 30%',
-                    gallery: { dir: 'joey', count: 11 } },
+                    gallery: { dir: 'joey', count: 11 }, preAccepted: true },
 };
 
 // On Accept we unlock the main wedding site with a real Tier-1 password so the
@@ -700,7 +700,10 @@ function renderSquad() {
   const grid = document.getElementById('squadGrid');
   if (!grid) return;
   grid.innerHTML = '';
-  Object.entries(ROSTER).forEach(([code, t]) => {
+  // Best Man leads the roster; everyone else keeps their listed order.
+  const entries = Object.entries(ROSTER)
+    .sort(([, a], [, b]) => (b.role === 'Best Man') - (a.role === 'Best Man'));
+  entries.forEach(([code, t]) => {
     const chip = document.createElement('div');
     chip.className = 'squad-chip pending' + (code === activeCode ? ' you' : '');
     chip.dataset.code = code;
@@ -712,6 +715,7 @@ function renderSquad() {
       `</div>` +
       `<div class="squad-status">PENDING</div>`;
     grid.appendChild(chip);
+    if (t.preAccepted) markRecruited(code); // e.g. Joey — locked in before the portal launched
   });
 }
 
@@ -749,15 +753,15 @@ function openLoadout() {
   if (!loadoutEl) return;
   loadoutEl.classList.add('open');
   loadoutEl.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('loadout-open'); // hides the volume pill under the modal
   // Restore a previously transmitted loadout for edits
   try {
     const saved = JSON.parse(localStorage.getItem(LOADOUT_KEY()) || 'null');
     if (saved) {
-      document.getElementById('ldPrimary').value = saved.primary || '';
+      document.getElementById('ldEmail').value  = saved.email  || '';
       document.getElementById('ldDrink').value  = saved.drink  || '';
       document.getElementById('ldDance').value  = saved.dance  || '';
       document.getElementById('ldSong').value   = saved.song   || '';
-      document.getElementById('ldShoe').value   = saved.shoe   || '';
       document.querySelectorAll('#perkPicks input').forEach(cb => {
         cb.checked = (saved.perks || []).includes(cb.value);
       });
@@ -770,6 +774,7 @@ function closeLoadout() {
   if (!loadoutEl) return;
   loadoutEl.classList.remove('open');
   loadoutEl.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('loadout-open');
 }
 
 const btnLoadout = document.getElementById('btnLoadout');
@@ -804,11 +809,10 @@ if (loadoutForm) {
     const perks = Array.from(document.querySelectorAll('#perkPicks input:checked')).map(cb => cb.value);
     const payload = {
       code: activeCode,
-      primary: document.getElementById('ldPrimary').value,
+      email:  document.getElementById('ldEmail').value.trim(),
       drink:  document.getElementById('ldDrink').value.trim(),
       dance:  document.getElementById('ldDance').value.trim(),
       song:   document.getElementById('ldSong').value.trim(),
-      shoe:   document.getElementById('ldShoe').value.trim(),
       perks,
     };
     if (loadoutStatus) loadoutStatus.textContent = 'TRANSMITTING TO HQ…';
