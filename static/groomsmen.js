@@ -351,6 +351,7 @@ function bootSequence() {
   renderCharacter(activeCode, activeTarget);
   renderSquad();
   updateSquadStatuses();
+  setTimeout(() => mcToast('duty', 'Reported for Duty — opened the mission dossier'), 2200);
 }
 
 // Swap the redacted portrait in and run the "decryption" reveal.
@@ -388,6 +389,22 @@ function renderCharacter(code, target) {
   document.getElementById('charName').textContent = target.name;
   document.getElementById('charClass').textContent = p.className;
   document.getElementById('charLevel').textContent = p.level;
+
+  // Minecraft hearts bar — each Known Debuff costs one heart.
+  const lost = Math.min(4, (p.debuffs || []).length);
+  const hp = 10 - lost;
+  let heartsRow = document.getElementById('charHearts');
+  if (!heartsRow) {
+    heartsRow = document.createElement('div');
+    heartsRow.id = 'charHearts';
+    heartsRow.className = 'hearts-row';
+    const head = document.querySelector('.char-head');
+    if (head) head.appendChild(heartsRow);
+  }
+  heartsRow.title = `HP ${hp}/10` + (lost ? ` — ${lost} debuff${lost > 1 ? 's' : ''} active` : ' — no debuffs');
+  heartsRow.innerHTML = '<span class="hearts-label">HP</span>' +
+    Array.from({ length: 10 }, (_, h) =>
+      `<span class="heart${h < hp ? '' : ' lost'}">❤</span>`).join('');
 
   // Core stats — the CSS "grow" keyframe animates each bar 0 → target on insert.
   const rows = document.getElementById('statRows');
@@ -440,6 +457,11 @@ function renderCharacter(code, target) {
       if (!node.classList.contains('drank')) {
         node.classList.add('drank');
         playPerkJingle();
+        quickChat('Nice shot!');
+        killfeed(`${operativeFirstName()} drank ${a.name} [${PERK_COSTS[i % PERK_COSTS.length]}]`);
+        if (tree.querySelectorAll('.skill-node.drank').length === p.abilities.length) {
+          mcToast('perkaholic', 'Perk-a-Holic — drank every perk on the wall');
+        }
       }
     });
     tree.appendChild(node);
@@ -523,6 +545,8 @@ function declineMission() {
   playFunnyDecline();
   reportDeclineAttempt();
   termPrint('> ' + TAUNTS[Math.floor(Math.random() * TAUNTS.length)] + ' THERE IS NO BACKING OUT. [ Y / N ]', 'err');
+  quickChat('Faking.');
+  killfeed(`${operativeFirstName()} attempted to decline ☠`);
   screen.classList.add('glitch');
   setTimeout(() => screen.classList.remove('glitch'), 400);
 }
@@ -563,6 +587,82 @@ function playPerkJingle() {
   } catch (e) { /* audio optional */ }
 }
 
+// ---------- ARCADE LAYER: RL quick chats, BO killfeed, MC toasts ----------
+
+// Rocket League quick-chat popups (center-top). Spamming triggers the
+// classic "Chat disabled" penalty.
+let qcRecent = [];
+let qcMutedUntil = 0;
+function quickChat(text) {
+  const now = Date.now();
+  if (now < qcMutedUntil) return;
+  qcRecent = qcRecent.filter(t => now - t < 3000);
+  qcRecent.push(now);
+  if (qcRecent.length > 4) {
+    qcMutedUntil = now + 3000;
+    text = 'Chat disabled for 3 seconds.';
+    qcRecent = [];
+  }
+  let stack = document.getElementById('qcStack');
+  if (!stack) {
+    stack = document.createElement('div');
+    stack.id = 'qcStack';
+    document.body.appendChild(stack);
+  }
+  const pop = document.createElement('div');
+  pop.className = 'qc-pop';
+  pop.textContent = text;
+  stack.appendChild(pop);
+  setTimeout(() => pop.classList.add('out'), 1600);
+  setTimeout(() => pop.remove(), 2100);
+}
+
+// Black Ops killfeed ticker (bottom-left). Entries fade after a few seconds.
+function killfeed(text) {
+  let feed = document.getElementById('killfeed');
+  if (!feed) {
+    feed = document.createElement('div');
+    feed.id = 'killfeed';
+    document.body.appendChild(feed);
+  }
+  const entry = document.createElement('div');
+  entry.className = 'kf-entry';
+  entry.textContent = text;
+  feed.prepend(entry);
+  while (feed.children.length > 5) feed.lastChild.remove();
+  setTimeout(() => entry.classList.add('out'), 5200);
+  setTimeout(() => entry.remove(), 5900);
+}
+
+// Minecraft "Achievement Get!" toasts (top-right, once each per session).
+const toastShown = {};
+let toastQueue = [];
+let toastBusy = false;
+function mcToast(id, text) {
+  if (toastShown[id]) return;
+  toastShown[id] = true;
+  toastQueue.push(text);
+  drainToasts();
+}
+function drainToasts() {
+  if (toastBusy || !toastQueue.length) return;
+  toastBusy = true;
+  const text = toastQueue.shift();
+  const toast = document.createElement('div');
+  toast.className = 'mc-toast';
+  toast.innerHTML = '<div class="mc-toast-title">Achievement Get!</div>' +
+                    '<div class="mc-toast-text"></div>';
+  toast.querySelector('.mc-toast-text').textContent = text;
+  document.body.appendChild(toast);
+  try { playOrbBlip(); } catch (e) { /* optional */ }
+  setTimeout(() => toast.classList.add('out'), 3400);
+  setTimeout(() => { toast.remove(); toastBusy = false; drainToasts(); }, 3950);
+}
+
+function operativeFirstName() {
+  return activeTarget ? (activeTarget.name.split(' ')[0] || activeTarget.name) : 'Operative';
+}
+
 // ---------- CIA TERMINAL COMMANDS (BO1 easter eggs) ----------
 // Type HELP in the prompt below the Y/N line. Some commands are classified.
 const CLASSIFIED_COMMON = [
@@ -580,6 +680,8 @@ function unlockAllIntel() {
   renderLoreSection('classifiedSection', 'classifiedList', items);
   termPrint('3ARC UNLOCK ACCEPTED — ALL INTEL DECLASSIFIED.', 'ok');
   termPrint('SCROLL UP, OPERATIVE. NEW SECTION: CLASSIFIED INTEL.', 'ok');
+  killfeed(`${operativeFirstName()} unlocked classified intel`);
+  mcToast('declassified', 'Declassified — found the 3ARC files');
   screen.classList.add('glitch');
   setTimeout(() => screen.classList.remove('glitch'), 400);
   try { playLevelChime(); } catch (e) { /* optional */ }
@@ -589,6 +691,14 @@ function execTerminalCommand(raw) {
   const cmd = (raw || '').trim().toUpperCase().replace(/\s+/g, ' ');
   if (!cmd) return;
   termPrint('> ' + cmd);
+  mcToast('terminal', 'Terminal Velocity — hacked the CIA terminal');
+
+  // Minecraft /gamemode — any variant gets the same answer.
+  if (cmd.startsWith('/GAMEMODE')) {
+    termPrint('DENIED. THIS MISSION IS HARDCORE MODE.', 'err');
+    termPrint('ONE LIFE. APRIL 24, 2027.');
+    return;
+  }
 
   switch (cmd) {
     case 'HELP':
@@ -596,7 +706,7 @@ function execTerminalCommand(raw) {
       termPrint('AVAILABLE COMMANDS:');
       termPrint('  HELP · WHOAMI · DOSSIER · ROSTER · LOADOUT');
       termPrint('  MUSIC · CLEAR · Y · N');
-      termPrint('SOME COMMANDS ARE CLASSIFIED. TREYARCH SENDS REGARDS.');
+      termPrint('SOME COMMANDS ARE CLASSIFIED. TREYARCH, PSYONIX & MOJANG SEND REGARDS.');
       break;
 
     case 'WHOAMI':
@@ -646,6 +756,48 @@ function execTerminalCommand(raw) {
 
     case 'REZNOV':
       termPrint('REZNOV IS NOT ON THE GUEST LIST. REZNOV WAS NEVER ON THE GUEST LIST.');
+      break;
+
+    case '/SEED':
+      termPrint('WORLD SEED: 4242027');
+      termPrint('SPAWN BIOME: BEACH. STRUCTURES: 1 CHAPEL, 1 OPEN BAR.');
+      break;
+
+    case '/LOCATE':
+    case '/LOCATE WEDDING':
+      termPrint('WEDDING LOCATED: HYATT REGENCY CLEARWATER BEACH');
+      termPrint('COORDINATES: 27.9773, -82.8302 — SET YOUR SPAWN POINT.', 'ok');
+      break;
+
+    case '/GIVE DIAMOND':
+    case '/GIVE @P DIAMOND':
+      termPrint('REQUEST DENIED. THE DIAMOND HAS ALREADY BEEN GIVEN.', 'err');
+      termPrint("THAT'S THE WHOLE REASON WE'RE HERE.");
+      break;
+
+    case 'CREEPER':
+      termPrint('SSSSSSSSSSSS...');
+      screen.classList.add('glitch');
+      setTimeout(() => {
+        screen.classList.remove('glitch');
+        termPrint('BOOM.', 'err');
+        termPrint('AW MAN.');
+      }, 900);
+      break;
+
+    case 'FORFEIT':
+    case '/FORFEIT':
+      termPrint('VOTE TO FORFEIT: 1/4 — VOTE FAILED.', 'err');
+      termPrint('THIS IS A 4-MAN SQUAD. NO LEAVERS.');
+      quickChat('Faking.');
+      break;
+
+    case 'WHAT A SAVE':
+    case 'WHAT A SAVE!':
+      quickChat('What a save!');
+      quickChat('What a save!');
+      quickChat('What a save!');
+      termPrint('CHAT DISABLED FOR 3 SECONDS.', 'err');
       break;
 
     case 'MUSIC':
@@ -734,10 +886,14 @@ function updateSquadStatuses() {
     .then(r => r.json())
     .then(d => {
       if (!d || d.status !== 'success') throw new Error('bad payload');
-      (d.squad || []).forEach(m => { if (m.status === 'RECRUITED') markRecruited(m.code); });
+      const recruited = (d.squad || []).filter(m => m.status === 'RECRUITED');
+      recruited.forEach(m => markRecruited(m.code));
+      // BO-style killfeed: announce each recruited squadmate, staggered.
+      recruited.forEach((m, i) => {
+        setTimeout(() => killfeed(`${m.name} accepted the mission`), 3200 + i * 700);
+      });
       if (note) {
-        const n = (d.squad || []).filter(m => m.status === 'RECRUITED').length;
-        note.textContent = `Live uplink · ${n}/${(d.squad || []).length} operatives recruited`;
+        note.textContent = `Live uplink · ${recruited.length}/${(d.squad || []).length} operatives recruited`;
       }
     })
     .catch(() => { if (note) note.textContent = 'COMMS OFFLINE — STATUS UNKNOWN'; });
@@ -830,6 +986,9 @@ if (loadoutForm) {
         try { localStorage.setItem(LOADOUT_KEY(), JSON.stringify(payload)); } catch (err) { /* ok */ }
         if (loadoutStatus) loadoutStatus.textContent = '✔ LOADOUT CONFIRMED — HQ NOTIFIED.';
         try { playLevelChime(); } catch (err) { /* optional */ }
+        quickChat('What a save!');
+        killfeed(`${operativeFirstName()} deployed a loadout`);
+        mcToast('loadout', 'Fully Equipped — loadout on file at HQ');
         setTimeout(closeLoadout, 1800);
       })
       .catch(() => {
