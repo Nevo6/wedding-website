@@ -7,7 +7,7 @@
   <title>Sal & Lauren - April 24th, 2027 | Clearwater Beach Wedding</title>
   <meta name="description"
     content="Join Sal Caramucci and Lauren Hayle for their wedding celebration at Hyatt Regency Clearwater Beach Resort and Spa on April 24th, 2027.">
-  <link rel="stylesheet" href="/static/Styles.css?v=20260620f">
+  <link rel="stylesheet" href="/static/Styles.css?v=20260626d">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -175,23 +175,23 @@
         <h2 class="section-title">Engagement Gallery</h2>
 
         <div class="photo-gallery-grid">
-          <figure class="gallery-item" data-caption="Sand Key Beach — Sal & Lauren">
-            <img class="gallery-img" src="/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-9482.jpg" alt="Sal and Lauren — Sand Key Beach" loading="lazy">
+          <figure class="gallery-item" data-caption="Sand Key Beach — Sal & Lauren" data-full="/static/Pictures/webp/LaurenHayle-SandKeyBeach-ClearwaterFL-9482-1600.webp">
+            <img class="gallery-img" src="/static/Pictures/webp/LaurenHayle-SandKeyBeach-ClearwaterFL-9482-640.webp" alt="Sal and Lauren — Sand Key Beach" loading="lazy">
           </figure>
-          <figure class="gallery-item" data-caption="Editorial portrait — Sand Key Beach">
-            <img class="gallery-img" src="/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-9093.jpg" alt="Editorial portrait" loading="lazy">
+          <figure class="gallery-item" data-caption="Editorial portrait — Sand Key Beach" data-full="/static/Pictures/webp/LaurenHayle-SandKeyBeach-ClearwaterFL-9093-1600.webp">
+            <img class="gallery-img" src="/static/Pictures/webp/LaurenHayle-SandKeyBeach-ClearwaterFL-9093-640.webp" alt="Editorial portrait" loading="lazy">
           </figure>
-          <figure class="gallery-item" data-caption="Lauren — Sand Key Beach">
-            <img class="gallery-img" src="/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-9111.jpg" alt="Lauren portrait" loading="lazy">
+          <figure class="gallery-item" data-caption="Lauren — Sand Key Beach" data-full="/static/Pictures/webp/LaurenHayle-SandKeyBeach-ClearwaterFL-9111-1600.webp">
+            <img class="gallery-img" src="/static/Pictures/webp/LaurenHayle-SandKeyBeach-ClearwaterFL-9111-640.webp" alt="Lauren portrait" loading="lazy">
           </figure>
-          <figure class="gallery-item" data-caption="Sand Key Beach — Clearwater">
-            <img class="gallery-img" src="/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-9308.jpg" alt="Beach scene" loading="lazy">
+          <figure class="gallery-item" data-caption="Sand Key Beach — Clearwater" data-full="/static/Pictures/webp/LaurenHayle-SandKeyBeach-ClearwaterFL-9308-1600.webp">
+            <img class="gallery-img" src="/static/Pictures/webp/LaurenHayle-SandKeyBeach-ClearwaterFL-9308-640.webp" alt="Beach scene" loading="lazy">
           </figure>
-          <figure class="gallery-item" data-caption="Sand Key Beach — Sal & Lauren">
-            <img class="gallery-img" src="/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-9374.jpg" alt="Sal and Lauren on the beach" loading="lazy">
+          <figure class="gallery-item" data-caption="Sand Key Beach — Sal & Lauren" data-full="/static/Pictures/webp/LaurenHayle-SandKeyBeach-ClearwaterFL-9374-1600.webp">
+            <img class="gallery-img" src="/static/Pictures/webp/LaurenHayle-SandKeyBeach-ClearwaterFL-9374-640.webp" alt="Sal and Lauren on the beach" loading="lazy">
           </figure>
-          <figure class="gallery-item" data-caption="She said yes — the ring reveal">
-            <img class="gallery-img" src="/static/Pictures/LaurenHayle-SandKeyBeach-ClearwaterFL-9440.jpg" alt="The ring" loading="lazy">
+          <figure class="gallery-item" data-caption="She said yes — the ring reveal" data-full="/static/Pictures/webp/LaurenHayle-SandKeyBeach-ClearwaterFL-9440-1600.webp">
+            <img class="gallery-img" src="/static/Pictures/webp/LaurenHayle-SandKeyBeach-ClearwaterFL-9440-640.webp" alt="The ring" loading="lazy">
           </figure>
         </div>
 
@@ -208,12 +208,6 @@
         <h3 class="full-gallery-title">Engagement Gallery</h3>
         <p class="full-gallery-sub">Sal &amp; Lauren · Sand Key Beach, Clearwater</p>
         <div class="full-gallery-grid" id="fullGalleryGrid"></div>
-      </div>
-      <div class="fg-viewer" id="fgViewer" aria-hidden="true">
-        <button class="fg-viewer-close" id="fgViewerClose" type="button" aria-label="Close photo">×</button>
-        <button class="fg-viewer-nav fg-viewer-prev" id="fgViewerPrev" type="button" aria-label="Previous photo">‹</button>
-        <img class="fg-viewer-img" id="fgViewerImg" src="" alt="Engagement photo">
-        <button class="fg-viewer-nav fg-viewer-next" id="fgViewerNext" type="button" aria-label="Next photo">›</button>
       </div>
     </div>
 
@@ -340,7 +334,7 @@
           in a suit — but linen shirts are encouraged since we'll be near the beach.</p>
 
         <figure class="palette-feature">
-          <img class="palette-feature-img" src="/static/Pictures/spring-color-palette.png"
+          <img class="palette-feature-img" src="/static/Pictures/webp/spring-color-palette.webp"
             alt="Spring Wedding Color Palette — Blush Pink, Peach, Sage Green, Lilac, and Butter Yellow, with soft, romantic, and timeless spring florals"
             loading="lazy">
         </figure>
@@ -625,13 +619,19 @@
       </div>
     </footer>
 
-    <!-- Lightbox Modal for Gallery -->
-    <div id="lightbox" class="lightbox">
-      <span class="close-lightbox">&times;</span>
-      <img class="lightbox-content" id="lightbox-img">
+    <!-- Lightbox Modal for Gallery (premium photo viewer) -->
+    <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
+      <div class="lightbox-topbar">
+        <span class="lightbox-counter" id="lightbox-counter">1 / 6</span>
+        <button class="close-lightbox" type="button" aria-label="Close photo viewer">&times;</button>
+      </div>
+      <div class="lightbox-stage" id="lightbox-stage">
+        <img class="lightbox-content" id="lightbox-img" alt="Engagement photo">
+      </div>
       <div class="lightbox-caption"></div>
-      <button class="lightbox-prev">&#10094;</button>
-      <button class="lightbox-next">&#10095;</button>
+      <button class="lightbox-prev" type="button" aria-label="Previous photo">&#10094;</button>
+      <button class="lightbox-next" type="button" aria-label="Next photo">&#10095;</button>
+      <div class="lightbox-hint" id="lightbox-hint">Swipe to browse</div>
     </div>
   </div>
 
@@ -641,7 +641,7 @@
     <span class="mobile-rsvp-cta-arrow" aria-hidden="true">→</span>
   </a>
 
-  <script src="/static/Script.js?v=20260620a"></script>
+  <script src="/static/Script.js?v=20260626d"></script>
 </body>
 
 </html>
