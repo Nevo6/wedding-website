@@ -700,8 +700,46 @@ function runMysteryBox(done) {
     if (finished) return;
     finished = true;
     if (floatQTimer) clearInterval(floatQTimer);
-    ov.classList.add('dissolve');
+    // Video payload fades softly; the crate build breaks up in static.
+    ov.classList.add(ov.classList.contains('video-mode') ? 'fade-out' : 'dissolve');
     setTimeout(() => { ov.remove(); done(); }, 850);
+  }
+
+  // --- Jon, on mobile: a bespoke video payload replaces the crate build. ---
+  // Shows "TAP TO OPEN — 950" on black; the tap plays a controls-free video
+  // that fades into the dossier when it ends. (?box=1 forces it for demos.)
+  const isMobile = window.matchMedia('(max-width: 820px)').matches ||
+                   window.matchMedia('(pointer: coarse)').matches;
+  if (isBest && (isMobile || force)) {
+    ov.classList.add('video-mode', 'active');
+    ov.setAttribute('aria-hidden', 'false');
+    const video = document.getElementById('mbVideo');
+    const vtap = document.getElementById('mbVideoTap');
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
+    video.src = '/static/jon-mystery-box.mp4';
+    try { video.load(); } catch (e) { /* ok */ }
+    vtap.classList.add('show');
+    phase = 'ready';
+
+    const playPayloadVideo = () => {
+      if (phase !== 'ready' || finished) return;
+      phase = 'playing';
+      vtap.classList.remove('show');
+      video.classList.add('playing');
+      // The tap is a real user gesture, so sound is allowed; fall back to
+      // muted playback if the browser still refuses.
+      video.muted = false;
+      const p = video.play();
+      if (p && p.catch) p.catch(() => { video.muted = true; video.play().catch(finish); });
+    };
+
+    video.addEventListener('ended', () => { try { startMusic(); } catch (e) { /* ok */ } finish(); });
+    video.addEventListener('error', finish);
+    ov.addEventListener('click', () => { if (phase === 'ready') playPayloadVideo(); });
+    // Failsafe: don't strand anyone who never taps.
+    setTimeout(() => { if (phase === 'ready') playPayloadVideo(); }, 12000);
+    return;
   }
 
   function flashPop(soft) {

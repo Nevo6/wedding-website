@@ -1944,3 +1944,53 @@ body.loadout-open #audioControls { opacity: 0; pointer-events: none; }
   }
   .mb-floatq { font-size: 18px; }
 }
+
+/* =========================================================
+   MYSTERY BOX — Jon's bespoke video payload (mobile only)
+   ========================================================= */
+.mb-video {
+  display: none;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.mb-video.playing { opacity: 1; }
+
+/* In video mode the crate build, scanlines, and skip button are all hidden —
+   nothing on screen reads as "a video" except the payload itself. */
+.mb-overlay.video-mode { background: #000; cursor: pointer; }
+.mb-overlay.video-mode .mb-stage,
+.mb-overlay.video-mode .mb-scanlines,
+.mb-overlay.video-mode .mb-skip { display: none; }
+.mb-overlay.video-mode .mb-video { display: block; }
+
+.mb-video-tap {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 16%;
+  text-align: center;
+  z-index: 4;
+  font-family: var(--label);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 3.5px;
+  color: var(--gold-bright);
+  text-shadow: 0 0 12px rgba(236, 200, 116, 0.55);
+  pointer-events: none;
+}
+.mb-overlay.video-mode .mb-video-tap.show {
+  display: block;
+  animation: mbTapPulse 1.4s ease-in-out infinite;
+}
+
+.mb-overlay.fade-out { animation: mbFadeOut 0.75s ease forwards; pointer-events: none; }
+@keyframes mbFadeOut { to { opacity: 0; } }
