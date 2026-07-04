@@ -68,31 +68,38 @@ const RPG = {
   },
 
   'Jon Edwards': {
-    className: 'Right-Hand Legend',
-    level: 26,
-    // Note: corrected to the real wedding date (April 24th, 2027).
-    origin: 'Brother. Priority asset. The Best Man. A founding member of the crew, ' +
-            'battle-tested across countless campaigns and ready for the final boss: April 24th, 2027.',
+    className: 'VANGUARD / BEST MAN',
+    level: 34,
+    origin: 'Older brother. Original Player 1. The mentor who initiated this recruit into the gaming and ' +
+            'anime sectors during early Funimation couch deployments, even executing elite negotiation ' +
+            'tactics to convince Mom to buy me GTA on the PSP as a kid. He’s the reason I play what I play ' +
+            'and watch what I watch. From shaping the squad’s foundation to always showing up when it ' +
+            'counts, he has never let distance degrade our comms. There was never a single doubt about who ' +
+            'would take the ultimate Best Man slot to help defeat the final boss on April 24th, 2027.',
     stats: [
-      { name: 'Strength',     key: 'STR', val: 90, note: 'Carries the squad, literally and figuratively.' },
-      { name: 'Agility',      key: 'AGI', val: 88, note: 'Quick reflexes — except after midnight.' },
-      { name: 'Intelligence', key: 'INT', val: 91, note: 'Always three moves ahead.' },
-      { name: 'Loyalty',      key: 'LOY', val: 100, note: 'Maxed since day one. The Best Man stat.' },
+      { name: 'Strength',     key: 'STR', val: 90,  note: 'Carries the squad, both emotionally and physically—especially when hauling luggage through airports to ensure he never misses a family deployment, like flying out to Nashville just to see me cross the graduation stage.' },
+      { name: 'Agility',      key: 'AGI', val: 75,  note: 'Reflexes are sharp in-game, but takes a heavy penalty to evasion when asked to leave the dance floor.' },
+      { name: 'Intelligence', key: 'INT', val: 95,  note: 'Possesses elite tactical knowledge of anime lore and knows exactly which buttons to push to instigate maximum sibling chaos.' },
+      { name: 'Reliability',  key: 'REL', val: 100, note: 'Maxed out since the tutorial phase. Initiates mandatory Saturday comms without fail and maintains a flawless deployment record for big life events.' },
     ],
     abilities: [
-      { name: 'Ride or Die',   icon: '🤝',    anim: 'bounce', text: 'Passive aura. Answers the call every time, no questions asked.' },
-      { name: 'Hype Man',      icon: 'chart', anim: 'chart',  text: 'Buffs party morale and keeps the whole crew trending upward.' },
-      { name: 'Clutch Factor', icon: '🚀',    anim: 'roll',   text: 'Comes through when the stakes are highest. Best Man clutch.' },
+      { name: 'Phantom Controller',      icon: '🎮', anim: 'bounce', text: 'Executed a flawless psychological operation against a literal child. Allowed me to believe I was single-handedly dominating Halo lobbies while Cody and Vincent were over, despite my controller sitting entirely unplugged on the carpet.' },
+      { name: 'Milestones & Munitions',  icon: '✈️', anim: 'pulse',  text: 'Consistently breaches airspace and crosses state lines to drop high-tier loot when it matters most—like hand-delivering a Rem figure to celebrate my graduation.' },
+      { name: 'Payload Guardian',        icon: '💍', anim: 'pulse',  text: 'Entrusted with the single most critical asset of the entire campaign. If the rings are dropped, the mission is a catastrophic failure. No pressure, bro.' },
     ],
     campaigns: [
       'Operation: Grand Champ — Survived the Rocket League trenches.',
     ],
     debuffs: [
-      'Irish Exit: −50 Stealth when leaving a venue.',
-      'Midnight IPA: 2× damage penalty to Agility (AGI) after 12:00 AM.',
+      'Wrist-Tech Breach: −50 Security. Utterly incapable of preventing me from infiltrating his Apple Watch and changing the background to something ridiculous every single time he visits. (Costs 1 Heart)',
     ],
     gear: [
-      'Emergency Advil Cache (+20 Recovery)',
+      'The Rings (Mission Critical Item)',
+      'Rem Anime Figure (Graduation Relic)',
+      'Open Saturday Comms Link',
+    ],
+    classified: [
+      'Despite living in different states, the subject refuses to let the squad drift. Between the weekly Saturday calls and the guaranteed flights out for the big moments, he remains the most vital asset on the roster.',
     ],
   },
 

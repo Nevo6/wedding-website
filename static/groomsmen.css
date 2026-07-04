@@ -454,9 +454,14 @@ html, body {
 .skill-readout.lit { opacity: 1; border-left-color: var(--gold); }
 .skill-readout strong { color: var(--gold-bright); font-style: normal; }
 
+/* Perk icon animations — target both the legacy .skill-icon and the current
+   Perk-a-Cola bottle-label, since perks now render as bottles (see
+   .perk-bottle below). Fires on hover/focus of the whole perk node. */
+
 /* Ability 1 — Court Sweeper: dribbling bounce */
 @keyframes dribble { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
-.anim-bounce:hover .skill-icon, .anim-bounce:focus .skill-icon { animation: dribble .5s ease-in-out infinite; }
+.anim-bounce:hover .skill-icon, .anim-bounce:focus .skill-icon,
+.anim-bounce:hover .bottle-label, .anim-bounce:focus .bottle-label { animation: dribble .5s ease-in-out infinite; }
 
 /* Ability 2 — Bull Market Buff: green line drawn via clip-path */
 .chart-svg { width: 32px; height: 22px; fill: none; }
@@ -466,7 +471,13 @@ html, body {
 
 /* Ability 3 — Supersonic Acrobat: mid-air barrel roll */
 @keyframes barrelRoll { 0% { transform: translateX(-10px) rotate(0); } 100% { transform: translateX(10px) rotate(360deg); } }
-.anim-roll:hover .skill-icon, .anim-roll:focus .skill-icon { animation: barrelRoll .7s linear infinite; }
+.anim-roll:hover .skill-icon, .anim-roll:focus .skill-icon,
+.anim-roll:hover .bottle-label, .anim-roll:focus .bottle-label { animation: barrelRoll .7s linear infinite; }
+
+/* Ability 4 — radar-ping beat, for "always on comms" style perks */
+@keyframes pingPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.22); opacity: .75; } }
+.anim-pulse:hover .skill-icon, .anim-pulse:focus .skill-icon,
+.anim-pulse:hover .bottle-label, .anim-pulse:focus .bottle-label { animation: pingPulse .6s ease-in-out infinite; }
 
 /* Breathing idle animation for the avatar */
 .breathing { animation: breathe 4.2s ease-in-out infinite; transform-origin: center bottom; }
