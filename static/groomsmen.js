@@ -594,6 +594,154 @@ function playPerkJingle() {
   } catch (e) { /* audio optional */ }
 }
 
+// ---------- MYSTERY BOX: "Mission Payload" intro sequence ----------
+// Zombies-style crate drop -> tap to open (950) -> beam + item rise ->
+// decrypt text -> personalized Best Man / Groomsman ask -> static dissolve.
+
+function playBoxThud() {
+  try {
+    const ctx = xpAudioCtx();
+    const t = ctx.currentTime;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(90, t);
+    o.frequency.exponentialRampToValueAtTime(34, t + 0.3);
+    g.gain.setValueAtTime(0.3, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
+    o.connect(g).connect(ctx.destination);
+    o.start(t); o.stop(t + 0.42);
+  } catch (e) { /* audio optional */ }
+}
+
+function playBoxJingle() {
+  try {
+    const ctx = xpAudioCtx();
+    const t0 = ctx.currentTime;
+    // Eerie little music-box arpeggio (E minor) — mystery box vibes.
+    [329.63, 392.0, 493.88, 659.25, 587.33, 493.88].forEach((f, i) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'triangle';
+      o.frequency.value = f;
+      const t = t0 + i * 0.22;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.09, t + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+      o.connect(g).connect(ctx.destination);
+      o.start(t); o.stop(t + 0.55);
+    });
+  } catch (e) { /* audio optional */ }
+}
+
+function runMysteryBox(done) {
+  const ov = document.getElementById('mysteryBox');
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // ?box=1 forces the intro (demo/testing) even with reduced motion set.
+  const force = new URLSearchParams(window.location.search).get('box') === '1';
+  if (!ov || !activeTarget || (reduced && !force)) { if (ov) ov.remove(); done(); return; }
+
+  const crate = document.getElementById('mbCrate');
+  const item = document.getElementById('mbItem');
+  const tap = document.getElementById('mbTap');
+  const term = document.getElementById('mbTerminal');
+
+  const isBest = activeTarget.role === 'Best Man';
+  const realItem = isBest ? '💍' : '🎖️';
+  item.textContent = realItem;
+  const first = activeTarget.name.split(' ')[0].toUpperCase();
+  document.getElementById('mbAskMain').textContent =
+    `${first}. WILL YOU BE MY ${isBest ? 'BEST MAN' : 'GROOMSMAN'}?`;
+
+  let phase = 'drop';
+  let finished = false;
+  function finish() {
+    if (finished) return;
+    finished = true;
+    ov.classList.add('dissolve');
+    setTimeout(() => { ov.remove(); done(); }, 850);
+  }
+
+  function mbType(text, cls, then) {
+    const line = document.createElement('div');
+    line.className = 'mb-line' + (cls ? ' ' + cls : '');
+    term.appendChild(line);
+    while (term.children.length > 3) term.firstChild.remove();
+    let i = 0;
+    (function tick() {
+      if (finished) return;
+      if (i < text.length) {
+        line.textContent += text[i++];
+        setTimeout(tick, 26);
+      } else if (then) setTimeout(then, 240);
+    })();
+  }
+
+  function askPhase() {
+    if (finished) return;
+    phase = 'ask';
+    ov.classList.add('ask-phase');
+    setTimeout(finish, 5600); // auto-advance to the dossier
+  }
+
+  function reveal() {
+    item.classList.add('rise');
+    mbType('DECRYPTING PAYLOAD...', '', () =>
+      mbType('ITEM UNLOCKED: ' + (isBest ? 'VANGUARD / BEST MAN STATUS' : 'GROOMSMAN STATUS'), 'ok', () =>
+        setTimeout(askPhase, 900)));
+  }
+
+  function openBox() {
+    if (phase !== 'ready' || finished) return;
+    phase = 'opened';
+    tap.classList.remove('show');
+    try { startMusic(); } catch (e) { /* needs gesture; this IS one */ }
+    playBoxJingle();
+    crate.classList.add('open');
+    document.getElementById('mbBeam').classList.add('on');
+    // The box occasionally trolls you. Tradition demands it.
+    if (Math.random() < 0.12) {
+      item.textContent = '🧸';
+      item.classList.add('rise');
+      mbType('> ...THE BOX LAUGHS AT YOU.', 'err', () => {
+        setTimeout(() => {
+          item.classList.remove('rise');
+          void item.offsetWidth;
+          item.textContent = realItem;
+          mbType('> JUST KIDDING. NO TEDDY BEARS TODAY.', '', () => setTimeout(reveal, 250));
+        }, 700);
+      });
+    } else {
+      reveal();
+    }
+  }
+
+  ov.classList.add('active');
+  ov.setAttribute('aria-hidden', 'false');
+  ov.addEventListener('click', () => {
+    if (phase === 'ready') openBox();
+    else if (phase === 'ask') finish(); // tap to fast-forward the ask
+  });
+  document.getElementById('mbSkip').addEventListener('click', e => {
+    e.stopPropagation();
+    finish();
+  });
+
+  // Stage 1: the drop.
+  crate.classList.add('drop');
+  setTimeout(() => {
+    if (finished) return;
+    ov.classList.add('shake');
+    playBoxThud();
+    setTimeout(() => ov.classList.remove('shake'), 450);
+    tap.classList.add('show');
+    phase = 'ready';
+  }, 1000);
+
+  // Idle failsafe: box opens itself if they just stare at it.
+  setTimeout(() => { if (phase === 'ready') openBox(); }, 14000);
+}
+
 // ---------- ARCADE LAYER: RL quick chats, BO killfeed, MC toasts ----------
 
 // Rocket League quick-chat popups (center-top). Spamming triggers the
@@ -1307,7 +1455,8 @@ function playAchievement(target) {
   if (urlCode && ROSTER[urlCode]) {
     activeCode = urlCode;
     activeTarget = ROSTER[urlCode];
-    bootSequence();
+    // Mystery Box payload intro plays first; the dossier boots on dissolve.
+    runMysteryBox(bootSequence);
   } else {
     window.location.replace('/');
   }
