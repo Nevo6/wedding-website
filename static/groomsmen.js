@@ -634,6 +634,42 @@ function playBoxJingle() {
   } catch (e) { /* audio optional */ }
 }
 
+function playCycleTick(step) {
+  // Tiny rising slot-machine blip for each item the box cycles through.
+  try {
+    const ctx = xpAudioCtx();
+    const t = ctx.currentTime;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'square';
+    o.frequency.value = 300 + step * 24;
+    g.gain.setValueAtTime(0.018, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
+    o.connect(g).connect(ctx.destination);
+    o.start(t); o.stop(t + 0.07);
+  } catch (e) { /* audio optional */ }
+}
+
+function playSettleDing() {
+  // Bright two-note ding when the payload locks in.
+  try {
+    const ctx = xpAudioCtx();
+    const t0 = ctx.currentTime;
+    [1318.5, 1975.5].forEach((f, i) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.value = f;
+      const t = t0 + i * 0.09;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.08, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
+      o.connect(g).connect(ctx.destination);
+      o.start(t); o.stop(t + 0.45);
+    });
+  } catch (e) { /* audio optional */ }
+}
+
 function runMysteryBox(done) {
   const ov = document.getElementById('mysteryBox');
   const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -641,25 +677,66 @@ function runMysteryBox(done) {
   const force = new URLSearchParams(window.location.search).get('box') === '1';
   if (!ov || !activeTarget || (reduced && !force)) { if (ov) ov.remove(); done(); return; }
 
+  const stage = ov.querySelector('.mb-stage');
   const crate = document.getElementById('mbCrate');
   const item = document.getElementById('mbItem');
+  const glyph = document.getElementById('mbItemGlyph');
   const tap = document.getElementById('mbTap');
   const term = document.getElementById('mbTerminal');
+  const flash = document.getElementById('mbFlash');
 
   const isBest = activeTarget.role === 'Best Man';
   const realItem = isBest ? '💍' : '🎖️';
-  item.textContent = realItem;
+  glyph.textContent = realItem;
   const first = activeTarget.name.split(' ')[0].toUpperCase();
   document.getElementById('mbAskMain').textContent =
     `${first}. WILL YOU BE MY ${isBest ? 'BEST MAN' : 'GROOMSMAN'}?`;
 
   let phase = 'drop';
   let finished = false;
+  let floatQTimer = null;
+
   function finish() {
     if (finished) return;
     finished = true;
+    if (floatQTimer) clearInterval(floatQTimer);
     ov.classList.add('dissolve');
     setTimeout(() => { ov.remove(); done(); }, 850);
+  }
+
+  function flashPop(soft) {
+    flash.classList.remove('go', 'go-soft');
+    void flash.offsetWidth;
+    flash.classList.add(soft ? 'go-soft' : 'go');
+  }
+
+  // Dust burst kicked up when the crate slams down.
+  function spawnDust() {
+    const dust = document.createElement('div');
+    dust.className = 'mb-dust';
+    for (let i = 0; i < 12; i++) {
+      const p = document.createElement('i');
+      const ang = (Math.PI / 12) + (Math.PI * 10 / 12) * (i / 11); // fan outward
+      const dist = 55 + Math.random() * 75;
+      p.style.setProperty('--dx', (Math.cos(ang) * dist * (Math.random() < 0.5 ? -1 : 1)).toFixed(0) + 'px');
+      p.style.setProperty('--dy', (-Math.sin(ang) * dist * 0.45 - 6).toFixed(0) + 'px');
+      p.style.animationDelay = (Math.random() * 0.08).toFixed(2) + 's';
+      dust.appendChild(p);
+    }
+    stage.appendChild(dust);
+    setTimeout(() => dust.remove(), 1000);
+  }
+
+  // Glowing ?s drift up off the box while it waits — just like the real one.
+  function spawnFloatQ() {
+    if (phase !== 'ready' || finished) return;
+    const q = document.createElement('span');
+    q.className = 'mb-floatq';
+    q.textContent = '?';
+    q.style.left = 'calc(50% + ' + (Math.random() * 150 - 75).toFixed(0) + 'px)';
+    q.style.animationDuration = (2 + Math.random() * 1.2).toFixed(2) + 's';
+    stage.appendChild(q);
+    setTimeout(() => q.remove(), 3400);
   }
 
   function mbType(text, cls, then) {
@@ -677,6 +754,32 @@ function runMysteryBox(done) {
     })();
   }
 
+  // Slot-machine cycle: the payload flickers through random loot,
+  // decelerating until it locks onto the final item. Peak mystery box.
+  const LOOT_POOL = ['🎩', '🥃', '🍾', '🕶️', '⌚', '🎲', '🎮', '📸'];
+  function spinTo(finalGlyph, spins, onDone) {
+    glyph.classList.remove('settled');
+    glyph.classList.add('cycling');
+    let n = 0;
+    let delay = 80;
+    (function next() {
+      if (finished) return;
+      if (n < spins) {
+        glyph.textContent = LOOT_POOL[n % LOOT_POOL.length];
+        playCycleTick(n);
+        n++;
+        delay *= 1.12; // decelerate like a slot machine
+        setTimeout(next, delay);
+      } else {
+        glyph.textContent = finalGlyph;
+        glyph.classList.remove('cycling');
+        glyph.classList.add('settled');
+        playSettleDing();
+        if (onDone) setTimeout(onDone, 380);
+      }
+    })();
+  }
+
   function askPhase() {
     if (finished) return;
     phase = 'ask';
@@ -684,36 +787,39 @@ function runMysteryBox(done) {
     setTimeout(finish, 5600); // auto-advance to the dossier
   }
 
-  function reveal() {
-    item.classList.add('rise');
+  function decrypt() {
     mbType('DECRYPTING PAYLOAD...', '', () =>
       mbType('ITEM UNLOCKED: ' + (isBest ? 'VANGUARD / BEST MAN STATUS' : 'GROOMSMAN STATUS'), 'ok', () =>
         setTimeout(askPhase, 900)));
   }
 
+  function reveal() {
+    item.classList.add('rise');
+    // The box occasionally trolls you. Tradition demands it.
+    if (Math.random() < 0.12) {
+      spinTo('🧸', 9, () => {
+        mbType('> ...THE BOX LAUGHS AT YOU.', 'err', () => {
+          mbType('> JUST KIDDING. NO TEDDY BEARS TODAY.', '', () =>
+            spinTo(realItem, 6, decrypt));
+        });
+      });
+    } else {
+      spinTo(realItem, 13, decrypt);
+    }
+  }
+
   function openBox() {
     if (phase !== 'ready' || finished) return;
     phase = 'opened';
+    if (floatQTimer) clearInterval(floatQTimer);
     tap.classList.remove('show');
     try { startMusic(); } catch (e) { /* needs gesture; this IS one */ }
     playBoxJingle();
     crate.classList.add('open');
+    flashPop(false); // light burst as the lid cracks
     document.getElementById('mbBeam').classList.add('on');
-    // The box occasionally trolls you. Tradition demands it.
-    if (Math.random() < 0.12) {
-      item.textContent = '🧸';
-      item.classList.add('rise');
-      mbType('> ...THE BOX LAUGHS AT YOU.', 'err', () => {
-        setTimeout(() => {
-          item.classList.remove('rise');
-          void item.offsetWidth;
-          item.textContent = realItem;
-          mbType('> JUST KIDDING. NO TEDDY BEARS TODAY.', '', () => setTimeout(reveal, 250));
-        }, 700);
-      });
-    } else {
-      reveal();
-    }
+    document.getElementById('mbSparks').classList.add('on');
+    setTimeout(reveal, 350);
   }
 
   ov.classList.add('active');
@@ -733,9 +839,13 @@ function runMysteryBox(done) {
     if (finished) return;
     ov.classList.add('shake');
     playBoxThud();
+    crate.classList.add('landed'); // ground glow kicks in
+    spawnDust();
+    flashPop(true);
     setTimeout(() => ov.classList.remove('shake'), 450);
     tap.classList.add('show');
     phase = 'ready';
+    floatQTimer = setInterval(spawnFloatQ, 1000);
   }, 1000);
 
   // Idle failsafe: box opens itself if they just stare at it.
