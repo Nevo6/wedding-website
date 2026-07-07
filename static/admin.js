@@ -12,9 +12,15 @@ const $$ = (s) => Array.from(document.querySelectorAll(s));
 
 let GUESTS = [];        // deduped RSVP rows from the backend
 let LOADOUTS = [];
+let MISSIONS = [];
+let missionsDirty = false;
 let seatingTables = []; // [{table, capacity, guests:[]}]
 let checklistItems = [];
-let selectedGuest = null; // seating: currently selected unseated guest name
+let selectedGuests = new Set(); // seating: multi-select of unseated guests
+
+// Soft pastel per RSVP party so families stay visually grouped.
+const PARTY_COLORS = ['#FDBCC9', '#FFCBA4', '#BCCDB3', '#D8C3E5', '#FCEEA7',
+                      '#9fd0da', '#f0b8a0', '#c8d8f0', '#e8c8b0', '#b8d8c8'];
 
 // ---------- tiny helpers ----------
 function toast(msg) {
@@ -298,16 +304,27 @@ function renderSmsTools() {
 }
 
 // ---------- seating ----------
+let partyOf = {}; // guest name -> party index (for chip colors)
+
 function seatingUnits() {
-  // One draggable chip per human: primary guest, plus-one, each child.
+  // One chip per human: primary guest, plus-one, each child — tagged by party.
   const units = [];
-  GUESTS.forEach(g => {
-    const name = `${g['First Name']} ${g['Last Name']}`.trim();
-    if (name) units.push(name);
-    if (yes(g['Has Plus One']) && String(g['Plus One Name'] || '').trim()) units.push(String(g['Plus One Name']).trim());
-    String(g['Children List'] || '').split(/[,;|]/).map(s => s.trim()).filter(Boolean).forEach(k => units.push(k));
+  partyOf = {};
+  GUESTS.forEach((g, pi) => {
+    const push = n => {
+      const name = String(n || '').trim();
+      if (name && !(name in partyOf)) { partyOf[name] = pi; units.push(name); }
+    };
+    push(`${g['First Name']} ${g['Last Name']}`);
+    if (yes(g['Has Plus One'])) push(g['Plus One Name']);
+    String(g['Children List'] || '').split(/[,;|]/).forEach(push);
   });
-  return [...new Set(units)];
+  return units;
+}
+
+function chipHtml(name, extra = '') {
+  const color = PARTY_COLORS[(partyOf[name] ?? 0) % PARTY_COLORS.length];
+  return `<span class="gchip${extra ? ' ' + extra : ''}" data-name="${esc(name)}" style="--pc:${color}">${esc(name)}</span>`;
 }
 
 function loadSeating() {
@@ -321,10 +338,13 @@ function loadSeating() {
 }
 
 function renderSeating() {
+  const units = seatingUnits();
   const seated = new Set(seatingTables.flatMap(t => t.guests));
-  const pool = seatingUnits().filter(n => !seated.has(n));
+  const pool = units.filter(n => !seated.has(n));
+  selectedGuests = new Set([...selectedGuests].filter(n => pool.includes(n)));
+
   $('#unseated').innerHTML = pool.map(n =>
-    `<span class="gchip${selectedGuest === n ? ' selected' : ''}" data-name="${esc(n)}">${esc(n)}</span>`).join('')
+    chipHtml(n, selectedGuests.has(n) ? 'selected' : '')).join('')
     || '<span class="muted">Everyone is seated 🎉</span>';
 
   $('#tablesGrid').innerHTML = seatingTables.map((t, i) => `
@@ -334,15 +354,23 @@ function renderSeating() {
         <span class="tbl-cap"><b class="${t.guests.length > t.capacity ? 'overcap' : ''}">${t.guests.length}</b>/<input type="number" min="1" max="20" value="${t.capacity}" data-cap="${i}"></span>
         <button class="tbl-del" data-del="${i}" title="Remove table">✕</button>
       </div>
-      <div class="tbl-guests">${t.guests.map(g =>
-        `<span class="gchip" data-unseat="${esc(g)}">${esc(g)}<span class="x">✕</span></span>`).join('') || '<span class="muted">Tap to seat selected guest</span>'}</div>
+      <div class="tbl-guests">${t.guests.map(g => {
+        const color = PARTY_COLORS[(partyOf[g] ?? 0) % PARTY_COLORS.length];
+        return `<span class="gchip" data-unseat="${esc(g)}" style="--pc:${color}">${esc(g)}<span class="x">✕</span></span>`;
+      }).join('') || '<span class="muted">Tap to seat selected guests</span>'}</div>
     </div>`).join('');
+
+  const total = units.length;
+  $('#seatCounter').textContent = `Seated ${seated.size}/${total}`;
 }
 
+// Tap one or several guests, then tap a table to seat them all at once.
 $('#unseated').addEventListener('click', e => {
   const chip = e.target.closest('.gchip');
   if (!chip) return;
-  selectedGuest = selectedGuest === chip.dataset.name ? null : chip.dataset.name;
+  const name = chip.dataset.name;
+  if (selectedGuests.has(name)) selectedGuests.delete(name);
+  else selectedGuests.add(name);
   renderSeating();
 });
 
@@ -363,12 +391,44 @@ $('#tablesGrid').addEventListener('click', e => {
     return;
   }
   const card = e.target.closest('.tbl-card');
-  if (card && selectedGuest) {
-    seatingTables[+card.dataset.t].guests.push(selectedGuest);
-    selectedGuest = null;
+  if (card && selectedGuests.size) {
+    seatingTables[+card.dataset.t].guests.push(...selectedGuests);
+    selectedGuests.clear();
     renderSeating();
   }
 });
+
+// Excel-friendly CSV of the whole chart
+$('#seatCsvBtn').addEventListener('click', () => {
+  const lines = ['Table,Capacity,Seat,Guest'];
+  seatingTables.forEach(t => {
+    if (!t.guests.length) lines.push(`"${t.table.replace(/"/g, '""')}",${t.capacity},,`);
+    t.guests.forEach((g, i) =>
+      lines.push(`"${t.table.replace(/"/g, '""')}",${t.capacity},${i + 1},"${g.replace(/"/g, '""')}"`));
+  });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' }));
+  a.download = 'seating-chart.csv';
+  a.click();
+  toast('Seating chart downloaded — opens right in Excel 📥');
+});
+
+// Cute per-table cards -> browser print dialog -> Save as PDF
+$('#printPdfBtn').addEventListener('click', () => {
+  if (!seatingTables.some(t => t.guests.length)) { toast('Seat some guests first!'); return; }
+  $('#printSheet').innerHTML = seatingTables.filter(t => t.guests.length).map(t => `
+    <div class="print-card">
+      <div class="pc-mono">S <span class="pc-heart">♥</span> L</div>
+      <div class="pc-sub">Sal &amp; Lauren · April 24, 2027</div>
+      <h1 class="pc-table">${esc(t.table)}</h1>
+      <div class="pc-rule">✦</div>
+      <ul class="pc-guests">${t.guests.map(g => `<li>${esc(g)}</li>`).join('')}</ul>
+      <div class="pc-foot">Clearwater Beach, Florida</div>
+    </div>`).join('');
+  document.body.classList.add('print-mode');
+  window.print();
+});
+window.addEventListener('afterprint', () => document.body.classList.remove('print-mode'));
 
 $('#tablesGrid').addEventListener('change', e => {
   if (e.target.dataset.cap !== undefined) {
@@ -393,19 +453,54 @@ $('#saveSeatingBtn').addEventListener('click', () => {
 });
 
 // ---------- groomsmen ----------
+function renderMissions() {
+  $('#missionTable tbody').innerHTML = MISSIONS.map((m, i) => `
+    <tr><td>${esc(String(m['Timestamp']).slice(0, 16))}</td><td>${esc(m['Name'])}</td>
+    <td>${esc(m['Role'])}</td><td>${m['Response'] === 'ACCEPTED' ? '✅' : '❌'} ${esc(m['Response'])}</td>
+    <td><button class="del-row" data-mdel="${i}" title="Delete entry">✕</button></td></tr>`).join('')
+    || '<tr><td colspan="5" class="muted">No mission responses yet.</td></tr>';
+  $('#saveMissionsBtn').style.display = missionsDirty ? '' : 'none';
+}
+
+function renderLoadouts() {
+  $('#loadoutTable tbody').innerHTML = LOADOUTS.map(l => `
+    <tr><td><b>${esc(l['Name'])}</b></td><td>${esc(l['Email'])}</td><td>${esc(l['Drink of Choice'])}</td>
+    <td>${esc(l['Dance Move'])}</td><td>${esc(l['Hype Song'])}</td><td>${esc(l['Perks'])}</td></tr>`).join('')
+    || '<tr><td colspan="6" class="muted">No loadouts deployed yet.</td></tr>';
+}
+
 function loadGroomsmen() {
   api('/admin/groomsmen').then(d => {
-    $('#missionTable tbody').innerHTML = (d.missions || []).map(m => `
-      <tr><td>${esc(String(m['Timestamp']).slice(0, 16))}</td><td>${esc(m['Name'])}</td>
-      <td>${esc(m['Role'])}</td><td>${m['Response'] === 'ACCEPTED' ? '✅' : '❌'} ${esc(m['Response'])}</td></tr>`).join('')
-      || '<tr><td colspan="4" class="muted">No mission responses yet.</td></tr>';
+    MISSIONS = d.missions || [];
     LOADOUTS = d.loadouts || [];
-    $('#loadoutTable tbody').innerHTML = LOADOUTS.map(l => `
-      <tr><td><b>${esc(l['Name'])}</b></td><td>${esc(l['Email'])}</td><td>${esc(l['Drink of Choice'])}</td>
-      <td>${esc(l['Dance Move'])}</td><td>${esc(l['Hype Song'])}</td><td>${esc(l['Perks'])}</td></tr>`).join('')
-      || '<tr><td colspan="6" class="muted">No loadouts deployed yet.</td></tr>';
+    missionsDirty = false;
+    renderMissions();
+    renderLoadouts();
   }).catch(e => toast('Groomsmen failed: ' + e.message));
 }
+
+$('#missionTable').addEventListener('click', e => {
+  const del = e.target.closest('[data-mdel]');
+  if (!del) return;
+  MISSIONS.splice(+del.dataset.mdel, 1);
+  missionsDirty = true;
+  renderMissions();
+});
+
+$('#saveMissionsBtn').addEventListener('click', () => {
+  if (!confirm(`Save the Mission Log with ${MISSIONS.length} entr${MISSIONS.length === 1 ? 'y' : 'ies'}? Deleted rows are gone for good.`)) return;
+  api('/admin/missions', { method: 'POST', body: JSON.stringify({ missions: MISSIONS }) })
+    .then(() => { missionsDirty = false; renderMissions(); toast('Mission Log saved 🕵️'); })
+    .catch(e => toast('Save failed: ' + e.message));
+});
+
+$('#clearLoadoutsBtn').addEventListener('click', () => {
+  if (!LOADOUTS.length) { toast('No loadouts to clear.'); return; }
+  if (!confirm(`Delete all ${LOADOUTS.length} loadouts? The groomsmen can redeploy new ones anytime.`)) return;
+  api('/admin/loadouts', { method: 'POST', body: JSON.stringify({ loadouts: [] }) })
+    .then(() => { LOADOUTS = []; renderLoadouts(); toast('Loadouts cleared 🗑'); })
+    .catch(e => toast('Clear failed: ' + e.message));
+});
 
 // ---------- donations ----------
 function loadDonations() {

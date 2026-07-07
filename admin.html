@@ -11,7 +11,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&family=Pacifico&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="/static/admin.css?v=20260705a">
+  <link rel="stylesheet" href="/static/admin.css?v=20260705b">
 </head>
 
 <body>
@@ -127,6 +127,9 @@
         <div class="toolbar">
           <button id="addTableBtn" class="btn">＋ Add table</button>
           <button id="saveSeatingBtn" class="btn btn-primary">💾 Save seating</button>
+          <button id="seatCsvBtn" class="btn">⬇ Excel (CSV)</button>
+          <button id="printPdfBtn" class="btn">🖨 Table cards PDF</button>
+          <span id="seatCounter" class="pill"></span>
           <span id="seatingStatus" class="muted"></span>
         </div>
         <div class="card">
@@ -139,13 +142,19 @@
       <!-- GROOMSMEN -->
       <section id="pane-groomsmen" class="pane">
         <div class="card">
-          <h3>Mission Log</h3>
+          <h3>Mission Log
+            <span style="float:right;display:flex;gap:6px;">
+              <button id="saveMissionsBtn" class="btn btn-primary" style="display:none;">💾 Save changes</button>
+            </span>
+          </h3>
           <div class="table-wrap"><table id="missionTable">
-            <thead><tr><th>When</th><th>Operative</th><th>Role</th><th>Response</th></tr></thead><tbody></tbody>
+            <thead><tr><th>When</th><th>Operative</th><th>Role</th><th>Response</th><th></th></tr></thead><tbody></tbody>
           </table></div>
         </div>
         <div class="card">
-          <h3>Create-a-Class Loadouts</h3>
+          <h3>Create-a-Class Loadouts
+            <button id="clearLoadoutsBtn" class="btn" style="float:right;">🗑 Clear all</button>
+          </h3>
           <div class="table-wrap"><table id="loadoutTable">
             <thead><tr><th>Operative</th><th>Email</th><th>Drink</th><th>Dance Move</th><th>Hype Song</th><th>Perks</th></tr></thead><tbody></tbody>
           </table></div>
@@ -190,7 +199,11 @@
   </div>
 
   <div id="toast" class="toast"></div>
-  <script src="/static/admin.js?v=20260705a"></script>
+
+  <!-- Print-only sheet: one cute card per table for Save-as-PDF -->
+  <div id="printSheet"></div>
+
+  <script src="/static/admin.js?v=20260705b"></script>
 </body>
 
 </html>

@@ -130,6 +130,12 @@ passwordForm.addEventListener('submit', (e) => {
     return;
   }
 
+  // "Admin" routes the couple to Wedding HQ (which has its own password gate).
+  if (passwordInput.value.trim().toLowerCase() === 'admin') {
+    window.location.href = '/admin.html';
+    return;
+  }
+
   const rules = lookupTier(passwordInput.value);
 
   if (rules) {
