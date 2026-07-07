@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <title>HQ — Sal &amp; Lauren</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&family=Pacifico&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/static/admin.css?v=20260705a">
+</head>
+
+<body>
+  <!-- ===== LOGIN GATE (all data stays behind the backend until this passes) ===== -->
+  <div id="gate" class="gate">
+    <div class="gate-card">
+      <div class="gate-mono">S&hearts;L</div>
+      <h1>Wedding HQ</h1>
+      <p class="gate-sub">Command center &middot; admins only</p>
+      <form id="gateForm">
+        <input type="password" id="gateKey" placeholder="Admin password" autocomplete="current-password" required>
+        <button type="submit">Unlock HQ</button>
+        <p id="gateError" class="gate-error"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== APP ===== -->
+  <div id="app" class="app hidden">
+    <header class="topbar">
+      <div class="topbar-title"><span class="mono">S&hearts;L</span> Wedding HQ</div>
+      <div class="topbar-actions">
+        <a id="sheetLink" href="#" target="_blank" rel="noopener" class="btn btn-ghost" style="display:none;">📗 Open Google Sheet</a>
+        <button id="logoutBtn" class="btn btn-ghost" type="button">Log out</button>
+      </div>
+    </header>
+
+    <nav class="tabs" id="tabs">
+      <button data-tab="dashboard" class="tab active">📊 Dashboard</button>
+      <button data-tab="guests" class="tab">👥 Guests</button>
+      <button data-tab="contact" class="tab">📣 Contact</button>
+      <button data-tab="seating" class="tab">🪑 Seating</button>
+      <button data-tab="groomsmen" class="tab">🕵️ Groomsmen</button>
+      <button data-tab="donations" class="tab">💰 Fund</button>
+      <button data-tab="playlist" class="tab">🎵 Playlist</button>
+      <button data-tab="checklist" class="tab">📋 Checklist</button>
+    </nav>
+
+    <main>
+      <!-- DASHBOARD -->
+      <section id="pane-dashboard" class="pane active">
+        <div class="stat-grid" id="statGrid"></div>
+        <div class="two-col">
+          <div class="card">
+            <h3>Squad Status</h3>
+            <div id="dashSquad" class="squad-list"></div>
+          </div>
+          <div class="card">
+            <h3>Latest RSVPs</h3>
+            <ul id="dashRecent" class="recent-list"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- GUESTS -->
+      <section id="pane-guests" class="pane">
+        <div class="toolbar">
+          <input type="search" id="guestSearch" placeholder="Search name, email, phone…">
+          <div class="chip-row">
+            <button class="chip active" data-filter="all">All</button>
+            <button class="chip" data-filter="plusone">Has plus-one</button>
+            <button class="chip" data-filter="kids">Has kids</button>
+            <button class="chip" data-filter="notes">Has notes</button>
+          </div>
+          <button id="csvBtn" class="btn">⬇ Export CSV</button>
+        </div>
+        <div class="card table-wrap">
+          <table id="guestTable">
+            <thead><tr><th>Party</th><th>Email</th><th>Phone</th><th>Heads</th><th>+1</th><th>Kids</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- CONTACT -->
+      <section id="pane-contact" class="pane">
+        <div class="two-col">
+          <div class="card">
+            <h3>📧 Email the guests</h3>
+            <div class="chip-row" id="emailTemplates">
+              <button class="chip" data-tpl="reminder">RSVP reminder</button>
+              <button class="chip" data-tpl="hotel">Hotel info</button>
+              <button class="chip" data-tpl="weekof">Week-of details</button>
+            </div>
+            <input type="text" id="emailSubject" placeholder="Subject">
+            <textarea id="emailBody" rows="8" placeholder="Write your note… (blank line = new paragraph)"></textarea>
+            <div class="send-row">
+              <span id="recipCount" class="muted">0 recipients selected</span>
+              <button id="sendEmailBtn" class="btn btn-primary">Send 💌</button>
+            </div>
+            <p id="emailStatus" class="muted"></p>
+          </div>
+          <div class="card">
+            <h3>Recipients</h3>
+            <div class="chip-row">
+              <button class="chip" id="recipAll">Select all</button>
+              <button class="chip" id="recipNone">Clear</button>
+            </div>
+            <div id="recipList" class="recip-list"></div>
+            <hr>
+            <h3>📱 Text the guests</h3>
+            <p class="muted">Opens your phone's Messages app — free, no accounts.</p>
+            <div class="send-row">
+              <button id="copyNumbersBtn" class="btn">📋 Copy all numbers</button>
+              <a id="groupSmsLink" class="btn" href="#">💬 Group text</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SEATING -->
+      <section id="pane-seating" class="pane">
+        <div class="toolbar">
+          <button id="addTableBtn" class="btn">＋ Add table</button>
+          <button id="saveSeatingBtn" class="btn btn-primary">💾 Save seating</button>
+          <span id="seatingStatus" class="muted"></span>
+        </div>
+        <div class="card">
+          <h3>Unseated guests <span class="muted">(tap a guest, then tap a table)</span></h3>
+          <div id="unseated" class="guest-pool"></div>
+        </div>
+        <div id="tablesGrid" class="tables-grid"></div>
+      </section>
+
+      <!-- GROOMSMEN -->
+      <section id="pane-groomsmen" class="pane">
+        <div class="card">
+          <h3>Mission Log</h3>
+          <div class="table-wrap"><table id="missionTable">
+            <thead><tr><th>When</th><th>Operative</th><th>Role</th><th>Response</th></tr></thead><tbody></tbody>
+          </table></div>
+        </div>
+        <div class="card">
+          <h3>Create-a-Class Loadouts</h3>
+          <div class="table-wrap"><table id="loadoutTable">
+            <thead><tr><th>Operative</th><th>Email</th><th>Drink</th><th>Dance Move</th><th>Hype Song</th><th>Perks</th></tr></thead><tbody></tbody>
+          </table></div>
+        </div>
+      </section>
+
+      <!-- DONATIONS -->
+      <section id="pane-donations" class="pane">
+        <div class="card">
+          <h3>Honeymoon Fund <span id="fundTotalLabel" class="pill"></span></h3>
+          <div class="table-wrap"><table id="donationTable">
+            <thead><tr><th>When</th><th>Name</th><th>Amount</th><th>Message</th></tr></thead><tbody></tbody>
+          </table></div>
+        </div>
+      </section>
+
+      <!-- PLAYLIST -->
+      <section id="pane-playlist" class="pane">
+        <div class="card">
+          <h3>🎵 DJ Request List <button id="copyPlaylistBtn" class="btn" style="float:right;">📋 Copy list</button></h3>
+          <p class="muted">Hype songs collected from the groomsmen's Create-a-Class loadouts.</p>
+          <ul id="playlistList" class="playlist"></ul>
+        </div>
+      </section>
+
+      <!-- CHECKLIST -->
+      <section id="pane-checklist" class="pane">
+        <div class="card">
+          <h3>📋 Planning Checklist</h3>
+          <form id="checkAddForm" class="send-row">
+            <input type="text" id="checkAddInput" placeholder="Add a to-do…" maxlength="140">
+            <button class="btn" type="submit">Add</button>
+          </form>
+          <ul id="checkList" class="checklist"></ul>
+          <div class="send-row">
+            <button id="starterListBtn" class="btn btn-ghost" type="button">✨ Add starter list</button>
+            <span id="checkStatus" class="muted"></span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script src="/static/admin.js?v=20260705a"></script>
+</body>
+
+</html>
