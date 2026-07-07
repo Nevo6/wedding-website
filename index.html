@@ -7,7 +7,7 @@
   <title>Sal & Lauren - April 24th, 2027 | Clearwater Beach Wedding</title>
   <meta name="description"
     content="Join Sal Caramucci and Lauren Hayle for their wedding celebration at Hyatt Regency Clearwater Beach Resort and Spa on April 24th, 2027.">
-  <link rel="stylesheet" href="/static/Styles.css?v=20260626d">
+  <link rel="stylesheet" href="/static/Styles.css?v=20260705a">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -18,22 +18,36 @@
 <body>
   <!-- Password Protection Overlay -->
   <div id="passwordOverlay" class="password-overlay">
-    <div class="password-modal">
-      <div class="password-header">
-        <h2>🔐 Welcome</h2>
-        <p>Please enter the password from your invitation</p>
+    <!-- Sunset beach scene -->
+    <div class="pw-sun" aria-hidden="true"></div>
+    <div class="pw-sparkles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="pw-gull pw-gull-1" aria-hidden="true"></div>
+    <div class="pw-gull pw-gull-2" aria-hidden="true"></div>
+    <div class="pw-wave pw-wave-1" aria-hidden="true"></div>
+    <div class="pw-wave pw-wave-2" aria-hidden="true"></div>
+    <div class="pw-wave pw-wave-3" aria-hidden="true"></div>
+
+    <!-- The invitation card -->
+    <div class="password-modal" id="passwordCard">
+      <div class="pw-monogram"><span>S</span><em>&hearts;</em><span>L</span></div>
+      <h2 class="pw-names">Sal &amp; Lauren</h2>
+      <p class="pw-tag">are getting married!</p>
+      <div class="pw-datebar">
+        <span>April 24, 2027</span>
+        <i>&#10022;</i>
+        <span>Clearwater Beach</span>
       </div>
       <form id="passwordForm" class="password-form">
-        <input type="password" id="sitePassword" placeholder="Enter Password" required autocomplete="off">
-        <button type="submit" class="password-submit">Enter</button>
-        <p id="passwordError" class="password-error" style="display: none;">Incorrect password. Please try again.</p>
+        <input type="password" id="sitePassword" placeholder="Password from your invitation" required autocomplete="off">
+        <button type="submit" class="password-submit"><span class="pw-btn-heart">&#128140;</span> Open Invitation</button>
+        <p id="passwordError" class="password-error" style="display: none;">Hmm, that&rsquo;s not it &mdash; double-check your invitation &#128140;</p>
       </form>
-      <p class="password-hint">Hint: Check your invitation or contact us for the password</p>
-      <div class="privacy-notice" style="margin-top: 15px; background: rgba(255,252,248,0.85); padding: 10px; border-radius: 8px; border-left: 4px solid #c86828;">
-        <p style="margin: 0; color: #7a3010; font-weight: 600;">🔒 Invite-Only Access</p>
-        <p style="margin: 5px 0 0 0; font-size: 0.9em; color: #2e1608;">This website is intended for invited guests only. Please do not share this link or password.</p>
-      </div>
+      <p class="password-hint">The password is on your invitation &mdash; or just ask us!</p>
+      <p class="pw-privacy">&#128274; Invite-only &middot; please keep the link &amp; password between us</p>
     </div>
+
+    <!-- Heart confetti burst on unlock -->
+    <div class="pw-hearts" id="pwHearts" aria-hidden="true"></div>
   </div>
 
   <!-- Success Animation Overlay -->
@@ -641,7 +655,7 @@
     <span class="mobile-rsvp-cta-arrow" aria-hidden="true">→</span>
   </a>
 
-  <script src="/static/Script.js?v=20260626d"></script>
+  <script src="/static/Script.js?v=20260705a"></script>
 </body>
 
 </html>

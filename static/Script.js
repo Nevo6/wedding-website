@@ -137,19 +137,43 @@ passwordForm.addEventListener('submit', (e) => {
     sessionStorage.setItem('weddingTier', String(rules.tier));
     sessionStorage.setItem('weddingPassword', passwordInput.value); // backend re-validates
     applyTier(rules);
-    showMainContent();
+    celebrateUnlock();
   } else {
     passwordError.style.display = 'block';
     passwordInput.value = '';
     passwordInput.focus();
 
-    // Shake animation for error
-    passwordInput.style.animation = 'shake 0.5s ease';
-    setTimeout(() => {
-      passwordInput.style.animation = '';
-    }, 500);
+    // The whole invitation card wiggles "nope"
+    const card = document.getElementById('passwordCard');
+    if (card) {
+      card.classList.remove('pw-shake');
+      void card.offsetWidth;
+      card.classList.add('pw-shake');
+      setTimeout(() => card.classList.remove('pw-shake'), 550);
+    }
   }
 });
+
+// Heart-confetti burst, then the sunset fades into the site.
+function celebrateUnlock() {
+  const hearts = document.getElementById('pwHearts');
+  if (hearts) {
+    const glyphs = ['💛', '🧡', '🤍', '💛', '🧡'];
+    for (let i = 0; i < 16; i++) {
+      const s = document.createElement('span');
+      s.textContent = glyphs[i % glyphs.length];
+      const ang = (Math.PI * 2 * i) / 16 + Math.random() * 0.4;
+      const dist = 130 + Math.random() * 190;
+      s.style.setProperty('--hx', (Math.cos(ang) * dist).toFixed(0) + 'px');
+      s.style.setProperty('--hy', (Math.sin(ang) * dist - 60).toFixed(0) + 'px');
+      s.style.setProperty('--hr', (Math.random() * 70 - 35).toFixed(0) + 'deg');
+      s.style.animationDelay = (Math.random() * 0.12).toFixed(2) + 's';
+      hearts.appendChild(s);
+    }
+  }
+  passwordOverlay.classList.add('unlocking');
+  setTimeout(showMainContent, 750);
+}
 
 // Add shake animation via CSS
 const style = document.createElement('style');
