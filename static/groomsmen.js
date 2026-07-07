@@ -17,7 +17,7 @@ const ROSTER = {
                     gallery: { dir: 'james', count: 14 } },
   'Jon Edwards':  { name: 'Jon Edwards',  role: 'Best Man',  intel: 'Brother. Priority asset. The Best Man.',
                     img: '/static/portraits/jon.webp?v=2', focus: 'center 28%',
-                    gallery: { dir: 'jon', count: 27 } },
+                    gallery: { dir: 'jon', count: 27 }, preAccepted: true },
   'Joey PS4':     { name: 'Joey Moglia',  role: 'Groomsman', intel: "One of Sal's closest friends.",
                     img: '/static/portraits/joey.webp?v=1', focus: 'center 30%',
                     gallery: { dir: 'joey', count: 11 }, preAccepted: true },

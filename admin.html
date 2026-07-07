@@ -11,7 +11,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&family=Pacifico&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="/static/admin.css?v=20260705c">
+  <link rel="stylesheet" href="/static/admin.css?v=20260705d">
 </head>
 
 <body>
@@ -100,7 +100,10 @@
             <textarea id="emailBody" rows="8" placeholder="Write your note… (blank line = new paragraph)"></textarea>
             <div class="send-row">
               <span id="recipCount" class="muted">0 recipients selected</span>
-              <button id="sendEmailBtn" class="btn btn-primary">Send 💌</button>
+              <span style="display:flex;gap:8px;">
+                <button id="testEmailBtn" class="btn">🧪 Test to me</button>
+                <button id="sendEmailBtn" class="btn btn-primary">Send 💌</button>
+              </span>
             </div>
             <p id="emailStatus" class="muted"></p>
           </div>
@@ -203,7 +206,7 @@
   <!-- Print-only sheet: one cute card per table for Save-as-PDF -->
   <div id="printSheet"></div>
 
-  <script src="/static/admin.js?v=20260705c"></script>
+  <script src="/static/admin.js?v=20260705d"></script>
 </body>
 
 </html>

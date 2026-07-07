@@ -112,10 +112,21 @@ $('#tabs').addEventListener('click', e => {
   }
 });
 
+// Visible failure banner with retry — silent empty panes are worse than errors.
+function errorBanner(el, msg, retryFn) {
+  el.innerHTML = `<div class="card" style="border-color:var(--red);grid-column:1/-1;">
+    <p style="color:var(--red);font-weight:600;">⚠ ${esc(msg)}</p>
+    <p class="muted" style="margin:6px 0 10px;">Check your connection and try again.</p>
+    <button class="btn" id="retry-${el.id}">↻ Retry</button></div>`;
+  const b = document.getElementById('retry-' + el.id);
+  if (b) b.onclick = retryFn;
+}
+
 // ---------- dashboard ----------
 function loadDashboard() {
   if (enterApp._pre) { renderDashboard(enterApp._pre); enterApp._pre = null; return; }
-  api('/admin/overview').then(renderDashboard).catch(e => toast('Overview failed: ' + e.message));
+  api('/admin/overview').then(renderDashboard)
+    .catch(e => errorBanner($('#statGrid'), 'Couldn\'t load the dashboard: ' + e.message, loadDashboard));
 }
 
 function renderDashboard(d) {
@@ -152,7 +163,12 @@ function loadGuests() {
     renderGuests();
     renderRecipients();
     renderSmsTools();
-  }).catch(e => toast('Guests failed: ' + e.message));
+    if (loadedTabs.seating) renderSeating(); // refresh the pool if it's open
+  }).catch(e => {
+    errorBanner($('#unseated'), 'Couldn\'t load the guest list: ' + e.message, loadGuests);
+    $('#guestTable tbody').innerHTML =
+      `<tr><td colspan="7" style="color:var(--red);">⚠ ${esc(e.message)} — <a href="#" onclick="loadGuests();return false;">retry</a></td></tr>`;
+  });
 }
 
 function guestMatches(g, q) {
@@ -267,6 +283,17 @@ $('#recipList').addEventListener('change', updateRecipCount);
 $('#recipAll').addEventListener('click', () => { $$('#recipList input').forEach(c => c.checked = true); updateRecipCount(); });
 $('#recipNone').addEventListener('click', () => { $$('#recipList input').forEach(c => c.checked = false); updateRecipCount(); });
 
+// "Test to me" — same subject/body, delivered only to the host inbox.
+$('#testEmailBtn').addEventListener('click', () => {
+  const subject = $('#emailSubject').value.trim();
+  const message = $('#emailBody').value.trim();
+  if (!subject || !message) { toast('Add a subject and a message first.'); return; }
+  $('#emailStatus').textContent = 'Sending test…';
+  api('/admin/email', { method: 'POST', body: JSON.stringify({ subject, message, test: true }) })
+    .then(() => { $('#emailStatus').textContent = '✔ Test sent to your inbox — check how it looks!'; toast('Test email sent 🧪'); })
+    .catch(e => { $('#emailStatus').textContent = '✖ ' + e.message; });
+});
+
 $('#sendEmailBtn').addEventListener('click', () => {
   const subject = $('#emailSubject').value.trim();
   const message = $('#emailBody').value.trim();
@@ -319,7 +346,7 @@ function seatingParties() {
       const name = String(n || '').trim();
       if (name && !(name in partyOf)) { partyOf[name] = pi; members.push(name); }
     };
-    push(`${g['First Name']} ${g['Last Name']}`);
+    push(`${g['First Name'] || ''} ${g['Last Name'] || ''}`.trim());
     if (yes(g['Has Plus One'])) push(g['Plus One Name']);
     String(g['Children List'] || '').split(/[,;|]/).forEach(push);
     if (members.length) {
@@ -356,7 +383,12 @@ function loadSeating() {
       seatingTables = [{ table: 'Table 1', capacity: 8, guests: [] }, { table: 'Table 2', capacity: 8, guests: [] }];
     }
     renderSeating();
-  }).catch(e => toast('Seating failed: ' + e.message));
+  }).catch(e => {
+    // Saved chart unavailable — still let Sal plan with fresh tables.
+    toast('Saved seating unavailable: ' + e.message);
+    seatingTables = [{ table: 'Table 1', capacity: 8, guests: [] }, { table: 'Table 2', capacity: 8, guests: [] }];
+    renderSeating();
+  });
 }
 
 function renderSeating() {
