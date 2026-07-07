@@ -487,3 +487,90 @@ tr:hover td { background: rgba(245, 232, 208, 0.35); }
     margin-bottom: 16pt;
   }
 }
+
+/* ---------- PRINT v2: Find-Your-Seat sign + ornamented cards ---------- */
+@media print {
+  /* Page 1: the entrance sign — vector text scales to any poster size */
+  .print-sign {
+    page-break-after: always;
+    width: 100%;
+    min-height: 96vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border: 3px double #c8862c;
+    outline: 1px solid #e8a840;
+    outline-offset: -10px;
+    padding: 34px 30px 24px;
+    box-sizing: border-box;
+    font-family: Georgia, 'Times New Roman', serif;
+    color: #2e1608;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .ps-mono {
+    font-family: 'Pacifico', cursive;
+    font-size: 17pt;
+    color: #c86828;
+  }
+  .ps-title {
+    font-family: 'Pacifico', cursive;
+    font-size: 34pt;
+    font-weight: normal;
+    color: #c86828;
+    margin: 2pt 0 2pt;
+  }
+  .ps-sub {
+    font-size: 9.5pt;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #7a3010;
+  }
+  .ps-rule { color: #e8a840; font-size: 10pt; margin: 10pt 0 14pt; }
+
+  .ps-grid {
+    width: 100%;
+    display: grid;
+    gap: 14pt 18pt;
+    flex: 1;
+    align-content: start;
+  }
+  .ps-cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .ps-cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .ps-cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+  .ps-table {
+    border-top: 2px solid #e8a840;
+    padding-top: 8pt;
+    break-inside: avoid;
+  }
+  .ps-tname {
+    font-family: 'Pacifico', cursive;
+    font-size: 15pt;
+    color: #c86828;
+    margin-bottom: 5pt;
+  }
+  .ps-guests { list-style: none; padding: 0; margin: 0; }
+  .ps-guests li { font-size: 10.5pt; line-height: 1.55; margin-bottom: 3pt; }
+
+  .ps-foot {
+    font-style: italic;
+    font-size: 10pt;
+    color: #9a6a3a;
+    margin-top: 12pt;
+  }
+
+  /* Per-table card ornaments */
+  .print-card { position: relative; }
+  .pc-corner {
+    position: absolute;
+    color: #e8a840;
+    font-size: 13pt;
+  }
+  .pc-tl { top: 20px; left: 24px; }
+  .pc-tr { top: 20px; right: 24px; }
+  .pc-bl { bottom: 20px; left: 24px; }
+  .pc-br { bottom: 20px; right: 24px; }
+  .pc-rule { letter-spacing: 6px; }
+}

@@ -490,32 +490,56 @@ $('#seatCsvBtn').addEventListener('click', () => {
   toast('Seating chart downloaded — opens right in Excel 📥');
 });
 
-// Cute per-table cards -> browser print dialog -> Save as PDF.
-// Guests print grouped by RSVP party: families share a line.
+// Guests grouped by RSVP party — families share a line on everything printed.
+function partyLines(t) {
+  const groups = [];
+  const byParty = new Map();
+  t.guests.forEach(g => {
+    const pi = partyOf[g] ?? '__' + g;
+    if (!byParty.has(pi)) { byParty.set(pi, []); groups.push(byParty.get(pi)); }
+    byParty.get(pi).push(g);
+  });
+  return groups.map(g =>
+    esc(joinNames(g)).replace(/ &amp; /g, ' <span class="pc-amp">&amp;</span> '));
+}
+
+// PDF export: page 1 is a poster-ready "Find Your Seat" sign showing every
+// table (blow it up for the entrance); then one keepsake card per table.
 $('#printPdfBtn').addEventListener('click', () => {
   if (!seatingTables.some(t => t.guests.length)) { toast('Seat some guests first!'); return; }
   seatingParties(); // refresh partyOf for grouping
-  $('#printSheet').innerHTML = seatingTables.filter(t => t.guests.length).map(t => {
-    // preserve seating order, but cluster each party's members together
-    const groups = [];
-    const byParty = new Map();
-    t.guests.forEach(g => {
-      const pi = partyOf[g] ?? '__' + g;
-      if (!byParty.has(pi)) { byParty.set(pi, []); groups.push(byParty.get(pi)); }
-      byParty.get(pi).push(g);
-    });
-    return `
+  const tables = seatingTables.filter(t => t.guests.length);
+
+  const signPage = `
+    <div class="print-sign">
+      <div class="ps-mono">S <span class="pc-heart">♥</span> L</div>
+      <h1 class="ps-title">Find Your Seat</h1>
+      <div class="ps-sub">Sal &amp; Lauren &nbsp;·&nbsp; April 24, 2027 &nbsp;·&nbsp; Clearwater Beach</div>
+      <div class="ps-rule">✦ &nbsp; ✦ &nbsp; ✦</div>
+      <div class="ps-grid ps-cols-${tables.length <= 4 ? 2 : (tables.length <= 9 ? 3 : 4)}">
+        ${tables.map(t => `
+          <div class="ps-table">
+            <div class="ps-tname">${esc(t.table)}</div>
+            <ul class="ps-guests">${partyLines(t).map(l => `<li>${l}</li>`).join('')}</ul>
+          </div>`).join('')}
+      </div>
+      <div class="ps-foot">We're so glad you're here — find your name &amp; make yourself at home</div>
+    </div>`;
+
+  const cards = tables.map(t => `
     <div class="print-card">
+      <div class="pc-corner pc-tl">✦</div><div class="pc-corner pc-tr">✦</div>
+      <div class="pc-corner pc-bl">✦</div><div class="pc-corner pc-br">✦</div>
       <div class="pc-mono">S <span class="pc-heart">♥</span> L</div>
       <div class="pc-sub">Sal &amp; Lauren · April 24, 2027</div>
+      <div class="pc-rule">· ✦ ·</div>
       <h1 class="pc-table">${esc(t.table)}</h1>
-      <div class="pc-rule">✦</div>
-      <ul class="pc-guests">${groups.map(g =>
-        `<li class="pc-party">${esc(joinNames(g)).replace(/ &amp; /g, ' <span class="pc-amp">&amp;</span> ')}</li>`).join('')}</ul>
-      <div class="pc-count">${t.guests.length} ${t.guests.length === 1 ? 'seat' : 'seats'}</div>
+      <ul class="pc-guests">${partyLines(t).map(l => `<li class="pc-party">${l}</li>`).join('')}</ul>
+      <div class="pc-count">✦ &nbsp;${t.guests.length} ${t.guests.length === 1 ? 'seat' : 'seats'}&nbsp; ✦</div>
       <div class="pc-foot">Clearwater Beach, Florida</div>
-    </div>`;
-  }).join('');
+    </div>`).join('');
+
+  $('#printSheet').innerHTML = signPage + cards;
   document.body.classList.add('print-mode');
   window.print();
 });
