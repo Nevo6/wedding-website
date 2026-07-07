@@ -1197,6 +1197,7 @@ body.loadout-open #audioControls { opacity: 0; pointer-events: none; }
 }
 
 .slot input[type="text"],
+.slot input[type="email"],
 .slot select {
   width: 100%;
   padding: 9px 12px;
@@ -1205,13 +1206,14 @@ body.loadout-open #audioControls { opacity: 0; pointer-events: none; }
   border-radius: 4px;
   color: var(--cream);
   font-family: var(--label);
-  font-size: 0.8rem;
+  font-size: 16px; /* >=16px keeps iOS Safari from zooming on focus */
   letter-spacing: 0.5px;
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .slot input[type="text"]:focus,
+.slot input[type="email"]:focus,
 .slot select:focus {
   border-color: var(--gold-bright);
   box-shadow: 0 0 10px rgba(201, 162, 75, 0.2);
@@ -1994,3 +1996,74 @@ body.loadout-open #audioControls { opacity: 0; pointer-events: none; }
 
 .mb-overlay.fade-out { animation: mbFadeOut 0.75s ease forwards; pointer-events: none; }
 @keyframes mbFadeOut { to { opacity: 0; } }
+
+/* =========================================================
+   CREATE-A-CLASS v2: class slots + email field polish
+   ========================================================= */
+.class-slots {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+  scrollbar-width: none;
+}
+.class-slots::-webkit-scrollbar { display: none; }
+
+.class-slot {
+  flex: 0 0 auto;
+  padding: 8px 13px;
+  border: 1px solid rgba(201, 162, 75, 0.45);
+  border-radius: 4px;
+  background: rgba(10, 10, 13, 0.6);
+  color: var(--gold-bright);
+  font-family: var(--label);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.class-slot.active {
+  background: linear-gradient(180deg, rgba(201, 162, 75, 0.35), rgba(201, 162, 75, 0.15));
+  border-color: var(--gold-bright);
+  box-shadow: 0 0 10px rgba(201, 162, 75, 0.25);
+}
+.class-slot.locked {
+  color: var(--cream-dim);
+  border-style: dashed;
+  border-color: rgba(201, 162, 75, 0.25);
+  opacity: 0.75;
+}
+.cs-lock { font-size: 0.7rem; }
+
+.class-slot.denied { animation: slot-denied 0.4s ease; }
+@keyframes slot-denied {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-3px); }
+}
+
+.slot-locked-msg {
+  min-height: 16px;
+  margin-bottom: 10px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 1px;
+  color: #ff5555;
+  text-shadow: 0 0 6px rgba(255, 85, 85, 0.4);
+}
+.slot-locked-msg.flash { animation: lock-flash 0.35s ease; }
+@keyframes lock-flash {
+  0% { opacity: 0; transform: translateY(-4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.slot-note {
+  margin-top: 5px;
+  font-family: var(--label);
+  font-size: 0.62rem;
+  letter-spacing: 0.8px;
+  color: var(--cream-dim);
+}

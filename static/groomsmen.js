@@ -11,13 +11,16 @@ const API_URL = 'https://api.caramucci.com';
 const ROSTER = {
   'Wyatt Rayner': { name: 'Wyatt Rayner', role: 'Groomsman', intel: "Sal's closest friend since the 6th grade.",
                     img: '/static/portraits/wyatt.webp?v=1', focus: '60% 28%',
-                    gallery: { dir: 'wyatt', count: 18 } },
+                    gallery: { dir: 'wyatt', count: 18 },
+                    boxVideo: '/static/wyatt-mystery-box.mp4' },
   'James Lange':  { name: 'James Lange',  role: 'Groomsman', intel: "Sal's longest-lasting friend since the 4th grade.",
                     img: '/static/portraits/james.webp?v=1', focus: 'center 30%',
-                    gallery: { dir: 'james', count: 14 } },
+                    gallery: { dir: 'james', count: 14 },
+                    boxVideo: '/static/james-mystery-box.mp4' },
   'Jon Edwards':  { name: 'Jon Edwards',  role: 'Best Man',  intel: 'Brother. Priority asset. The Best Man.',
                     img: '/static/portraits/jon.webp?v=2', focus: 'center 28%',
-                    gallery: { dir: 'jon', count: 27 }, preAccepted: true },
+                    gallery: { dir: 'jon', count: 27 }, preAccepted: true,
+                    boxVideo: '/static/jon-mystery-box.mp4' },
   'Joey PS4':     { name: 'Joey Moglia',  role: 'Groomsman', intel: "One of Sal's closest friends.",
                     img: '/static/portraits/joey.webp?v=1', focus: 'center 30%',
                     gallery: { dir: 'joey', count: 11 }, preAccepted: true },
@@ -674,8 +677,10 @@ function runMysteryBox(done) {
   const ov = document.getElementById('mysteryBox');
   const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   // ?box=1 forces the intro (demo/testing) even with reduced motion set.
+  // Video payloads are tap-gated media (not animation), so reduced motion
+  // only skips the animated crate build — never someone's personal video.
   const force = new URLSearchParams(window.location.search).get('box') === '1';
-  if (!ov || !activeTarget || (reduced && !force)) { if (ov) ov.remove(); done(); return; }
+  if (!ov || !activeTarget || (reduced && !force && !activeTarget.boxVideo)) { if (ov) ov.remove(); done(); return; }
 
   const stage = ov.querySelector('.mb-stage');
   const crate = document.getElementById('mbCrate');
@@ -705,19 +710,17 @@ function runMysteryBox(done) {
     setTimeout(() => { ov.remove(); done(); }, 850);
   }
 
-  // --- Jon, on mobile: a bespoke video payload replaces the crate build. ---
-  // Shows "TAP TO OPEN — 950" on black; the tap plays a controls-free video
-  // that fades into the dossier when it ends. (?box=1 forces it for demos.)
-  const isMobile = window.matchMedia('(max-width: 820px)').matches ||
-                   window.matchMedia('(pointer: coarse)').matches;
-  if (isBest && (isMobile || force)) {
+  // --- Bespoke video payloads (Jon, James, Wyatt) replace the crate build ---
+  // on desktop AND mobile. Shows "TAP TO OPEN — 950" on black; the tap plays
+  // a controls-free video that fades into the dossier when it ends.
+  if (activeTarget.boxVideo) {
     ov.classList.add('video-mode', 'active');
     ov.setAttribute('aria-hidden', 'false');
     const video = document.getElementById('mbVideo');
     const vtap = document.getElementById('mbVideoTap');
     video.setAttribute('playsinline', '');
     video.setAttribute('webkit-playsinline', '');
-    video.src = '/static/jon-mystery-box.mp4';
+    video.src = activeTarget.boxVideo;
     try { video.load(); } catch (e) { /* ok */ }
     vtap.classList.add('show');
     phase = 'ready';
@@ -1234,6 +1237,36 @@ function closeLoadout() {
   loadoutEl.classList.remove('open');
   loadoutEl.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('loadout-open');
+}
+
+// Class slots: CLASS 1 is live; 2-5 are level-gated (the level-up program
+// is classified — the lock message is the whole joke for now).
+const classSlots = document.getElementById('classSlots');
+if (classSlots) {
+  classSlots.addEventListener('click', e => {
+    const slot = e.target.closest('.class-slot');
+    if (!slot) return;
+    const msg = document.getElementById('slotLockedMsg');
+    if (slot.classList.contains('locked')) {
+      if (msg) {
+        msg.textContent = '⛔ ACCESS DENIED — LEVEL 50 REQUIRED TO UNLOCK CLASS ' +
+          slot.dataset.slot + '. KEEP GRINDING, OPERATIVE.';
+        msg.classList.remove('flash');
+        void msg.offsetWidth;
+        msg.classList.add('flash');
+        clearTimeout(classSlots._msgTimer);
+        classSlots._msgTimer = setTimeout(() => { msg.textContent = ''; }, 3200);
+      }
+      slot.classList.remove('denied');
+      void slot.offsetWidth;
+      slot.classList.add('denied');
+      try { playCycleTick(0); } catch (err) { /* audio optional */ }
+      return;
+    }
+    classSlots.querySelectorAll('.class-slot').forEach(s =>
+      s.classList.toggle('active', s === slot));
+    if (msg) msg.textContent = '';
+  });
 }
 
 const btnLoadout = document.getElementById('btnLoadout');
