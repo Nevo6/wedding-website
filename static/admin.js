@@ -304,27 +304,49 @@ function renderSmsTools() {
 }
 
 // ---------- seating ----------
-let partyOf = {}; // guest name -> party index (for chip colors)
+let partyOf = {};     // guest name -> party index (for chip colors)
+let partyLabels = {}; // party index -> display label ("The Pond Party")
 
-function seatingUnits() {
-  // One chip per human: primary guest, plus-one, each child — tagged by party.
-  const units = [];
+function seatingParties() {
+  // One entry per RSVP party: everyone who RSVP'd together stays lumped
+  // together — primary guest, plus-one, and each child.
   partyOf = {};
+  partyLabels = {};
+  const parties = [];
   GUESTS.forEach((g, pi) => {
+    const members = [];
     const push = n => {
       const name = String(n || '').trim();
-      if (name && !(name in partyOf)) { partyOf[name] = pi; units.push(name); }
+      if (name && !(name in partyOf)) { partyOf[name] = pi; members.push(name); }
     };
     push(`${g['First Name']} ${g['Last Name']}`);
     if (yes(g['Has Plus One'])) push(g['Plus One Name']);
     String(g['Children List'] || '').split(/[,;|]/).forEach(push);
+    if (members.length) {
+      const last = String(g['Last Name'] || '').trim();
+      const label = members.length > 1
+        ? (last ? `${last} Party` : `${members[0]} Party`)
+        : members[0];
+      partyLabels[pi] = label;
+      parties.push({ idx: pi, label, members });
+    }
   });
-  return units;
+  return parties;
+}
+
+function seatingUnits() {
+  return seatingParties().flatMap(p => p.members);
 }
 
 function chipHtml(name, extra = '') {
   const color = PARTY_COLORS[(partyOf[name] ?? 0) % PARTY_COLORS.length];
   return `<span class="gchip${extra ? ' ' + extra : ''}" data-name="${esc(name)}" style="--pc:${color}">${esc(name)}</span>`;
+}
+
+// "Amy, Rory & Mia" — how families read on the printed cards.
+function joinNames(names) {
+  if (names.length <= 1) return names.join('');
+  return names.slice(0, -1).join(', ') + ' & ' + names[names.length - 1];
 }
 
 function loadSeating() {
@@ -338,14 +360,25 @@ function loadSeating() {
 }
 
 function renderSeating() {
-  const units = seatingUnits();
+  const parties = seatingParties();
+  const units = parties.flatMap(p => p.members);
   const seated = new Set(seatingTables.flatMap(t => t.guests));
   const pool = units.filter(n => !seated.has(n));
   selectedGuests = new Set([...selectedGuests].filter(n => pool.includes(n)));
 
-  $('#unseated').innerHTML = pool.map(n =>
-    chipHtml(n, selectedGuests.has(n) ? 'selected' : '')).join('')
-    || '<span class="muted">Everyone is seated 🎉</span>';
+  // Pool grouped by RSVP party: tap the label to grab the whole family,
+  // or tap individual chips as before.
+  $('#unseated').innerHTML = parties.map(p => {
+    const open = p.members.filter(n => !seated.has(n));
+    if (!open.length) return '';
+    const color = PARTY_COLORS[p.idx % PARTY_COLORS.length];
+    const allSelected = open.every(n => selectedGuests.has(n));
+    return `<div class="party-group${allSelected ? ' all-sel' : ''}" style="--pc:${color}">
+      <button class="party-label" type="button" data-party="${p.idx}"
+        title="Select the whole party">${esc(p.label)}${open.length > 1 ? ' ·' + open.length : ''}</button>
+      ${open.map(n => chipHtml(n, selectedGuests.has(n) ? 'selected' : '')).join('')}
+    </div>`;
+  }).join('') || '<span class="muted">Everyone is seated 🎉</span>';
 
   $('#tablesGrid').innerHTML = seatingTables.map((t, i) => `
     <div class="tbl-card${t.guests.length > t.capacity ? ' over' : ''}" data-t="${i}">
@@ -365,7 +398,18 @@ function renderSeating() {
 }
 
 // Tap one or several guests, then tap a table to seat them all at once.
+// Tapping a party label toggles the entire family in one go.
 $('#unseated').addEventListener('click', e => {
+  const label = e.target.closest('.party-label');
+  if (label) {
+    const pi = +label.dataset.party;
+    const seated = new Set(seatingTables.flatMap(t => t.guests));
+    const open = seatingParties().find(p => p.idx === pi).members.filter(n => !seated.has(n));
+    const allSelected = open.every(n => selectedGuests.has(n));
+    open.forEach(n => allSelected ? selectedGuests.delete(n) : selectedGuests.add(n));
+    renderSeating();
+    return;
+  }
   const chip = e.target.closest('.gchip');
   if (!chip) return;
   const name = chip.dataset.name;
@@ -398,13 +442,14 @@ $('#tablesGrid').addEventListener('click', e => {
   }
 });
 
-// Excel-friendly CSV of the whole chart
+// Excel-friendly CSV of the whole chart (Party column keeps families visible)
 $('#seatCsvBtn').addEventListener('click', () => {
-  const lines = ['Table,Capacity,Seat,Guest'];
+  seatingParties(); // refresh partyOf/partyLabels
+  const lines = ['Table,Capacity,Seat,Guest,Party'];
   seatingTables.forEach(t => {
-    if (!t.guests.length) lines.push(`"${t.table.replace(/"/g, '""')}",${t.capacity},,`);
+    if (!t.guests.length) lines.push(`"${t.table.replace(/"/g, '""')}",${t.capacity},,,`);
     t.guests.forEach((g, i) =>
-      lines.push(`"${t.table.replace(/"/g, '""')}",${t.capacity},${i + 1},"${g.replace(/"/g, '""')}"`));
+      lines.push(`"${t.table.replace(/"/g, '""')}",${t.capacity},${i + 1},"${g.replace(/"/g, '""')}","${String(partyLabels[partyOf[g]] || '').replace(/"/g, '""')}"`));
   });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' }));
@@ -413,18 +458,32 @@ $('#seatCsvBtn').addEventListener('click', () => {
   toast('Seating chart downloaded — opens right in Excel 📥');
 });
 
-// Cute per-table cards -> browser print dialog -> Save as PDF
+// Cute per-table cards -> browser print dialog -> Save as PDF.
+// Guests print grouped by RSVP party: families share a line.
 $('#printPdfBtn').addEventListener('click', () => {
   if (!seatingTables.some(t => t.guests.length)) { toast('Seat some guests first!'); return; }
-  $('#printSheet').innerHTML = seatingTables.filter(t => t.guests.length).map(t => `
+  seatingParties(); // refresh partyOf for grouping
+  $('#printSheet').innerHTML = seatingTables.filter(t => t.guests.length).map(t => {
+    // preserve seating order, but cluster each party's members together
+    const groups = [];
+    const byParty = new Map();
+    t.guests.forEach(g => {
+      const pi = partyOf[g] ?? '__' + g;
+      if (!byParty.has(pi)) { byParty.set(pi, []); groups.push(byParty.get(pi)); }
+      byParty.get(pi).push(g);
+    });
+    return `
     <div class="print-card">
       <div class="pc-mono">S <span class="pc-heart">♥</span> L</div>
       <div class="pc-sub">Sal &amp; Lauren · April 24, 2027</div>
       <h1 class="pc-table">${esc(t.table)}</h1>
       <div class="pc-rule">✦</div>
-      <ul class="pc-guests">${t.guests.map(g => `<li>${esc(g)}</li>`).join('')}</ul>
+      <ul class="pc-guests">${groups.map(g =>
+        `<li class="pc-party">${esc(joinNames(g)).replace(/ &amp; /g, ' <span class="pc-amp">&amp;</span> ')}</li>`).join('')}</ul>
+      <div class="pc-count">${t.guests.length} ${t.guests.length === 1 ? 'seat' : 'seats'}</div>
       <div class="pc-foot">Clearwater Beach, Florida</div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   document.body.classList.add('print-mode');
   window.print();
 });

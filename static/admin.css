@@ -442,3 +442,48 @@ tr:hover td { background: rgba(245, 232, 208, 0.35); }
     color: #9a6a3a;
   }
 }
+
+/* ---------- SEATING v3: RSVP party grouping ---------- */
+.guest-pool { gap: 10px; }
+
+.party-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 9px;
+  border: 1.5px dashed var(--pc, var(--sand));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--pc, #fff) 12%, var(--ivory));
+}
+
+.party-group.all-sel { border-style: solid; box-shadow: 0 0 0 2px color-mix(in srgb, var(--pc, #fff) 45%, transparent); }
+
+.party-label {
+  border: none;
+  cursor: pointer;
+  padding: 5px 11px;
+  border-radius: 50px;
+  background: var(--pc, var(--sand));
+  color: var(--espresso);
+  font-family: var(--font-head);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+.party-label:hover { filter: brightness(0.94); }
+
+@media print {
+  .pc-party {
+    font-size: 15pt;
+    line-height: 1.5;
+    margin-bottom: 10pt;
+  }
+  .pc-amp { color: #c86828; font-style: italic; }
+  .pc-count {
+    font-size: 10pt;
+    color: #c86828;
+    letter-spacing: 2px;
+    margin-bottom: 16pt;
+  }
+}
