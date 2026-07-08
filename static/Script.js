@@ -9,14 +9,9 @@ const CONFIG = {
   // -------------------------------------------------------
   BACKEND_URL: 'https://api.caramucci.com/submit-rsvp',
 
-  // Tiered passwords: each unlocks the site AND determines RSVP permissions.
-  // Tier 1: plus-one + kids | Tier 2: kids only | Tier 3: plus-one only | Tier 4: neither
-  PASSWORDS: {
-    'HyattRegency2027': { tier: 1, plusOne: true,  kids: true  },
-    'HyattRegency':     { tier: 2, plusOne: false, kids: true  },
-    'Clearwater':       { tier: 3, plusOne: true,  kids: false },
-    'Clearwater2027':   { tier: 4, plusOne: false, kids: false }
-  },
+  // Login gate is validated server-side (see /verify-password). The guest
+  // passwords live only on the backend — never in this public file.
+  VERIFY_URL: 'https://api.caramucci.com/verify-password',
 
   // Animation settings
   ANIMATION_DELAY: 100,
@@ -33,9 +28,22 @@ const passwordForm = document.getElementById('passwordForm');
 const passwordInput = document.getElementById('sitePassword');
 const passwordError = document.getElementById('passwordError');
 
-// Look up tier rules for a given password (case-sensitive — invitations print exactly).
-function lookupTier(password) {
-  return CONFIG.PASSWORDS[password] || null;
+// Default wrong-password message (captured so a network error can restore it).
+const PW_ERR_DEFAULT = passwordError.innerHTML;
+
+// Wrong-password feedback: message + shake + clear the field.
+function showPwError() {
+  passwordError.innerHTML = PW_ERR_DEFAULT;
+  passwordError.style.display = 'block';
+  passwordInput.value = '';
+  passwordInput.focus();
+  const card = document.getElementById('passwordCard');
+  if (card) {
+    card.classList.remove('pw-shake');
+    void card.offsetWidth;
+    card.classList.add('pw-shake');
+    setTimeout(() => card.classList.remove('pw-shake'), 550);
+  }
 }
 
 // Apply tier permissions to the document by toggling body classes.
@@ -69,10 +77,10 @@ function applyTier(rules) {
 // Check if user has already authenticated and restore tier from session.
 function checkAuthentication() {
   if (sessionStorage.getItem('weddingAuthenticated') !== 'true') return;
-  const storedTier = sessionStorage.getItem('weddingTier');
-  const rules = Object.values(CONFIG.PASSWORDS).find(r => String(r.tier) === storedTier);
+  let rules = null;
+  try { rules = JSON.parse(sessionStorage.getItem('weddingRules') || 'null'); } catch (e) { /* ignore */ }
   if (!rules) {
-    // Tier missing/corrupted — force re-auth.
+    // Rules missing/corrupted (or an older session) — force re-auth.
     sessionStorage.removeItem('weddingAuthenticated');
     return;
   }
@@ -120,44 +128,53 @@ function maybeWelcomeAgent() {
 // (Operation: April 2027) instead of unlocking the site directly.
 const GROOMSMEN_CODES = ['Wyatt Rayner', 'James Lange', 'Jon Edwards', 'Joey PS4'];
 
-// Handle password form submission.
+// Handle password form submission. The guest password is validated by the
+// backend (/verify-password) so it never lives in this public file.
 passwordForm.addEventListener('submit', (e) => {
   e.preventDefault();
+  const entry = passwordInput.value.trim();
 
   // Easter egg: a groomsman's clearance code launches the recruitment portal.
-  if (GROOMSMEN_CODES.includes(passwordInput.value.trim())) {
-    window.location.href = '/groomsmen.html?code=' + encodeURIComponent(passwordInput.value.trim());
+  if (GROOMSMEN_CODES.includes(entry)) {
+    window.location.href = '/groomsmen.html?code=' + encodeURIComponent(entry);
     return;
   }
 
   // "Admin" routes the couple to Wedding HQ (which has its own password gate).
-  if (passwordInput.value.trim().toLowerCase() === 'admin') {
+  if (entry.toLowerCase() === 'admin') {
     window.location.href = '/admin.html';
     return;
   }
 
-  const rules = lookupTier(passwordInput.value);
+  const pw = passwordInput.value;
+  const submitBtn = passwordForm.querySelector('.password-submit');
+  passwordError.style.display = 'none';
+  if (submitBtn) submitBtn.disabled = true;
 
-  if (rules) {
-    passwordError.style.display = 'none';
-    sessionStorage.setItem('weddingTier', String(rules.tier));
-    sessionStorage.setItem('weddingPassword', passwordInput.value); // backend re-validates
-    applyTier(rules);
-    celebrateUnlock();
-  } else {
-    passwordError.style.display = 'block';
-    passwordInput.value = '';
-    passwordInput.focus();
-
-    // The whole invitation card wiggles "nope"
-    const card = document.getElementById('passwordCard');
-    if (card) {
-      card.classList.remove('pw-shake');
-      void card.offsetWidth;
-      card.classList.add('pw-shake');
-      setTimeout(() => card.classList.remove('pw-shake'), 550);
-    }
-  }
+  fetch(CONFIG.VERIFY_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: pw }),
+  })
+    .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+    .then((rules) => {
+      if (!rules || rules.status !== 'success') return Promise.reject('bad');
+      sessionStorage.setItem('weddingTier', String(rules.tier));
+      sessionStorage.setItem('weddingRules', JSON.stringify(rules));
+      sessionStorage.setItem('weddingPassword', pw); // backend re-validates on RSVP
+      applyTier(rules);
+      celebrateUnlock();
+    })
+    .catch((err) => {
+      if (err === 401 || err === 'bad') {
+        showPwError(); // wrong password
+      } else {
+        // Network / server hiccup — don't imply the password was wrong.
+        passwordError.textContent = 'Couldn’t reach the server — check your connection and try again.';
+        passwordError.style.display = 'block';
+      }
+    })
+    .finally(() => { if (submitBtn) submitBtn.disabled = false; });
 });
 
 // Heart-confetti burst, then the sunset fades into the site.
