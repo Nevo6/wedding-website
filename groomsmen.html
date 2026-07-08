@@ -11,7 +11,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Montserrat:wght@300;400;500;600&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="/static/groomsmen.css?v=20260705b">
+  <link rel="stylesheet" href="/static/groomsmen.css?v=20260705c">
 </head>
 
 <body>
@@ -79,6 +79,8 @@
             <div class="squad-grid" id="squadGrid"></div>
             <div class="squad-note" id="squadNote">Establishing uplink&hellip;</div>
           </div>
+
+          <button id="btnLevelUp" class="loadout-open levelup-open" type="button">&#9824;&nbsp; LEVEL UP &nbsp;&#9829;</button>
         </div>
 
         <div id="avatarWrap" class="breathing">
@@ -139,6 +141,57 @@
     <video id="mbVideo" class="mb-video" preload="auto" playsinline webkit-playsinline
            disablepictureinpicture controlslist="nodownload nofullscreen noremoteplayback noplaybackrate"></video>
     <div id="mbVideoTap" class="mb-video-tap">[ TAP TO OPEN &mdash; 950 ]</div>
+  </div>
+
+  <!-- ========== LEVEL-UP BLACKJACK ========== -->
+  <div id="blackjack" class="bj-overlay" aria-hidden="true">
+    <div class="bj-panel">
+      <button id="bjClose" class="loadout-close" type="button" aria-label="Close Blackjack">&times;</button>
+      <div class="loadout-head">Level-Up Blackjack</div>
+      <div class="loadout-sub">Every $100 over $1,000 earns a level &middot; reach LV 50 to unlock extra classes</div>
+
+      <div class="bj-stats">
+        <div class="bj-stat"><span class="bj-stat-num" id="bjBank">$1,000</span><span class="bj-stat-lbl">Bank</span></div>
+        <div class="bj-stat"><span class="bj-stat-num" id="bjLevel">26</span><span class="bj-stat-lbl">Level</span></div>
+        <div class="bj-stat"><span class="bj-stat-num" id="bjToGo">&mdash;</span><span class="bj-stat-lbl">To LV 50</span></div>
+      </div>
+
+      <div class="bj-table">
+        <div class="bj-seat">
+          <div class="bj-seat-label">Dealer <span class="bj-total" id="bjDealerTotal"></span></div>
+          <div class="bj-cards" id="bjDealerCards"></div>
+        </div>
+        <div class="bj-seat">
+          <div class="bj-seat-label">You <span class="bj-total" id="bjPlayerTotal"></span></div>
+          <div class="bj-cards" id="bjPlayerCards"></div>
+        </div>
+      </div>
+
+      <div class="bj-result" id="bjResult">Place your bet, then DEAL.</div>
+
+      <div class="bj-bet" id="bjBetRow">
+        <span class="bj-bet-label">Bet <b id="bjBetAmt">$0</b></span>
+        <div class="bj-chips">
+          <button class="bj-chip" type="button" data-chip="50">+50</button>
+          <button class="bj-chip" type="button" data-chip="100">+100</button>
+          <button class="bj-chip" type="button" data-chip="250">+250</button>
+          <button class="bj-chip" type="button" data-chip="500">+500</button>
+          <button class="bj-chip allin" type="button" data-chip="max">ALL IN</button>
+          <button class="bj-chip clear" type="button" data-chip="clear">CLEAR</button>
+        </div>
+      </div>
+
+      <div class="bj-actions">
+        <button id="bjDeal" class="bj-btn primary" type="button">DEAL</button>
+        <button id="bjHit" class="bj-btn" type="button" disabled>HIT</button>
+        <button id="bjStand" class="bj-btn" type="button" disabled>STAND</button>
+      </div>
+
+      <div class="bj-rebuy" id="bjRebuy" style="display:none;">
+        <span>Busted flat. HQ will stake you a fresh $1,000 (resets your earned levels).</span>
+        <button id="bjRebuyBtn" class="bj-btn" type="button">Take the stake</button>
+      </div>
+    </div>
   </div>
 
   <!-- ========== CREATE-A-CLASS (loadout transmission to HQ) ========== -->
@@ -254,7 +307,7 @@
     </div>
   </div>
 
-  <script src="/static/groomsmen.js?v=20260705b"></script>
+  <script src="/static/groomsmen.js?v=20260705c"></script>
 </body>
 
 </html>

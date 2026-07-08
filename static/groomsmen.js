@@ -398,7 +398,8 @@ function renderCharacter(code, target) {
 
   document.getElementById('charName').textContent = target.name;
   document.getElementById('charClass').textContent = p.className;
-  document.getElementById('charLevel').textContent = p.level;
+  document.getElementById('charLevel').textContent = earnedLevel(); // base + blackjack winnings
+  syncClassSlots();
 
   // Minecraft hearts bar — each Known Debuff costs one heart.
   const lost = Math.min(4, (p.debuffs || []).length);
@@ -1019,7 +1020,7 @@ function execTerminalCommand(raw) {
     case 'WHO AM I': {
       const p = profileFor(activeCode, activeTarget);
       termPrint(`OPERATIVE: ${activeTarget.name.toUpperCase()}`);
-      termPrint(`ROLE: ${activeTarget.role.toUpperCase()} · CLASS: ${p.className.toUpperCase()} · LV ${p.level}`);
+      termPrint(`ROLE: ${activeTarget.role.toUpperCase()} · CLASS: ${p.className.toUpperCase()} · LV ${earnedLevel()}`);
       termPrint(`CLEARANCE CODE: "${activeCode.toUpperCase()}" — FOR YOUR EYES ONLY.`);
       break;
     }
@@ -1205,42 +1206,104 @@ function updateSquadStatuses() {
     .catch(() => { if (note) note.textContent = 'COMMS OFFLINE — STATUS UNKNOWN'; });
 }
 
+// ---------- LEVELING (blackjack-driven) ----------
+// Bank persists per operative; level = base level + $100-per-level winnings,
+// capped at 50 (peak), floored at 1 so losses genuinely cost levels.
+const BANK_START = 1000;
+const bankKey = () => 'groomsmanBank::' + (activeCode || 'unknown');
+const peakKey = () => 'groomsmanPeaked::' + (activeCode || 'unknown');
+
+function baseLevel() {
+  try { return profileFor(activeCode, activeTarget).level; } catch (e) { return 26; }
+}
+function getBank() {
+  const v = parseInt(localStorage.getItem(bankKey()), 10);
+  return Number.isFinite(v) ? v : BANK_START;
+}
+function setBank(v) {
+  try { localStorage.setItem(bankKey(), String(Math.max(0, Math.round(v)))); } catch (e) { /* ok */ }
+}
+function earnedLevel() {
+  const bonus = Math.floor((getBank() - BANK_START) / 100);
+  return Math.max(1, Math.min(50, baseLevel() + bonus));
+}
+function bankForLv50() { return BANK_START + (50 - baseLevel()) * 100; }
+function atPeak() { return earnedLevel() >= 50; }
+
+// Push the current level into every place it shows.
+function refreshLevel() {
+  const el = document.getElementById('charLevel');
+  if (el) el.textContent = earnedLevel();
+  syncClassSlots();
+}
+
 // ---------- CREATE-A-CLASS (loadout transmission) ----------
 const loadoutEl = document.getElementById('loadout');
 const loadoutForm = document.getElementById('loadoutForm');
 const loadoutStatus = document.getElementById('loadoutStatus');
-const LOADOUT_KEY = () => 'groomsmanLoadout::' + (activeCode || 'unknown');
+let activeClassSlot = 1;
+const LOADOUT_KEY = () => 'groomsmanLoadout::' + (activeCode || 'unknown') + '::c' + activeClassSlot;
+
+function fillLoadoutForm(saved) {
+  document.getElementById('ldEmail').value = (saved && saved.email) || '';
+  document.getElementById('ldDrink').value = (saved && saved.drink) || '';
+  document.getElementById('ldDance').value = (saved && saved.dance) || '';
+  document.getElementById('ldSong').value  = (saved && saved.song)  || '';
+  document.querySelectorAll('#perkPicks input').forEach(cb => {
+    cb.checked = !!(saved && (saved.perks || []).includes(cb.value));
+  });
+}
+function readLoadoutForm() {
+  return {
+    code: activeCode,
+    slot: activeClassSlot,
+    email: document.getElementById('ldEmail').value.trim(),
+    drink: document.getElementById('ldDrink').value.trim(),
+    dance: document.getElementById('ldDance').value.trim(),
+    song:  document.getElementById('ldSong').value.trim(),
+    perks: Array.from(document.querySelectorAll('#perkPicks input:checked')).map(cb => cb.value),
+  };
+}
+function saveDraft() {
+  try { localStorage.setItem(LOADOUT_KEY(), JSON.stringify(readLoadoutForm())); } catch (e) { /* ok */ }
+}
+function loadSlot(slot) {
+  activeClassSlot = slot;
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(LOADOUT_KEY()) || 'null'); } catch (e) { /* ok */ }
+  fillLoadoutForm(saved);
+  if (loadoutStatus) loadoutStatus.textContent = saved ? `CLASS ${slot} ON FILE — REDEPLOY TO UPDATE.` : '';
+}
+
+// Slots 2-5 unlock once the operative hits Level 50.
+function syncClassSlots() {
+  if (!classSlots) return;
+  const unlocked = atPeak();
+  classSlots.querySelectorAll('.class-slot').forEach(s => {
+    if (s.dataset.slot === '1') return;
+    s.classList.toggle('locked', !unlocked);
+  });
+}
 
 function openLoadout() {
   if (!loadoutEl) return;
+  syncClassSlots();
   loadoutEl.classList.add('open');
   loadoutEl.setAttribute('aria-hidden', 'false');
   document.body.classList.add('loadout-open'); // hides the volume pill under the modal
-  // Restore a previously transmitted loadout for edits
-  try {
-    const saved = JSON.parse(localStorage.getItem(LOADOUT_KEY()) || 'null');
-    if (saved) {
-      document.getElementById('ldEmail').value  = saved.email  || '';
-      document.getElementById('ldDrink').value  = saved.drink  || '';
-      document.getElementById('ldDance').value  = saved.dance  || '';
-      document.getElementById('ldSong').value   = saved.song   || '';
-      document.querySelectorAll('#perkPicks input').forEach(cb => {
-        cb.checked = (saved.perks || []).includes(cb.value);
-      });
-      if (loadoutStatus) loadoutStatus.textContent = 'LOADOUT ON FILE AT HQ — REDEPLOY TO UPDATE.';
-    }
-  } catch (e) { /* localStorage optional */ }
+  loadSlot(activeClassSlot);
 }
 
 function closeLoadout() {
   if (!loadoutEl) return;
+  saveDraft();
   loadoutEl.classList.remove('open');
   loadoutEl.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('loadout-open');
 }
 
-// Class slots: CLASS 1 is live; 2-5 are level-gated (the level-up program
-// is classified — the lock message is the whole joke for now).
+// Class slots: CLASS 1 is always live; 2-5 unlock at Level 50 (grind the
+// blackjack tables). Unlocked slots each hold their own saved class.
 const classSlots = document.getElementById('classSlots');
 if (classSlots) {
   classSlots.addEventListener('click', e => {
@@ -1249,13 +1312,13 @@ if (classSlots) {
     const msg = document.getElementById('slotLockedMsg');
     if (slot.classList.contains('locked')) {
       if (msg) {
-        msg.textContent = '⛔ ACCESS DENIED — LEVEL 50 REQUIRED TO UNLOCK CLASS ' +
-          slot.dataset.slot + '. KEEP GRINDING, OPERATIVE.';
+        msg.textContent = `⛔ LEVEL 50 REQUIRED FOR CLASS ${slot.dataset.slot}. ` +
+          `HIT 'LEVEL UP' & GRIND TO $${bankForLv50().toLocaleString()} AT THE TABLES.`;
         msg.classList.remove('flash');
         void msg.offsetWidth;
         msg.classList.add('flash');
         clearTimeout(classSlots._msgTimer);
-        classSlots._msgTimer = setTimeout(() => { msg.textContent = ''; }, 3200);
+        classSlots._msgTimer = setTimeout(() => { msg.textContent = ''; }, 4000);
       }
       slot.classList.remove('denied');
       void slot.offsetWidth;
@@ -1263,11 +1326,198 @@ if (classSlots) {
       try { playCycleTick(0); } catch (err) { /* audio optional */ }
       return;
     }
-    classSlots.querySelectorAll('.class-slot').forEach(s =>
-      s.classList.toggle('active', s === slot));
+    if (slot.classList.contains('active')) return;
+    saveDraft(); // keep the class you're leaving
+    classSlots.querySelectorAll('.class-slot').forEach(s => s.classList.toggle('active', s === slot));
     if (msg) msg.textContent = '';
+    loadSlot(+slot.dataset.slot);
   });
 }
+
+// ---------- LEVEL-UP BLACKJACK ----------
+const bjEl = document.getElementById('blackjack');
+let bjDeck = [], bjPlayer = [], bjDealer = [], bjBet = 0, bjState = 'bet';
+
+function openBlackjack() {
+  if (!bjEl) return;
+  bjEl.classList.add('open');
+  bjEl.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('loadout-open');
+  bjBet = 0;
+  bjState = 'bet';
+  bjPlayer = []; bjDealer = [];
+  renderBjCards();
+  bjSetResult(atPeak() ? '★ PEAK LEVEL — play on for the pure thrill.' : 'Place your bet, then DEAL.');
+  updateBjStats();
+  updateBjControls();
+}
+function closeBlackjack() {
+  if (!bjEl) return;
+  bjEl.classList.remove('open');
+  bjEl.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('loadout-open');
+}
+
+function updateBjStats() {
+  const bank = getBank();
+  const lvl = earnedLevel();
+  document.getElementById('bjBank').textContent = '$' + bank.toLocaleString();
+  document.getElementById('bjLevel').textContent = lvl;
+  document.getElementById('bjBetAmt').textContent = '$' + bjBet.toLocaleString();
+  const toGo = document.getElementById('bjToGo');
+  if (atPeak()) { toGo.textContent = 'PEAK ★'; toGo.classList.add('peak'); }
+  else { toGo.textContent = '$' + Math.max(0, bankForLv50() - bank).toLocaleString(); toGo.classList.remove('peak'); }
+  document.getElementById('bjRebuy').style.display = (bank < 50 && bjState === 'bet') ? 'flex' : 'none';
+}
+
+function updateBjControls() {
+  const betting = bjState === 'bet';
+  document.getElementById('bjDeal').disabled = !(betting && bjBet > 0);
+  document.getElementById('bjHit').disabled = bjState !== 'player';
+  document.getElementById('bjStand').disabled = bjState !== 'player';
+  document.querySelectorAll('.bj-chip').forEach(c => { c.disabled = !betting; });
+  document.getElementById('bjBetRow').style.opacity = betting ? '1' : '0.5';
+}
+
+function bjSetResult(text, cls) {
+  const el = document.getElementById('bjResult');
+  el.textContent = text;
+  el.className = 'bj-result' + (cls ? ' ' + cls : '');
+}
+
+// Card helpers
+function bjShuffle() {
+  const suits = ['♠', '♥', '♦', '♣'];
+  const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+  const d = [];
+  suits.forEach(s => ranks.forEach(r => d.push({ r, s })));
+  for (let i = d.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [d[i], d[j]] = [d[j], d[i]]; }
+  return d;
+}
+function bjCardVal(c) { if (c.r === 'A') return 11; if (['K', 'Q', 'J', '10'].includes(c.r)) return 10; return +c.r; }
+function bjTotal(h) {
+  let total = h.reduce((s, c) => s + bjCardVal(c), 0);
+  let aces = h.filter(c => c.r === 'A').length;
+  while (total > 21 && aces > 0) { total -= 10; aces--; }
+  return total;
+}
+function bjIsBlackjack(h) { return h.length === 2 && bjTotal(h) === 21; }
+function bjDraw() { if (!bjDeck.length) bjDeck = bjShuffle(); return bjDeck.pop(); }
+
+function renderBjCards(revealHole) {
+  const pc = document.getElementById('bjPlayerCards');
+  const dc = document.getElementById('bjDealerCards');
+  pc.innerHTML = bjPlayer.map(cardHtml).join('');
+  dc.innerHTML = bjDealer.map((c, i) => (i === 1 && !revealHole && bjState !== 'done')
+    ? '<span class="bj-card back">?</span>' : cardHtml(c)).join('');
+  document.getElementById('bjPlayerTotal').textContent = bjPlayer.length ? bjTotal(bjPlayer) : '';
+  document.getElementById('bjDealerTotal').textContent =
+    (bjDealer.length && (revealHole || bjState === 'done')) ? bjTotal(bjDealer)
+      : (bjDealer.length ? bjCardVal(bjDealer[0]) + ' +?' : '');
+}
+function cardHtml(c) {
+  const red = (c.s === '♥' || c.s === '♦');
+  return `<span class="bj-card${red ? ' red' : ''}"><b>${c.r}</b><i>${c.s}</i></span>`;
+}
+
+// Apply a win/loss to the bank, then re-sync every level display + peak check.
+function bjApplyDelta(delta) {
+  setBank(getBank() + delta);
+  updateBjStats();
+  refreshLevel();
+  checkPeak();
+}
+function checkPeak() {
+  if (atPeak() && !localStorage.getItem(peakKey())) {
+    try { localStorage.setItem(peakKey(), '1'); } catch (e) { /* ok */ }
+    bjSetResult('★ PEAK LEVEL REACHED — LV 50! Extra Create-a-Class slots UNLOCKED.', 'win');
+    try { mcToast('peak50', 'Peak Operative — hit Level 50 at the tables'); } catch (e) { /* ok */ }
+    try { killfeed(`${operativeFirstName()} reached MAX LEVEL 50`); } catch (e) { /* ok */ }
+    try { playLevelChime(); } catch (e) { /* ok */ }
+  }
+}
+
+function bjResolve(outcome) {
+  bjState = 'done';
+  renderBjCards(true);
+  let delta = 0, msg = '', cls = '';
+  if (outcome === 'blackjack') { delta = Math.round(bjBet * 1.5); msg = `BLACKJACK! +$${delta.toLocaleString()}`; cls = 'win'; }
+  else if (outcome === 'win')  { delta = bjBet; msg = `You win! +$${delta.toLocaleString()}`; cls = 'win'; }
+  else if (outcome === 'push') { delta = 0; msg = 'Push — bet returned.'; cls = ''; }
+  else { delta = -bjBet; msg = `${outcome === 'bust' ? 'Bust!' : 'Dealer wins.'} −$${bjBet.toLocaleString()}`; cls = 'lose'; }
+  bjApplyDelta(delta);
+  if (!localStorage.getItem(peakKey()) || !atPeak()) bjSetResult(msg + '  ·  Bet again to keep grinding.', cls);
+  else bjSetResult(msg, cls);
+  // ready for the next hand
+  bjBet = 0;
+  bjState = 'bet';
+  updateBjStats();
+  updateBjControls();
+}
+
+function bjDealHand() {
+  const bank = getBank();
+  if (bjState !== 'bet') return;
+  if (bjBet <= 0) { bjSetResult('Add some chips first.', 'lose'); return; }
+  if (bjBet > bank) { bjBet = bank; updateBjStats(); }
+  bjDeck = bjShuffle();
+  bjPlayer = [bjDraw(), bjDraw()];
+  bjDealer = [bjDraw(), bjDraw()];
+  bjState = 'player';
+  renderBjCards();
+  updateBjControls();
+  bjSetResult('Hit or stand?');
+  const pBJ = bjIsBlackjack(bjPlayer), dBJ = bjIsBlackjack(bjDealer);
+  if (pBJ || dBJ) {
+    if (pBJ && dBJ) bjResolve('push');
+    else if (pBJ) bjResolve('blackjack');
+    else bjResolve('lose');
+  }
+}
+
+function bjHit() {
+  if (bjState !== 'player') return;
+  bjPlayer.push(bjDraw());
+  renderBjCards();
+  if (bjTotal(bjPlayer) > 21) bjResolve('bust');
+}
+
+function bjStand() {
+  if (bjState !== 'player') return;
+  while (bjTotal(bjDealer) < 17) bjDealer.push(bjDraw());
+  const p = bjTotal(bjPlayer), d = bjTotal(bjDealer);
+  if (d > 21 || p > d) bjResolve('win');
+  else if (p === d) bjResolve('push');
+  else bjResolve('lose');
+}
+
+if (bjEl) {
+  document.getElementById('bjClose').addEventListener('click', closeBlackjack);
+  bjEl.addEventListener('click', e => { if (e.target === bjEl) closeBlackjack(); });
+  document.getElementById('bjDeal').addEventListener('click', bjDealHand);
+  document.getElementById('bjHit').addEventListener('click', bjHit);
+  document.getElementById('bjStand').addEventListener('click', bjStand);
+  document.getElementById('bjRebuyBtn').addEventListener('click', () => {
+    setBank(BANK_START);
+    bjSetResult('Fresh $1,000 stake. Good luck, operative.');
+    updateBjStats(); refreshLevel(); updateBjControls();
+  });
+  document.querySelector('.bj-chips').addEventListener('click', e => {
+    const chip = e.target.closest('.bj-chip');
+    if (!chip || bjState !== 'bet') return;
+    const bank = getBank();
+    if (chip.dataset.chip === 'clear') bjBet = 0;
+    else if (chip.dataset.chip === 'max') bjBet = bank;
+    else bjBet = Math.min(bank, bjBet + parseInt(chip.dataset.chip, 10));
+    updateBjStats();
+    updateBjControls();
+  });
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && bjEl.classList.contains('open')) closeBlackjack();
+  });
+}
+const btnLevelUp = document.getElementById('btnLevelUp');
+if (btnLevelUp) btnLevelUp.addEventListener('click', openBlackjack);
 
 const btnLoadout = document.getElementById('btnLoadout');
 if (btnLoadout) btnLoadout.addEventListener('click', openLoadout);
