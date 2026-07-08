@@ -168,16 +168,19 @@
       <div class="calendar-modal-content">
         <button type="button" class="calendar-modal-close" id="calendarModalClose" aria-label="Close">&times;</button>
         <h3 id="calendarModalTitle">Save the Date</h3>
-        <p class="calendar-modal-sub">Choose your calendar</p>
+        <p class="calendar-modal-sub">April 24, 2027 &middot; 5:00 PM &middot; Clearwater Beach</p>
         <div class="calendar-options">
+          <a href="/wedding.ics" id="calApple" class="calendar-option">
+            <span class="cal-icon">🍎</span><span>Apple / iPhone Calendar</span>
+          </a>
           <a href="#" id="calGoogle" class="calendar-option" target="_blank" rel="noopener">
             <span class="cal-icon">🅖</span><span>Google Calendar</span>
           </a>
-          <a href="/wedding.ics" class="calendar-option">
-            <span class="cal-icon">🍎</span><span>Apple Calendar</span>
-          </a>
-          <a href="#" id="calOutlook" class="calendar-option" target="_blank" rel="noopener">
+          <a href="#" id="calOutlook" class="calendar-option" rel="noopener">
             <span class="cal-icon">📧</span><span>Outlook</span>
+          </a>
+          <a href="/wedding.ics" download="sal-lauren-wedding.ics" class="calendar-option">
+            <span class="cal-icon">📥</span><span>Download .ics (any calendar)</span>
           </a>
         </div>
       </div>
@@ -655,7 +658,7 @@
     <span class="mobile-rsvp-cta-arrow" aria-hidden="true">→</span>
   </a>
 
-  <script src="/static/Script.js?v=20260707a"></script>
+  <script src="/static/Script.js?v=20260707b"></script>
 </body>
 
 </html>

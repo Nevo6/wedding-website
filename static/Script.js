@@ -1099,7 +1099,12 @@ window.addEventListener('scroll', () => {
   const startUTC = toCalendarUTC(startDate);
   const endUTC = toCalendarUTC(endDate);
 
-  // Google Calendar URL
+  // Phones get special handling: Outlook's web-compose URLs return HTTP 417
+  // on mobile user-agents (Microsoft forces the app), so mobile Outlook users
+  // get the .ics file instead — every phone opens it natively.
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+  // Google Calendar URL (on Android this opens the Calendar app directly)
   const googleUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
     '&text=' + encodeURIComponent(title) +
     '&dates=' + startUTC + '/' + endUTC +
@@ -1107,14 +1112,21 @@ window.addEventListener('scroll', () => {
     '&location=' + encodeURIComponent(location);
   googleLink.href = googleUrl;
 
-  // Outlook Web URL (outlook.live.com for personal accounts)
-  const outlookUrl = 'https://outlook.live.com/calendar/0/action/compose?rru=addevent' +
+  // Outlook: modern deeplink for desktop web; .ics for phones (see above).
+  const outlookUrl = 'https://outlook.live.com/calendar/0/deeplink/compose' +
+    '?path=%2Fcalendar%2Faction%2Fcompose&rru=addevent' +
     '&subject=' + encodeURIComponent(title) +
-    '&startdt=' + startDate.toISOString() +
-    '&enddt=' + endDate.toISOString() +
+    '&startdt=' + encodeURIComponent(startDate.toISOString()) +
+    '&enddt=' + encodeURIComponent(endDate.toISOString()) +
     '&body=' + encodeURIComponent(description) +
     '&location=' + encodeURIComponent(location);
-  outlookLink.href = outlookUrl;
+  if (isMobile) {
+    outlookLink.href = '/wedding.ics'; // Outlook mobile app imports .ics natively
+    outlookLink.removeAttribute('target');
+  } else {
+    outlookLink.href = outlookUrl;
+    outlookLink.setAttribute('target', '_blank');
+  }
 
   function openModal() {
     modal.classList.remove('hidden');
