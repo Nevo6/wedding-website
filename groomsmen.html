@@ -155,12 +155,14 @@
         <div class="bj-stat"><span class="bj-stat-num" id="bjLevel">26</span><span class="bj-stat-lbl">Level</span></div>
         <div class="bj-stat"><span class="bj-stat-num" id="bjToGo">&mdash;</span><span class="bj-stat-lbl">To LV 50</span></div>
       </div>
+      <div class="bj-progress" aria-hidden="true"><i id="bjProgressFill"></i></div>
 
       <div class="bj-table">
         <div class="bj-seat">
           <div class="bj-seat-label">Dealer <span class="bj-total" id="bjDealerTotal"></span></div>
           <div class="bj-cards" id="bjDealerCards"></div>
         </div>
+        <div class="bj-felt-line"><span>Blackjack pays 3 to 2 &middot; Dealer draws to 17</span></div>
         <div class="bj-seat">
           <div class="bj-seat-label">You <span class="bj-total" id="bjPlayerTotal"></span></div>
           <div class="bj-cards" id="bjPlayerCards"></div>
@@ -185,11 +187,13 @@
         <button id="bjDeal" class="bj-btn primary" type="button">DEAL</button>
         <button id="bjHit" class="bj-btn" type="button" disabled>HIT</button>
         <button id="bjStand" class="bj-btn" type="button" disabled>STAND</button>
+        <button id="bjDouble" class="bj-btn" type="button" disabled>DOUBLE</button>
+        <button id="bjSplit" class="bj-btn" type="button" disabled>SPLIT</button>
       </div>
 
       <div class="bj-rebuy" id="bjRebuy" style="display:none;">
-        <span>Busted flat. HQ will stake you a fresh $1,000 (resets your earned levels).</span>
-        <button id="bjRebuyBtn" class="bj-btn" type="button">Take the stake</button>
+        <span>Busted flat, operative. Swallow your pride and borrow money from Sal &mdash; he&rsquo;ll front you a fresh $1,000 (resets your earned levels, and he WILL bring it up at the wedding).</span>
+        <button id="bjRebuyBtn" class="bj-btn" type="button">Borrow from Sal</button>
       </div>
     </div>
   </div>
