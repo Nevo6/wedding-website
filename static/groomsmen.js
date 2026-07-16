@@ -9,7 +9,7 @@ const API_URL = 'https://api.caramucci.com';
 // Entry is ONLY via the main-site password box (passes ?code=…); there is no
 // second password prompt here.
 const ROSTER = {
-  'Wyatt Rayner': { name: 'Wyatt Rayner', role: 'Groomsman', intel: "Sal's closest friend since the 6th grade.",
+  'Wyatt Rayner': { name: 'Wyatt Rayner', role: 'Groomsman', intel: "Sal's closest friend since the 6th grade — the longest journey on the roster, from McKamy to the Friday-night gridiron.",
                     img: '/static/portraits/wyatt.webp?v=1', focus: '60% 28%',
                     gallery: { dir: 'wyatt', count: 18 },
                     boxVideo: '/static/wyatt-mystery-box.mp4' },
@@ -139,6 +139,50 @@ const RPG = {
     gear: [
       'Shotgun Seat (permanently reserved, +15 Loyalty)',
       'Infinite Fake-Cash Buy-In (+poker carry)',
+    ],
+  },
+
+  'Wyatt Rayner': {
+    className: 'Day-One Gridiron Vanguard',
+    level: 27,
+    origin: 'My closest friend since the 6th grade — the longest journey of anyone ' +
+            'on this roster. It all started at McKamy in the special-ed classrooms, ' +
+            'and from that day forward we were inseparable. We suited up together ' +
+            'from middle school through high school, both of us at wide receiver — ' +
+            'and since neither of us was exactly seeing the field, we mastered the ' +
+            'true off-season WR skill set: leaving school early and heading straight ' +
+            'to the gym. Some friendships are made; this one was forged — rep by rep, ' +
+            'season by season. Fifteen-plus years later, nothing has changed, and ' +
+            'there was never a question he\'d be standing up there on April 24th, 2027.',
+    stats: [
+      { name: 'Strength',     key: 'STR', val: 92,  note: 'Built on Mom\'s banana-chocolate-peanut-butter protein smoothies and daily WAC sessions since the 7th grade.' },
+      { name: 'Intelligence', key: 'INT', val: 38,  note: 'Left school early every off-season and honestly, it shows. Route tree: memorized. Everything else: still buffering.' },
+      { name: 'Endurance',    key: 'END', val: 96,  note: 'Walked from the middle school to the Caramucci house every single day — then still hit the gym. Broadway, however, found his limit.' },
+      { name: 'Loyalty',      key: 'LOY', val: 100, note: 'Closest friend since 6th grade. The longest-running campaign save file I own.' },
+    ],
+    abilities: [
+      { name: 'The Protein Protocol', icon: '💪', anim: 'bounce', text: 'Daily ritual, executed without fail through 7th and 8th grade: walk from the middle school to my family\'s house, where Mom had banana-chocolate protein smoothies with peanut butter waiting, then deploy to the WAC for the workout of the day. Rain or shine, the protocol never broke.' },
+      { name: 'Playground Tyrant',    icon: '🏀', anim: 'roll',   text: 'Spent two full years running an undefeated basketball dynasty at the WAC — playing the toughest, most aggressive bully-ball the playground has ever seen. No finesse, no jump shot: just lowering a shoulder and muscling his way to the hoop while elementary schoolers bounced off him. Was it fair? No. Was the win column immaculate? Absolutely.' },
+      { name: 'Balcony Bivouac',      icon: '🍻', anim: 'bounce', text: 'Nashville deployment. Drank non-stop from open to close, went toe-to-toe with Broadway itself — and at the end of the night was discovered passed out on the balcony of the 20-story, overlooking the very street that defeated him. Respawn point: set.' },
+      { name: 'Zoom Stealth Crawl',   icon: '🕵️', anim: 'pulse',  text: 'First trip to Tampa. Rather than wait out my work calls, the subject went full spec-ops — sneaking away and crawling across the floor, below webcam sightlines, to move through the apartment mid-Zoom. Not one meeting attendee ever knew he was there.' },
+    ],
+    campaigns: [
+      'The McKamy Origin — Where the longest friendship quest on the roster began, back in the 6th grade.',
+      'The Gridiron Years — Football together from middle school through high school. Every season, side by side.',
+      'The WAC Dynasty — Two years of smoothies, lifts, and an undefeated record against 5th graders.',
+      'Operation: Broadway Blackout — Went drink-for-drink with Nashville and claimed a 20th-story balcony as a respawn point.',
+      'Tampa Stealth Protocol — Evaded every Zoom call via tactical floor crawl. Zero detections.',
+    ],
+    debuffs: [
+      'Pussy Vision: −40 Commitment. Subject remains locked in and fully visible on the map right up until a mission requires actual follow-through — then he backs out and vanishes without a trace. If you can see Wyatt, enjoy it while it lasts. (Costs 1 Heart)',
+    ],
+    gear: [
+      'Mom\'s Smoothie Blender (+10 STR, banana-chocolate-peanut-butter buff, refreshed daily)',
+      'Middle School Football Pads (Relic of the Gridiron Era, WR edition — barely used)',
+      'Balcony Sleeping Bag (auto-equips after 2 a.m. on Broadway)',
+    ],
+    classified: [
+      'All jokes aside: from the special-ed classrooms at McKamy to the balconies of Broadway, every chapter of my life has had Wyatt in it. You don\'t get to pick your brothers — except this one time, I did. See you at the altar, brother.',
     ],
   },
 };
