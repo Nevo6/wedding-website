@@ -2501,3 +2501,95 @@ body.loadout-open #audioControls { opacity: 0; pointer-events: none; }
   color: var(--gold-bright);
 }
 .bj-rebuy .bj-btn { flex: 0 0 auto; padding: 10px 22px; }
+
+/* =========================================================
+   BO1 CRT PACKAGE — numbers, phosphor, redaction, stamp
+   ========================================================= */
+
+/* "The Numbers" — faint digit columns drifting behind the dossier */
+#numbersRain {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 1;
+  pointer-events: none;
+}
+.num-col {
+  position: absolute;
+  top: 0;
+  font-family: 'Courier New', ui-monospace, monospace;
+  line-height: 1.9;
+  letter-spacing: 3px;
+  color: rgba(236, 200, 116, 0.09);
+  text-shadow: 0 0 8px rgba(236, 200, 116, 0.16);
+  white-space: pre;
+  will-change: transform;
+  animation: numDrift linear infinite;
+  user-select: none;
+}
+/* content is doubled in JS, so -50% loops seamlessly */
+@keyframes numDrift {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-50%); }
+}
+
+/* Amber phosphor tint + occasional CRT flicker on the scanline layer */
+#screen::after {
+  background-color: rgba(255, 172, 64, 0.02);
+  animation: crtFlicker 9s steps(1, end) infinite;
+}
+@keyframes crtFlicker {
+  0%, 100% { opacity: 1; }
+  93.0%    { opacity: 1; }
+  93.4%    { opacity: 0.72; }
+  93.8%    { opacity: 1; }
+  95.9%    { opacity: 0.85; }
+  96.3%    { opacity: 1; }
+}
+
+/* Redacted text — censored until hover/focus, like a leaked CIA page */
+.redacted {
+  background: #060607;
+  color: transparent;
+  border-radius: 2px;
+  padding: 0 7px;
+  cursor: help;
+  box-shadow: inset 0 0 0 1px rgba(236, 200, 116, 0.14);
+  text-shadow: none;
+  transition: color 0.3s ease, background 0.3s ease;
+}
+.redacted:hover,
+.redacted:focus {
+  background: rgba(201, 162, 75, 0.14);
+  color: var(--cream);
+  outline: none;
+}
+
+/* Distressed TOP SECRET stamp across the portrait corner */
+.ts-stamp {
+  position: absolute;
+  top: 18px;
+  right: -30px;
+  z-index: 7;
+  transform: rotate(18deg);
+  font-family: var(--label);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #cf3a2b;
+  border: 3px double #cf3a2b;
+  border-radius: 4px;
+  padding: 5px 34px;
+  opacity: 0.85;
+  pointer-events: none;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='3'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='2.2' intercept='-0.35'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' fill='white' filter='url(%23n)'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='3'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='2.2' intercept='-0.35'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' fill='white' filter='url(%23n)'/%3E%3C/svg%3E");
+  -webkit-mask-size: 160px;
+  mask-size: 160px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #screen::after { animation: none; }
+  .num-col { animation: none; }
+}

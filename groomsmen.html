@@ -11,11 +11,13 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Montserrat:wght@300;400;500;600&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="/static/groomsmen.css?v=20260705c">
+  <link rel="stylesheet" href="/static/groomsmen.css?v=20260718a">
 </head>
 
 <body>
   <div id="screen">
+    <!-- "The Numbers" — faint BO1 digit columns behind the dossier (filled by JS) -->
+    <div id="numbersRain" aria-hidden="true"></div>
 
     <!-- ========== BRIEFING ========== -->
     <section id="briefing" class="stage">
@@ -37,7 +39,7 @@
           </div>
 
           <div class="origin">
-            <div class="origin-label">Origin Lore</div>
+            <div class="origin-label">Subject Interrogation Report</div>
             <p class="origin-text" id="originText"></p>
           </div>
 
@@ -88,6 +90,7 @@
             <img id="portrait" class="portrait" alt="Operative" />
             <div class="censor-bar"></div>
             <div class="portrait-scan"></div>
+            <div class="ts-stamp" aria-hidden="true">Top Secret</div>
           </div>
           <div class="avatar-tag">The Subject &middot; Identity Decrypted</div>
         </div>
@@ -311,7 +314,7 @@
     </div>
   </div>
 
-  <script src="/static/groomsmen.js?v=20260716a"></script>
+  <script src="/static/groomsmen.js?v=20260718a"></script>
 </body>
 
 </html>

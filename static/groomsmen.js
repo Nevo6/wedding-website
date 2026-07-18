@@ -10,7 +10,7 @@ const API_URL = 'https://api.caramucci.com';
 // second password prompt here.
 const ROSTER = {
   'Wyatt Rayner': { name: 'Wyatt Rayner', role: 'Groomsman', intel: "Sal's closest friend since the 6th grade — the longest journey on the roster, from McKamy to the Friday-night gridiron.",
-                    img: '/static/portraits/wyatt.webp?v=1', focus: '60% 28%',
+                    img: '/static/portraits/wyatt.webp?v=2', focus: 'center 32%',
                     gallery: { dir: 'wyatt', count: 18 },
                     boxVideo: '/static/wyatt-mystery-box.mp4' },
   'James Lange':  { name: 'James Lange',  role: 'Groomsman', intel: "Sal's longest-lasting friend since the 4th grade.",
@@ -170,11 +170,11 @@ const RPG = {
       'The McKamy Origin — Where the longest friendship quest on the roster began, back in the 6th grade.',
       'The Gridiron Years — Football together from middle school through high school. Every season, side by side.',
       'The WAC Dynasty — Two years of smoothies, lifts, and an undefeated record against 5th graders.',
-      'Operation: Broadway Blackout — Went drink-for-drink with Nashville and claimed a 20th-story balcony as a respawn point.',
-      'Tampa Stealth Protocol — Evaded every Zoom call via tactical floor crawl. Zero detections.',
+      'Operation: Broadway Blackout — Went drink-for-drink with Nashville and claimed a [[20th-story balcony]] as a respawn point.',
+      'Tampa Stealth Protocol — Evaded every Zoom call via [[tactical floor crawl]]. Zero detections.',
     ],
     debuffs: [
-      'Pussy Vision: −40 Commitment. Subject remains locked in and fully visible on the map right up until a mission requires actual follow-through — then he backs out and vanishes without a trace. If you can see Wyatt, enjoy it while it lasts. (Costs 1 Heart)',
+      'Pussy Vision: −40 Commitment. Subject remains locked in and fully visible on the map right up until a mission requires actual follow-through — then he [[backs out and vanishes without a trace]]. If you can see Wyatt, enjoy it while it lasts. (Costs 1 Heart)',
     ],
     gear: [
       'Mom\'s Smoothie Blender (+10 STR, banana-chocolate-peanut-butter buff, refreshed daily)',
@@ -501,7 +501,7 @@ function renderCharacter(code, target) {
       `<div class="skill-name">${a.name}</div>` +
       `<div class="perk-cost">${PERK_COSTS[i % PERK_COSTS.length]}</div>`;
     const reveal = () => {
-      readout.innerHTML = `<strong>${a.name}.</strong> ${a.text}`;
+      readout.innerHTML = `<strong>${a.name}.</strong> ${declassify(a.text)}`;
       readout.classList.add('lit');
     };
     node.addEventListener('mouseenter', reveal);
@@ -534,14 +534,42 @@ function renderCharacter(code, target) {
   });
 }
 
+// [[text]] → hover-to-reveal redaction, mimicking a censored CIA dossier.
+function declassify(t) {
+  return String(t).replace(/\[\[(.+?)\]\]/g,
+    '<span class="redacted" tabindex="0" title="Hover to declassify">$1</span>');
+}
+
 function renderLoreSection(sectionId, listId, items) {
   const section = document.getElementById(sectionId);
   const list = document.getElementById(listId);
   if (!section || !list) return;
   if (!items || !items.length) { section.style.display = 'none'; return; }
   section.style.display = '';
-  list.innerHTML = items.map(t => `<li>${t}</li>`).join('');
+  list.innerHTML = items.map(t => `<li>${declassify(t)}</li>`).join('');
 }
+
+// ---------- "The Numbers" — faint BO1 digit columns behind the dossier ----------
+(function spawnNumbers() {
+  const wrap = document.getElementById('numbersRain');
+  if (!wrap) return;
+  // (prefers-reduced-motion just freezes the drift — handled in CSS)
+  for (let c = 0; c < 12; c++) {
+    const col = document.createElement('div');
+    col.className = 'num-col';
+    const lines = [];
+    for (let i = 0; i < 46; i++) {
+      lines.push(String(Math.floor(Math.random() * 1000)).padStart(3, '0') + '  ' +
+                 String(Math.floor(Math.random() * 100)).padStart(2, '0'));
+    }
+    col.textContent = lines.concat(lines).join('\n'); // doubled for a seamless -50% loop
+    col.style.left = (Math.random() * 96) + '%';
+    col.style.fontSize = (10 + Math.random() * 5) + 'px';
+    col.style.animationDuration = (55 + Math.random() * 65) + 's';
+    col.style.animationDelay = (-Math.random() * 80) + 's';
+    wrap.appendChild(col);
+  }
+})();
 
 // ---------- TERMINAL RSVP (replaces the 3D avatar + ultimatum) ----------
 const TAUNTS = ['Nice try.', 'Denied.', 'Out of the question.', 'Not happening.', 'There is no ‘N’.'];
@@ -575,6 +603,7 @@ function acceptMission() {
   const term = document.getElementById('terminal');
   if (term) term.classList.add('resolved');
   termPrint('> ACCESS GRANTED — MISSION ACCEPTED', 'ok');
+  try { playMissionAccepted(); } catch (e) { /* optional */ }
   markRecruited(activeCode);
 
   acceptSequence();
@@ -621,6 +650,40 @@ const btnYes = document.getElementById('btnYes');
 const btnNo = document.getElementById('btnNo');
 if (btnYes) btnYes.addEventListener('click', acceptMission);
 if (btnNo) btnNo.addEventListener('click', declineMission);
+
+// ---------- MISSION ACCEPT STING (deep announcer-style brass hit + radio static) ----------
+function playMissionAccepted() {
+  const ctx = xpAudioCtx();
+  const t0 = ctx.currentTime;
+  // low two-note brass hit: A2 → E2 through a lowpass
+  [[110.0, 0], [82.41, 0.18]].forEach(([f, dt]) => {
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = 620;
+    o.type = 'sawtooth';
+    o.frequency.value = f;
+    g.gain.setValueAtTime(0.0001, t0 + dt);
+    g.gain.exponentialRampToValueAtTime(0.16, t0 + dt + 0.035);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dt + 0.9);
+    o.connect(lp).connect(g).connect(ctx.destination);
+    o.start(t0 + dt);
+    o.stop(t0 + dt + 0.95);
+  });
+  // short radio-static crackle over the top
+  const len = Math.floor(ctx.sampleRate * 0.22);
+  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+  const src = ctx.createBufferSource();
+  const hp = ctx.createBiquadFilter();
+  const ng = ctx.createGain();
+  hp.type = 'highpass'; hp.frequency.value = 1800;
+  ng.gain.value = 0.035;
+  src.buffer = buf;
+  src.connect(hp).connect(ng).connect(ctx.destination);
+  src.start(t0 + 0.04);
+}
 
 // ---------- PERK-A-COLA JINGLE (little 3-note vending chime) ----------
 function playPerkJingle() {
