@@ -163,7 +163,8 @@ const RPG = {
     abilities: [
       { name: 'The Protein Protocol', icon: '💪', anim: 'bounce', text: 'Daily ritual, executed without fail through 7th and 8th grade: walk from the middle school to my family\'s house, where Mom had banana-chocolate protein smoothies with peanut butter waiting, then deploy to the WAC for the workout of the day. Rain or shine, the protocol never broke.' },
       { name: 'Playground Tyrant',    icon: '🏀', anim: 'roll',   text: 'Spent two full years running an undefeated basketball dynasty at the WAC — playing the toughest, most aggressive bully-ball the playground has ever seen. No finesse, no jump shot: just lowering a shoulder and muscling his way to the hoop while elementary schoolers bounced off him. Was it fair? No. Was the win column immaculate? Absolutely.' },
-      { name: 'Balcony Bivouac',      icon: '🍻', anim: 'bounce', text: 'Nashville deployment. Drank non-stop from open to close, went toe-to-toe with Broadway itself — and at the end of the night was discovered passed out on the balcony of the 20-story, overlooking the very street that defeated him. Respawn point: set.' },
+      { name: 'Balcony Bivouac',      icon: '🍻', anim: 'bounce', text: 'Nashville deployment. Drank non-stop from open to close, went toe-to-toe with Broadway itself — and at the end of the night was discovered passed out on the balcony of the 20-story, overlooking the very street that defeated him. Respawn point: set.',
+        photo: '/static/showcase/wyatt/03.webp', photoCaption: 'Recovered surveillance still — 20 stories above Broadway, hours before the blackout.' },
       { name: 'Zoom Stealth Crawl',   icon: '🕵️', anim: 'pulse',  text: 'First trip to Tampa. Rather than wait out my work calls, the subject went full spec-ops — sneaking away and crawling across the floor, below webcam sightlines, to move through the apartment mid-Zoom. Not one meeting attendee ever knew he was there.' },
     ],
     campaigns: [
@@ -508,6 +509,7 @@ function renderCharacter(code, target) {
     node.addEventListener('focus', reveal);
     node.addEventListener('click', () => {
       reveal();
+      openPerkFile(a); // stylized "Classified File" modal (photo when on file)
       // "drink" the perk — flash + jingle, once per perk
       if (!node.classList.contains('drank')) {
         node.classList.add('drank');
@@ -548,6 +550,78 @@ function renderLoreSection(sectionId, listId, items) {
   section.style.display = '';
   list.innerHTML = items.map(t => `<li>${declassify(t)}</li>`).join('');
 }
+
+// ---------- CLASSIFIED FILE (perk dossier modal) ----------
+const perkFileEl = document.getElementById('perkFile');
+function openPerkFile(a) {
+  if (!perkFileEl) return;
+  document.getElementById('pfTitle').textContent = a.name;
+  document.getElementById('pfText').innerHTML = declassify(a.text);
+  const img = document.getElementById('pfPhoto');
+  const cap = document.getElementById('pfCaption');
+  if (a.photo) {
+    img.src = a.photo;
+    img.style.display = '';
+    cap.textContent = a.photoCaption || 'Recovered surveillance still.';
+    cap.style.display = '';
+  } else {
+    img.removeAttribute('src');
+    img.style.display = 'none';
+    cap.style.display = 'none';
+  }
+  perkFileEl.classList.add('open');
+  perkFileEl.setAttribute('aria-hidden', 'false');
+}
+function closePerkFile() {
+  if (!perkFileEl) return;
+  perkFileEl.classList.remove('open');
+  perkFileEl.setAttribute('aria-hidden', 'true');
+}
+const pfCloseBtn = document.getElementById('pfClose');
+if (pfCloseBtn) pfCloseBtn.addEventListener('click', closePerkFile);
+if (perkFileEl) perkFileEl.addEventListener('click', e => { if (e.target === perkFileEl) closePerkFile(); });
+window.addEventListener('keydown', e => { if (e.key === 'Escape') closePerkFile(); });
+
+// ---------- DECRYPTION PRE-LOADER (green terminal boot) ----------
+(function decryptBoot() {
+  const ov = document.getElementById('decryptLoader');
+  if (!ov) return;
+  const nameEl = document.getElementById('dlName');
+  const statusEl = document.getElementById('dlStatus');
+  let target = 'OPERATIVE';
+  try {
+    const c = new URLSearchParams(location.search).get('code');
+    if (c && ROSTER[c]) target = ROSTER[c].name.toUpperCase();
+  } catch (e) { /* fallback name */ }
+  const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&';
+  const finish = () => {
+    statusEl.textContent = 'ACCESS GRANTED';
+    setTimeout(() => {
+      ov.classList.add('done');
+      setTimeout(() => ov.remove(), 600);
+    }, 700);
+  };
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    nameEl.textContent = target;
+    finish();
+    return;
+  }
+  let locked = 0;
+  const tick = setInterval(() => {
+    let out = '';
+    for (let i = 0; i < target.length; i++) {
+      out += i < locked ? target[i]
+           : (target[i] === ' ' ? ' ' : CHARS[Math.floor(Math.random() * CHARS.length)]);
+    }
+    nameEl.textContent = out;
+    locked += 0.34; // ~3 scramble ticks per resolved character
+    if (locked >= target.length + 1) {
+      clearInterval(tick);
+      nameEl.textContent = target;
+      finish();
+    }
+  }, 34);
+})();
 
 // ---------- "The Numbers" — faint BO1 digit columns behind the dossier ----------
 (function spawnNumbers() {

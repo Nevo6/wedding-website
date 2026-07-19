@@ -11,10 +11,19 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Montserrat:wght@300;400;500;600&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="/static/groomsmen.css?v=20260718a">
+  <link rel="stylesheet" href="/static/groomsmen.css?v=20260719a">
 </head>
 
 <body>
+  <!-- Decryption pre-loader — green terminal boot before the dossier reveals -->
+  <div id="decryptLoader" aria-hidden="true">
+    <div class="dl-inner">
+      <div class="dl-line">DECRYPTING SUBJECT FILE<span class="dl-cursor">_</span></div>
+      <div class="dl-name" id="dlName"></div>
+      <div class="dl-status" id="dlStatus"></div>
+    </div>
+  </div>
+
   <div id="screen">
     <!-- "The Numbers" — faint BO1 digit columns behind the dossier (filled by JS) -->
     <div id="numbersRain" aria-hidden="true"></div>
@@ -22,7 +31,7 @@
     <!-- ========== BRIEFING ========== -->
     <section id="briefing" class="stage">
       <div class="briefing-header">
-        <span class="op">Operation: April 2027</span>
+        <span class="op glitchy">Operation: April 2027</span>
         <span class="cls">For Your Eyes Only</span>
       </div>
 
@@ -31,7 +40,7 @@
           <span class="stamp">Character Sheet</span>
 
           <div class="char-head">
-            <div class="char-name" id="charName">&mdash;</div>
+            <div class="char-name glitchy" id="charName">&mdash;</div>
             <div class="char-meta">
               <span class="char-class" id="charClass"></span>
               <span class="char-level">LV&nbsp;<b id="charLevel"></b></span>
@@ -39,7 +48,7 @@
           </div>
 
           <div class="origin">
-            <div class="origin-label">Subject Interrogation Report</div>
+            <div class="origin-label glitchy">Subject Interrogation Report</div>
             <p class="origin-text" id="originText"></p>
           </div>
 
@@ -262,6 +271,19 @@
     </div>
   </div>
 
+  <!-- ========== CLASSIFIED FILE (perk dossier modal) ========== -->
+  <div id="perkFile" class="pf-overlay" aria-hidden="true">
+    <div class="pf-panel">
+      <button id="pfClose" class="loadout-close" type="button" aria-label="Close classified file">&times;</button>
+      <div class="pf-stamp" aria-hidden="true">Classified</div>
+      <div class="pf-head" id="pfTitle"></div>
+      <div class="pf-sub">File Access &middot; Eyes Only</div>
+      <img class="pf-photo" id="pfPhoto" alt="Classified surveillance photo" style="display:none;">
+      <div class="pf-caption" id="pfCaption" style="display:none;"></div>
+      <p class="pf-text" id="pfText"></p>
+    </div>
+  </div>
+
   <!-- Background score (loops the whole time you're in the portal) -->
   <audio id="bg-music" src="/static/wedding-battle-stations.mp3" preload="auto" loop></audio>
 
@@ -314,7 +336,7 @@
     </div>
   </div>
 
-  <script src="/static/groomsmen.js?v=20260718a"></script>
+  <script src="/static/groomsmen.js?v=20260719a"></script>
 </body>
 
 </html>
