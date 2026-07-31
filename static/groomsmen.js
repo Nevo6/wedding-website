@@ -28,7 +28,7 @@ const ROSTER = {
 
 // On Accept we unlock the main wedding site with a real Tier-1 password so the
 // guest skips the gate AND can RSVP (backend re-validates this password).
-const BYPASS_PASSWORD = 'HyattRegency2027';
+const BYPASS_PASSWORD = 'Clearwater2027';
 
 let activeCode = null;
 let activeTarget = null;
