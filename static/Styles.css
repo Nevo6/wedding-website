@@ -4446,3 +4446,23 @@ h1, h2, h3, h4,
     margin-top: 3rem;
   }
 }
+
+/* Password gate: loading spinner while the backend verifies (handles cold-starts) */
+.password-submit.is-loading {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: wait;
+}
+.password-submit.is-loading:hover { transform: none; box-shadow: none; }
+.pw-spinner {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  border: 2.5px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: pw-spin 0.7s linear infinite;
+}
+@keyframes pw-spin { to { transform: rotate(360deg); } }

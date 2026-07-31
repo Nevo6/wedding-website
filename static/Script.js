@@ -148,8 +148,14 @@ passwordForm.addEventListener('submit', (e) => {
 
   const pw = passwordInput.value;
   const submitBtn = passwordForm.querySelector('.password-submit');
+  const submitOriginal = submitBtn ? submitBtn.innerHTML : '';
   passwordError.style.display = 'none';
-  if (submitBtn) submitBtn.disabled = true;
+  // Show a spinner while we verify — the backend can cold-start and take a few seconds.
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.classList.add('is-loading');
+    submitBtn.innerHTML = '<span class="pw-spinner" aria-hidden="true"></span>Verifying…';
+  }
 
   fetch(CONFIG.VERIFY_URL, {
     method: 'POST',
@@ -174,7 +180,13 @@ passwordForm.addEventListener('submit', (e) => {
         passwordError.style.display = 'block';
       }
     })
-    .finally(() => { if (submitBtn) submitBtn.disabled = false; });
+    .finally(() => {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('is-loading');
+        submitBtn.innerHTML = submitOriginal;
+      }
+    });
 });
 
 // Heart-confetti burst, then the sunset fades into the site.
